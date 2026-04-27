@@ -1,0 +1,28 @@
+# === Build/Deployment Archives ===
+*.zip
+Cloudflare web test/
+website-for-cloudflare*/
+
+# === Development Notes ===
+*.md
+!README.md
+!CLAUDE.md
+
+# === Backup Files ===
+*.backup
+nul
+
+# === Utility Scripts (local dev only) ===
+*.bat
+process-logo.py
+
+# === OS Artifacts ===
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# === Claude Code Config ===
+.claude/
+
+# === Node (if ever added) ===
+node_modules/

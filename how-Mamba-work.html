@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>How Mamba Works - Trading Strategy Guide | Mamba Management</title>
+    <meta name="description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies, setup process, and MT5 integration for automated trading.">
+    <meta name="keywords" content="Mamba trading strategy, V1 Growth, V2 Superscalping, MT5 setup, automated trading, breakeven strategy, trailing stop">
+    <meta name="author" content="Rahsia Bumi Enterprise">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.mambaapp.online/how-Mamba-work.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.mambaapp.online/how-Mamba-work.html">
+    <meta property="og:title" content="How Mamba Works - Trading Strategy Guide | Mamba">
+    <meta property="og:description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies for automated forex trading.">
+    <meta property="og:image" content="https://www.mambaapp.online/mamba-logo.png">
+    <meta property="og:site_name" content="Mamba Management App">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.mambaapp.online/how-Mamba-work.html">
+    <meta name="twitter:title" content="How Mamba Works - Trading Strategy Guide">
+    <meta name="twitter:description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies.">
+    <meta name="twitter:image" content="https://www.mambaapp.online/mamba-logo.png">
+
+    <!-- Favicon & Styles -->
+    <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Skip Navigation Link (Accessibility) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo loading-logo-img">
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">INITIALIZING NEURAL MATRIX...</p>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <div class="logo-left">
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
+                    </div>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <!-- Hero Section -->
+        <section class="hero" style="min-height: 60vh;">
+            <div class="container" style="text-align: center; padding: 3rem 1rem;">
+                <h1 class="hero-title">
+                    <span class="title-line">HOW MAMBA</span>
+                    <span class="title-line highlight">WORKS</span>
+                </h1>
+                <p class="hero-subtitle" style="max-width: 800px; margin: 0 auto;">
+                    Discover the revolutionary technology behind Mamba Management App.<br>
+                    From setup to execution, understand every step of the process.
+                </p>
+            </div>
+        </section>
+
+        <!-- Strategy Deep Dive Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-number">01</span>
+                        STRATEGY DEEP DIVE
+                    </h2>
+                    <div class="title-underline"></div>
+                </div>
+
+                <div class="features-clean">
+                    <!-- V1 Growth Strategy -->
+                    <div class="feature-block">
+                        <div class="feature-content">
+                            <h3>V1 Growth - Smart Breakeven System</h3>
+                            <p style="margin-bottom: 1.5rem;">Conservative strategy with 2:1 reward-to-risk ratio. When trade reaches 50% profit, Stop Loss auto-moves to breakeven—eliminating risk while keeping full upside.</p>
+
+                            <div style="background: var(--neural-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--cyan-primary); margin-bottom: 2rem;">
+                                <h5 style="color: var(--cyan-primary); font-size: 1.1rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; text-align: center;">V1 Trading Parameters Explained</h5>
+
+                                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                                    <div style="max-width: 300px; width: 100%; position: relative;">
+                                        <img src="How%20its%20work/v1-screenshot.webp" alt="V1 Growth Mode Interface" style="width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--cyan-primary); box-shadow: 0 10px 40px rgba(10, 132, 255, 0.3);">
+                                        <div style="position: absolute; top: -10px; right: -10px; background: var(--cyan-primary); color: #000; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">V1</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
+                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">🎯</span> Take Profit (TP)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Your profit target per trade. Typical: 30-100 pips. Example: TP 50 = +50 pips profit target.
+                                        </p>
+                                    </div>
+
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid #ff6b6b;">
+                                        <h6 style="color: #ff6b6b; font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">🛡️</span> Stop Loss (SL)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Maximum loss per trade. Use 2:1 ratio. Example: TP 50 pips = SL 25 pips.
+                                        </p>
+                                    </div>
+
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--cyan-primary);">
+                                        <h6 style="color: var(--cyan-primary); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">📊</span> Break Even (BE)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Auto-moves SL to entry when profit hits this level. Set to 50% of TP. Example: TP 50 = BE 25.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div style="background: rgba(10, 132, 255, 0.05); padding: 1.2rem; border-radius: 10px; margin-top: 1.5rem; border: 1px dashed var(--cyan-primary);">
+                                    <p style="color: var(--text-secondary); margin: 0; line-height: 1.7; font-size: 0.9rem; text-align: center;">
+                                        <strong style="color: var(--cyan-primary);">💡 Pro Tip:</strong> For optimal V1 Growth results, use TP: 50, SL: 25, BE: 25 on major pairs like EUR/USD during London session.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="mobile-preview">
+                            <div class="phone-frame">
+                                <div class="phone-screen" style="padding: 0; overflow: hidden;">
+                                    <video
+                                        muted
+                                        loop
+                                        playsinline
+                                        preload="auto"
+                                        class="feature-animation video-to-webp"
+                                        webkit-playsinline
+                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 25px;">
+                                        <source src="How%20its%20work/freecompress-IMG_1758.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- V2 Superscalping Strategy -->
+                    <div class="feature-block">
+                        <div class="mobile-preview">
+                            <div class="phone-frame">
+                                <div class="phone-screen" style="padding: 0; overflow: hidden;">
+                                    <video
+                                        muted
+                                        loop
+                                        playsinline
+                                        preload="auto"
+                                        class="feature-animation video-to-webp"
+                                        webkit-playsinline
+                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 25px;">
+                                        <source src="How%20its%20work/freecompress-IMG_1759.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feature-content">
+                            <h3>V2 Superscalping - Dynamic Trailing Stop</h3>
+                            <p style="margin-bottom: 1.5rem;">High-frequency strategy for active traders. Stop Loss trails price movement at fixed distance—locking profits while letting winners run. Ideal for trending markets.</p>
+
+                            <div style="background: var(--neural-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--plasma-purple); margin-bottom: 2rem;">
+                                <h5 style="color: var(--plasma-purple); font-size: 1.1rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; text-align: center;">V2 Superscalping Parameters Explained</h5>
+
+                                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                                    <div style="max-width: 300px; width: 100%; position: relative;">
+                                        <img src="How%20its%20work/v2-screenshot.webp" alt="V2 Superscalping Interface" style="width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--plasma-purple); box-shadow: 0 10px 40px rgba(94, 92, 230, 0.3);">
+                                        <div style="position: absolute; top: -10px; right: -10px; background: var(--plasma-purple); color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">V2</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
+                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">⚡</span> Take Profit (TP)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Quick profit target. Range: 10-30 pips. Lower values = more trades daily.
+                                        </p>
+                                    </div>
+
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid #ff6b6b;">
+                                        <h6 style="color: #ff6b6b; font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">🛡️</span> Stop Loss (SL)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Tight stop for scalping precision. Use 2:1 ratio. Example: TP 20 = SL 10.
+                                        </p>
+                                    </div>
+
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--plasma-purple);">
+                                        <h6 style="color: var(--plasma-purple); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">📊</span> Break Even (BE)
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Trigger after BE activates trailing stop. Set to 50% of TP. Example: TP 20 = BE 10.So your SL will trigger the movement toward the current price.
+                                        </p>
+                                    </div>
+
+                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
+                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">🎯</span> BE from Current Price
+                                        </h6>
+                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
+                                            Trailing distance—how many pips SL stays behind peak price. Lower = tighter protection. Higher = larger potential gains.The distance from current price from SL after BE triggered.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div style="background: rgba(94, 92, 230, 0.05); padding: 1.2rem; border-radius: 10px; margin-top: 1.5rem; border: 1px dashed var(--plasma-purple);">
+                                    <p style="color: var(--text-secondary); margin: 0; line-height: 1.7; font-size: 0.9rem; text-align: center;">
+                                        <strong style="color: var(--plasma-purple);">⚡ Pro Tip:</strong> For aggressive V2 Superscalping, try TP: 20, SL: 10, BE: 10, BE from Current: 8 on volatile pairs like GBP/JPY during NY session.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step by Step Process -->
+        <section class="innovation-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-number">02</span>
+                        SETUP PROCESS
+                    </h2>
+                    <div class="title-underline"></div>
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-card" data-step="01">
+                        <div class="step-card-inner">
+                            <div class="step-header">
+                                <div class="step-number">STEP 1</div>
+                                <div class="step-icon">🏦</div>
+                            </div>
+                            <h4>OPEN YOUR MT5 ACCOUNT</h4>
+                            <p>Start by creating a MetaTrader 5 account with our recommended broker, JustMarkets. The broker provides institutional-grade infrastructure with low spreads and fast execution.</p>
+                            <ul class="step-features">
+                                <li>✓ Register with JustMarkets broker</li>
+                                <li>✓ Complete KYC verification</li>
+                                <li>✓ Fund your trading account</li>
+                                <li>✓ Download MT5 terminal</li>
+                            </ul>
+                            <a href="https://one.justmarkets.link/a/worce0ne7q" target="_blank" rel="noopener noreferrer" class="cta-primary" style="display: inline-block; text-decoration: none; margin-top: 1.5rem;">
+                                <span>OPEN JUSTMARKETS ACCOUNT</span>
+                                <div class="btn-scan"></div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="step-card" data-step="02">
+                        <div class="step-card-inner">
+                            <div class="step-header">
+                                <div class="step-number">STEP 2</div>
+                                <div class="step-icon">📲</div>
+                            </div>
+                            <h4>DOWNLOAD MAMBA MOBILE APP</h4>
+                            <p>Install the Mamba Trading App from Google Play Store or Apple App Store. The app provides the remote control interface for your entry management.</p>
+                            <ul class="step-features">
+                                <li>✓ Available on iOS & Android</li>
+                                <li>✓ Secure biometric login</li>
+                                <li>✓ Real-time notifications</li>
+                                <li>✓ Offline mode support</li>
+                            </ul>
+                            <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                <a href="javascript:void(0)" onclick="showComingSoon(event)" class="cta-primary" style="display: inline-block; text-decoration: none; flex: 1; min-width: 200px;">
+                                    <span>DOWNLOAD ON APP STORE</span>
+                                    <div class="btn-scan"></div>
+                                </a>
+                                <a href="https://play.google.com/store/apps/details?id=com.mambamanagement.app&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" class="cta-primary" style="display: inline-block; text-decoration: none; flex: 1; min-width: 200px;">
+                                    <span>DOWNLOAD ON GOOGLE PLAY</span>
+                                    <div class="btn-scan"></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card" data-step="03">
+                        <div class="step-card-inner">
+                            <div class="step-header">
+                                <div class="step-number">STEP 3</div>
+                                <div class="step-icon">🔐</div>
+                            </div>
+                            <h4>AUTHENTICATE & LINK ACCOUNT</h4>
+                            <p>Open the mobile app and enter your MT5 account credentials. Mamba will establish a secure connection between your phone and the EA running on your terminal.</p>
+                            <ul class="step-features">
+                                <li>✓ Enter MT5 login & server</li>
+                                <li>✓ Verify connection status</li>
+                                <li>✓ Enable auto-sync</li>
+                                <li>✓ Multi-account support</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step-card" data-step="04">
+                        <div class="step-card-inner">
+                            <div class="step-header">
+                                <div class="step-number">STEP 4</div>
+                                <div class="step-icon">⚡</div>
+                            </div>
+                            <h4>CONFIGURE TRADING STRATEGY</h4>
+                            <p>Choose your trading mode (Growth or Superscalping) and set your risk parameters. All settings are applied instantly to the EA without restarting.</p>
+                            <ul class="step-features">
+                                <li>✓ Select V1 Growth or V2 Superscalping</li>
+                                <li>✓ Set Take Profit levels</li>
+                                <li>✓ Configure Stop Loss</li>
+                                <li>✓ Enable Break Even mode</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step-card" data-step="05">
+                        <div class="step-card-inner">
+                            <div class="step-header">
+                                <div class="step-number">STEP 5</div>
+                                <div class="step-icon">🚀</div>
+                            </div>
+                            <h4>START TRADING</h4>
+                            <p>Activate the EA from your mobile app and let Mamba manage your trades. Monitor performance, adjust settings, and control everything from your smartphone.</p>
+                            <ul class="step-features">
+                                <li>✓ One-tap EA activation</li>
+                                <li>✓ Live P&L tracking</li>
+                                <li>✓ Start trading on the MT5 app</li>
+                                <li>✓ Remote parameter adjustment</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="access-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-number">03</span>
+                        READY TO START?
+                    </h2>
+                    <div class="title-underline"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 4rem;">
+                    <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                        Join thousands of traders who have revolutionized their trading with Mamba. Get started today and experience the future of mobile algorithmic trading.
+                    </p>
+                    <div class="hero-actions" style="justify-content: center;">
+                        <a href="index.html#access" class="cta-primary" style="text-decoration: none; display: inline-block;">
+                            <span>GET STARTED NOW</span>
+                            <div class="btn-scan"></div>
+                        </a>
+                        <a href="index.html" class="cta-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 1rem;">
+                            <span>BACK TO HOME</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-cube small">
+                            <div class="cube-face front"></div>
+                            <div class="cube-face back"></div>
+                            <div class="cube-face right"></div>
+                            <div class="cube-face left"></div>
+                            <div class="cube-face top"></div>
+                            <div class="cube-face bottom"></div>
+                        </div>
+                        <h3>MAMBA MANAGEMENT</h3>
+                    </div>
+                    <p>The future of algorithmic trading is here.<br>Rahsia Bumi Enterprise © 2024</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>PLATFORM</h4>
+                    <a href="index.html#features">Features</a>
+                    <a href="index.html#innovation">Innovation</a>
+                    <a href="how-Mamba-work.html">How It Works</a>
+                    <a href="index.html#access">Access</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>RESOURCES</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Reference</a>
+                    <a href="#">Support Center</a>
+                    <a href="#">Community</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>LEGAL</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Risk Disclosure</a>
+                    <a href="#">Compliance</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-line"></div>
+                <p>⚠️ RISK DISCLOSURE: Trading foreign exchange, commodities, and derivatives carries a high level of risk and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Before deciding to trade, you should carefully consider your investment objectives, level of experience, and risk appetite. There is a possibility that you may sustain a loss of some or all of your initial investment. You should not invest money that you cannot afford to lose. Past performance is not indicative of future results. The information provided by this application is for educational purposes only and should not be considered as financial advice.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
