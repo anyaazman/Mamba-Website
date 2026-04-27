@@ -1250,7 +1250,7 @@ function initMobileVideoFix() {
 
             // Create fallback image if poster doesn't show
             const fallbackImg = document.createElement('img');
-            fallbackImg.src = 'web files/2/iphone-spin-up (1).webp';
+            fallbackImg.src = 'web-files/2/iphone-spin-up-1.webp';
             fallbackImg.alt = 'Mamba Trading App';
             fallbackImg.className = 'hero-animation';
             fallbackImg.style.cssText = 'width: 100%; max-width: 600px; height: auto; border-radius: 20px; display: block;';
