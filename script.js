@@ -1286,3 +1286,42 @@ function initMobileVideoFix() {
         }
     });
 }
+
+// ==== FLOATING TELEGRAM BUTTON ====
+(function() {
+    const fab = document.getElementById('telegramFab');
+    const menu = document.getElementById('telegramMenu');
+
+    if (!fab || !menu) return;
+
+    // Pop in after page loads, auto-open menu, then close
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            fab.classList.add('pop-in');
+
+            // Auto-open menu after pop-in finishes
+            setTimeout(() => {
+                fab.classList.add('active');
+                menu.classList.add('open');
+
+                // Auto-close menu after 3 seconds
+                setTimeout(() => {
+                    fab.classList.remove('active');
+                    menu.classList.remove('open');
+                }, 3000);
+            }, 600);
+        }, 800);
+    });
+
+    fab.addEventListener('click', () => {
+        fab.classList.toggle('active');
+        menu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.floating-telegram')) {
+            fab.classList.remove('active');
+            menu.classList.remove('open');
+        }
+    });
+})();
