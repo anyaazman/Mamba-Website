@@ -35,6 +35,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({ success: true, message: 'Password has been reset. Please log in with your new password.' });
   } catch (e) {
+    console.error('Reset password error:', e.message, e.stack);
     return json({ error: 'Password reset failed. Please try again.' }, 500);
   }
 }

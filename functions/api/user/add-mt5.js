@@ -28,6 +28,7 @@ export async function onRequestPost({ request, env }) {
       account: { id: result.meta.last_row_id, account_number: account_number.trim(), status: 'pending' }
     }, 201);
   } catch (e) {
+    console.error('Add MT5 error:', e.message, e.stack);
     return json({ error: 'Failed to add account. Please try again.' }, 500);
   }
 }

@@ -18,6 +18,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({ success: true, message: `MT5 account ${status}.` });
   } catch (e) {
+    console.error('Admin whitelist error:', e.message, e.stack);
     return json({ error: 'Action failed. Please try again.' }, 500);
   }
 }

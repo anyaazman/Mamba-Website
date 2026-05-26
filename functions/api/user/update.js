@@ -17,6 +17,7 @@ export async function onRequestPut({ request, env }) {
 
     return json({ success: true, message: 'Profile updated.' });
   } catch (e) {
+    console.error('Update user error:', e.message, e.stack);
     return json({ error: 'Update failed. Please try again.' }, 500);
   }
 }

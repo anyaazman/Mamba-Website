@@ -36,6 +36,7 @@ export async function onRequestPost({ request, env }) {
       user: { id: userId, name, email, ib_status: 'pending', mt5_accounts: [] }
     }, 201);
   } catch (e) {
+    console.error('Register error:', e.message, e.stack);
     return json({ error: 'Registration failed. Please try again.' }, 500);
   }
 }

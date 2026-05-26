@@ -18,6 +18,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({ success: true, message: `IB verification ${status}.` });
   } catch (e) {
+    console.error('Admin IB error:', e.message, e.stack);
     return json({ error: 'Action failed. Please try again.' }, 500);
   }
 }

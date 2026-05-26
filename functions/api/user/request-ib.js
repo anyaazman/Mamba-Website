@@ -21,6 +21,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({ success: true, message: 'IB verification request submitted.' });
   } catch (e) {
+    console.error('Request IB error:', e.message, e.stack);
     return json({ error: 'Request failed. Please try again.' }, 500);
   }
 }
