@@ -136,6 +136,7 @@
       html += user.ib_status !== 'approved' ? '<button class="btn-approve" data-user-id="' + user.id + '" data-type="ib">Approve IB</button>' : '';
       html += user.ib_status !== 'rejected' ? '<button class="btn-reject" data-user-id="' + user.id + '" data-type="ib">Reject IB</button>' : '';
       html += '<button class="btn-reset-pw" data-user-id="' + user.id + '" data-name="' + escAttr(user.name) + '">Reset PW</button>';
+      html += '<button class="btn-delete" data-user-id="' + user.id + '" data-name="' + escAttr(user.name) + '">Delete</button>';
       html += '</div>';
       html += '</div>';
 
@@ -211,6 +212,28 @@
       });
     });
   }
+
+  // Delete user
+  document.querySelectorAll('.btn-delete').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var userId = btn.getAttribute('data-user-id');
+      var userName = btn.getAttribute('data-name');
+      if (!confirm('Are you sure you want to delete ' + userName + '? This cannot be undone.')) return;
+      fetch(API_BASE + '/admin/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify({ user_id: parseInt(userId) })
+      }).then(function(res) { return res.json(); })
+      .then(function(data) {
+        showToast(data.success ? 'User deleted.' : (data.error || 'Delete failed.'), data.success ? 'success' : 'error');
+        if (data.success) {
+          var activeTab = document.querySelector('.filter-tab.active');
+          loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
+        }
+      });
+    });
+  });
+}
 
   function updateWhitelistStatus(accountId, status) {
     fetch(API_BASE + '/admin/whitelist', {

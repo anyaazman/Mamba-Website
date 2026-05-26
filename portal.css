@@ -644,6 +644,24 @@
   background: rgba(255, 214, 10, 0.25);
 }
 
+.btn-delete {
+  padding: 0.35rem 0.7rem;
+  background: rgba(255, 69, 58, 0.1);
+  border: 1px solid #FF453A;
+  border-radius: 4px;
+  color: #FF453A;
+  font-family: var(--font-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+  background: rgba(255, 69, 58, 0.25);
+}
+
 /* --- MT5 Account Rows (Dashboard) --- */
 .mt5-account-row {
   display: flex;
