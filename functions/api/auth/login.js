@@ -38,6 +38,7 @@ export async function onRequestPost({ request, env }) {
       }
     });
   } catch (e) {
-    return json({ error: 'Login failed. Please try again.' }, 500);
+    console.error('Login error:', e.message, e.stack);
+    return json({ error: 'Login failed: ' + e.message }, 500);
   }
 }
