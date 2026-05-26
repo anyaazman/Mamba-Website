@@ -42,6 +42,20 @@
         return k === 'demo-admin';
       }
 
+      function addDemoEvent(type, userId, meta) {
+        if (!db.events) db.events = [];
+        db.events.push({
+          id: Date.now(),
+          type: type,
+          page: '',
+          referrer: '',
+          title: '',
+          user_id: userId || null,
+          metadata: meta ? JSON.stringify(meta) : '{}',
+          created_at: new Date().toISOString()
+        });
+      }
+
       try {
         // --- AUTH ---
         if (method === 'POST' && urlStr.includes('/api/auth/register')) {
@@ -52,6 +66,7 @@
             db.users.push(nu);
             var tok = 'demo-token-' + Date.now();
             db.tokens.push({ user_id: nu.id, token: tok, expires_at: new Date(Date.now() + 7*86400000).toISOString() });
+            addDemoEvent('register', nu.id);
             saveDb(db);
             json = { token: tok, user: { id: nu.id, name: nu.name, email: nu.email, ib_status: 'pending', mt5_accounts: [] } }; status = 201;
           }
@@ -62,6 +77,7 @@
           else {
             var tok2 = 'demo-token-' + Date.now();
             db.tokens.push({ user_id: u.id, token: tok2, expires_at: new Date(Date.now() + 7*86400000).toISOString() });
+            addDemoEvent('login', u.id);
             saveDb(db);
             json = { token: tok2, user: cloneUser(u) };
           }
@@ -79,7 +95,7 @@
         else if (method === 'POST' && urlStr.includes('/api/auth/reset-password')) {
           var ru = db.users.find(function(u) { return u.email === body.email && u.recovery_phrase === body.recovery_phrase; });
           if (!ru) { json = { error: 'Invalid email or recovery phrase.' }; status = 401; }
-          else { ru.password = body.new_password; db.tokens = db.tokens.filter(function(t) { return t.user_id !== ru.id; }); saveDb(db); json = { success: true, message: 'Password has been reset.' }; }
+          else { ru.password = body.new_password; db.tokens = db.tokens.filter(function(t) { return t.user_id !== ru.id; }); addDemoEvent('password_reset', ru.id); saveDb(db); json = { success: true, message: 'Password has been reset.' }; }
         }
 
         // --- USER ---
@@ -103,7 +119,7 @@
             json = { error: 'This MT5 account is already added.' }; status = 409;
           } else {
             var na = { id: Date.now(), user_id: au4.id, account_number: body.account_number, status: 'pending', created_at: new Date().toISOString() };
-            db.mt5_accounts.push(na); saveDb(db);
+            db.mt5_accounts.push(na); addDemoEvent('mt5_added', au4.id, { account_number: body.account_number }); saveDb(db);
             json = { success: true, account: { id: na.id, account_number: na.account_number, status: 'pending' } }; status = 201;
           }
         }
@@ -114,14 +130,14 @@
             var acc = db.mt5_accounts.find(function(a) { return a.id === body.account_id && a.user_id === au5.id; });
             if (!acc) { json = { error: 'MT5 account not found.' }; status = 404; }
             else if (acc.status === 'approved') { json = { error: 'Already approved.' }; status = 400; }
-            else { acc.status = 'pending'; saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
+            else { acc.status = 'pending'; addDemoEvent('whitelist_request', au5.id, { account_id: body.account_id }); saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/user/request-ib')) {
           var au6 = getAuthUser();
           if (!au6) { json = { error: 'Not authenticated.' }; status = 401; }
           else if (!body.ib_email || !body.ib_email.trim()) { json = { error: 'Valetax email is required.' }; status = 400; }
-          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
+          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
         }
 
         // --- ADMIN ---
