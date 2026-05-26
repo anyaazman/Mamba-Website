@@ -136,6 +136,28 @@
   box-shadow: 0 0 50px rgba(0, 180, 216, 0.8);
 }
 
+.auth-form .submit-btn.btn-loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.auth-form .submit-btn.btn-loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid transparent;
+  border-top-color: var(--neural-black);
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* --- Form Error --- */
 .form-error {
   background: rgba(255, 59, 48, 0.1);

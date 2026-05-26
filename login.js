@@ -17,6 +17,23 @@
     setTimeout(function() { el.style.display = 'none'; }, 6000);
   }
 
+  function setLoading(form, loading) {
+    var btn = form.querySelector('button[type="submit"]');
+    var inputs = form.querySelectorAll('input');
+    if (loading) {
+      btn.disabled = true;
+      btn.setAttribute('data-original-text', btn.textContent);
+      btn.textContent = btn.textContent === 'Sign In' ? 'Signing In...' : 'Creating Account...';
+      btn.classList.add('btn-loading');
+      inputs.forEach(function(i) { i.disabled = true; });
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.getAttribute('data-original-text') || btn.textContent;
+      btn.classList.remove('btn-loading');
+      inputs.forEach(function(i) { i.disabled = false; });
+    }
+  }
+
   function setupTabs() {
     var tabs = document.querySelectorAll('.auth-tab');
     var loginForm = document.querySelector('.login-form');
@@ -45,6 +62,8 @@
         return;
       }
 
+      setLoading(form, true);
+
       fetch(API_BASE + '/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,6 +73,7 @@
       .then(function(result) {
         if (!result.ok) {
           showError(form, result.data.error || 'Login failed.');
+          setLoading(form, false);
           return;
         }
         localStorage.setItem('mamba_token', result.data.token);
@@ -62,6 +82,7 @@
       })
       .catch(function() {
         showError(form, 'Network error. Please try again.');
+        setLoading(form, false);
       });
     });
   }
@@ -89,6 +110,8 @@
         return;
       }
 
+      setLoading(form, true);
+
       fetch(API_BASE + '/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,6 +121,7 @@
       .then(function(result) {
         if (!result.ok) {
           showError(form, result.data.error || 'Registration failed.');
+          setLoading(form, false);
           return;
         }
         localStorage.setItem('mamba_token', result.data.token);
@@ -106,6 +130,7 @@
       })
       .catch(function() {
         showError(form, 'Network error. Please try again.');
+        setLoading(form, false);
       });
     });
   }
