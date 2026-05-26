@@ -19,7 +19,7 @@ export async function onRequestPost({ request, env }) {
       "UPDATE users SET ib_status = 'pending', ib_email = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(ib_email.trim(), user.id).run();
 
-    recordEvent(env, 'ib_request', { user_id: user.id });
+    await recordEvent(env, 'ib_request', { user_id: user.id });
 
     return json({ success: true, message: 'IB verification request submitted.' });
   } catch (e) {

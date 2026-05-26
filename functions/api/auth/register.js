@@ -31,7 +31,7 @@ export async function onRequestPost({ request, env }) {
       'INSERT INTO tokens (user_id, token, expires_at) VALUES (?, ?, datetime("now", "+7 days"))'
     ).bind(userId, token).run();
 
-    recordEvent(env, 'register', { user_id: userId });
+    await recordEvent(env, 'register', { user_id: userId });
 
     return json({
       token,

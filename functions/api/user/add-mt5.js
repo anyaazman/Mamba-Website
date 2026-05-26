@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
       'INSERT INTO mt5_accounts (user_id, account_number) VALUES (?, ?)'
     ).bind(user.id, account_number.trim()).run();
 
-    recordEvent(env, 'mt5_added', { user_id: user.id, metadata: { account_number: account_number.trim() } });
+    await recordEvent(env, 'mt5_added', { user_id: user.id, metadata: { account_number: account_number.trim() } });
 
     return json({
       success: true,

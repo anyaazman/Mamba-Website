@@ -27,7 +27,7 @@ export async function onRequestPost({ request, env }) {
       "UPDATE mt5_accounts SET status = 'pending' WHERE id = ?"
     ).bind(account_id).run();
 
-    recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
+    await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
 
     return json({ success: true, message: 'Whitelist request submitted.' });
   } catch (e) {
