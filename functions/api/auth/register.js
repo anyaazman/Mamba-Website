@@ -1,4 +1,4 @@
-import { hashSecret, json } from '../_helpers.js';
+import { hashSecret, json, recordEvent } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -30,6 +30,8 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare(
       'INSERT INTO tokens (user_id, token, expires_at) VALUES (?, ?, datetime("now", "+7 days"))'
     ).bind(userId, token).run();
+
+    recordEvent(env, 'register', { user_id: userId });
 
     return json({
       token,

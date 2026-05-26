@@ -1,4 +1,4 @@
-import { authenticateUser, json } from '../_helpers.js';
+import { authenticateUser, json, recordEvent } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   const user = await authenticateUser(request, env);
@@ -18,6 +18,8 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare(
       "UPDATE users SET ib_status = 'pending', ib_email = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(ib_email.trim(), user.id).run();
+
+    recordEvent(env, 'ib_request', { user_id: user.id });
 
     return json({ success: true, message: 'IB verification request submitted.' });
   } catch (e) {

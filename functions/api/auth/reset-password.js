@@ -1,4 +1,4 @@
-import { hashSecret, verifySecret, json } from '../_helpers.js';
+import { hashSecret, verifySecret, json, recordEvent } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -32,6 +32,8 @@ export async function onRequestPost({ request, env }) {
 
     // Invalidate all existing tokens for this user (force re-login)
     await env.DB.prepare('DELETE FROM tokens WHERE user_id = ?').bind(user.id).run();
+
+    recordEvent(env, 'password_reset', { user_id: user.id });
 
     return json({ success: true, message: 'Password has been reset. Please log in with your new password.' });
   } catch (e) {

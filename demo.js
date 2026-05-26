@@ -7,8 +7,8 @@
   var DEMO_DB_KEY = 'mamba_demo_v2';
 
   function getDb() {
-    try { return JSON.parse(localStorage.getItem(DEMO_DB_KEY)) || { users: [], mt5_accounts: [], tokens: [] }; }
-    catch(e) { return { users: [], mt5_accounts: [], tokens: [] }; }
+    try { return JSON.parse(localStorage.getItem(DEMO_DB_KEY)) || { users: [], mt5_accounts: [], tokens: [], events: [] }; }
+    catch(e) { return { users: [], mt5_accounts: [], tokens: [], events: [] }; }
   }
   function saveDb(db) { localStorage.setItem(DEMO_DB_KEY, JSON.stringify(db)); }
 
@@ -162,6 +162,54 @@
             var u3 = db.users.find(function(u) { return u.id === body.user_id; });
             if (u3) { u3.password = body.new_password; db.tokens = db.tokens.filter(function(t) { return t.user_id !== u3.id; }); saveDb(db); }
             json = { success: true, message: 'User password has been reset.' };
+          }
+        }
+
+        // --- EVENTS ---
+        else if (method === 'POST' && urlStr.includes('/api/events')) {
+          var userId = null;
+          var authH = headers['Authorization'] || headers['authorization'] || '';
+          if (authH.startsWith('Bearer ')) {
+            var tok = authH.slice(7);
+            var tokRow = db.tokens.find(function(t) { return t.token === tok; });
+            if (tokRow) userId = tokRow.user_id;
+          }
+          if (!db.events) db.events = [];
+          db.events.push({
+            id: Date.now(),
+            type: body.type,
+            page: body.page || '',
+            referrer: body.referrer || '',
+            title: body.title || '',
+            user_id: userId,
+            metadata: body.metadata ? JSON.stringify(body.metadata) : '{}',
+            created_at: new Date().toISOString()
+          });
+          saveDb(db);
+          json = { success: true }; status = 201;
+        }
+        else if (method === 'GET' && urlStr.includes('/api/admin/events')) {
+          if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
+          else {
+            var urlObj = new URL(urlStr, 'http://localhost');
+            var typeP = urlObj.searchParams.get('type');
+            var fromP = urlObj.searchParams.get('from');
+            var toP = urlObj.searchParams.get('to');
+            var evts = (db.events || []).slice();
+            if (typeP) { evts = evts.filter(function(e) { return e.type === typeP; }); }
+            if (fromP) { evts = evts.filter(function(e) { return new Date(e.created_at) >= new Date(fromP); }); }
+            if (toP) { evts = evts.filter(function(e) { return new Date(e.created_at) <= new Date(toP); }); }
+            evts.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
+            evts = evts.slice(0, 200);
+            evts = evts.map(function(e) {
+              var u = db.users.find(function(u) { return u.id === e.user_id; });
+              var result = {};
+              for (var k in e) result[k] = e[k];
+              result.user_name = u ? u.name : null;
+              result.user_email = u ? u.email : null;
+              return result;
+            });
+            json = { events: evts };
           }
         }
         else { json = { error: 'Demo: unknown route' }; status = 404; }

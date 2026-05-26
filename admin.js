@@ -65,9 +65,9 @@
   }
 
   function setupFilterTabs() {
-    document.querySelectorAll('.filter-tab').forEach(function(tab) {
+    document.querySelectorAll('#userFilterTabs .filter-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
-        document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('#userFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
         loadUsers(tab.getAttribute('data-status') || '');
       });
@@ -226,7 +226,7 @@
         .then(function(data) {
           showToast(data.success ? 'User deleted.' : (data.error || 'Delete failed.'), data.success ? 'success' : 'error');
           if (data.success) {
-            var activeTab = document.querySelector('.filter-tab.active');
+            var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
             loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
           }
         });
@@ -243,7 +243,7 @@
     .then(function(data) {
       showToast(data.success ? 'MT5 account ' + status + '.' : (data.error || 'Action failed.'), data.success ? 'success' : 'error');
       if (data.success) {
-        var activeTab = document.querySelector('.filter-tab.active');
+        var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
         loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
       }
     });
@@ -258,7 +258,7 @@
     .then(function(data) {
       showToast(data.success ? 'IB ' + status + '.' : (data.error || 'Action failed.'), data.success ? 'success' : 'error');
       if (data.success) {
-        var activeTab = document.querySelector('.filter-tab.active');
+        var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
         loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
       }
     });
@@ -290,11 +290,160 @@
     });
   }
 
+  // --- Events View ---
+  var currentEventType = '';
+  var currentDateRange = '';
+
+  function setupViewTabs() {
+    document.querySelectorAll('#viewTabs .filter-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('#viewTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        var view = tab.getAttribute('data-view');
+        if (view === 'users') {
+          document.getElementById('usersView').style.display = 'block';
+          document.getElementById('eventsView').style.display = 'none';
+        } else {
+          document.getElementById('usersView').style.display = 'none';
+          document.getElementById('eventsView').style.display = 'block';
+          loadEvents();
+        }
+      });
+    });
+  }
+
+  function setupDateFilterTabs() {
+    document.querySelectorAll('#dateFilterTabs .filter-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('#dateFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        currentDateRange = tab.getAttribute('data-range') || '';
+
+        var customDiv = document.getElementById('customDateRange');
+        if (currentDateRange === 'custom') {
+          customDiv.style.display = 'flex';
+          return; // wait for user to click Apply
+        } else {
+          customDiv.style.display = 'none';
+        }
+        applyEventFilters();
+      });
+    });
+
+    document.getElementById('customDateApply').addEventListener('click', function() {
+      applyEventFilters();
+    });
+  }
+
+  function setupEventFilterTabs() {
+    document.querySelectorAll('#eventFilterTabs .filter-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('#eventFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        currentEventType = tab.getAttribute('data-type') || '';
+        applyEventFilters();
+      });
+    });
+  }
+
+  function getDateRangeParams() {
+    if (!currentDateRange) return { from: null, to: null };
+
+    var now = new Date();
+    var from, to;
+
+    if (currentDateRange === 'today') {
+      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
+      to = now.toISOString();
+    } else if (currentDateRange === 'yesterday') {
+      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 0, 0, 0)).toISOString();
+      to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 23, 59, 59, 999)).toISOString();
+    } else if (currentDateRange === '7d') {
+      var d = new Date(now);
+      d.setUTCDate(d.getUTCDate() - 7);
+      d.setUTCHours(0, 0, 0, 0);
+      from = d.toISOString();
+      to = now.toISOString();
+    } else if (currentDateRange === 'month') {
+      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+      to = now.toISOString();
+    } else if (currentDateRange === 'custom') {
+      var fromVal = document.getElementById('customDateFrom').value;
+      var toVal = document.getElementById('customDateTo').value;
+      if (fromVal) from = new Date(fromVal + 'T00:00:00.000Z').toISOString();
+      if (toVal) to = new Date(toVal + 'T23:59:59.999Z').toISOString();
+    }
+
+    return { from: from || null, to: to || null };
+  }
+
+  function applyEventFilters() {
+    var dateParams = getDateRangeParams();
+    loadEvents(currentEventType, dateParams.from, dateParams.to);
+  }
+
+  function loadEvents(typeFilter, fromDate, toDate) {
+    var container = document.getElementById('eventsContainer');
+    container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading events...</p>';
+
+    var url = API_BASE + '/admin/events?limit=200';
+    if (typeFilter) url += '&type=' + typeFilter;
+    if (fromDate) url += '&from=' + encodeURIComponent(fromDate);
+    if (toDate) url += '&to=' + encodeURIComponent(toDate);
+
+    fetch(url, { headers: { 'X-Admin-Key': adminKey } })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        renderEvents(data.events);
+      })
+      .catch(function() {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events.</p>';
+      });
+  }
+
+  function renderEvents(events) {
+    var container = document.getElementById('eventsContainer');
+
+    if (!events || events.length === 0) {
+      container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No events found.</p>';
+      return;
+    }
+
+    var html = '<div class="user-card" style="overflow-x: auto;">';
+    html += '<table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">';
+    html += '<thead><tr style="border-bottom: 1px solid var(--border-color);">';
+    html += '<th style="padding: 0.6rem; text-align: left;">Time</th>';
+    html += '<th style="padding: 0.6rem; text-align: left;">Type</th>';
+    html += '<th style="padding: 0.6rem; text-align: left;">Page</th>';
+    html += '<th style="padding: 0.6rem; text-align: left;">User</th>';
+    html += '<th style="padding: 0.6rem; text-align: left;">Referrer</th>';
+    html += '</tr></thead><tbody>';
+
+    events.forEach(function(evt) {
+      var time = new Date(evt.created_at + 'Z').toLocaleString();
+      var userDisplay = evt.user_name ? esc(evt.user_name) : (evt.user_id ? 'User #' + evt.user_id : '<em style="color: var(--text-muted);">anonymous</em>');
+
+      html += '<tr style="border-bottom: 1px solid var(--border-color);">';
+      html += '<td style="padding: 0.5rem 0.6rem; white-space: nowrap;">' + esc(time) + '</td>';
+      html += '<td style="padding: 0.5rem 0.6rem;"><span class="status-badge" style="font-size: 0.65rem;">' + esc(evt.type.replace(/_/g, ' ').toUpperCase()) + '</span></td>';
+      html += '<td style="padding: 0.5rem 0.6rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + escAttr(evt.page) + '">' + esc(evt.page || '-') + '</td>';
+      html += '<td style="padding: 0.5rem 0.6rem; white-space: nowrap;">' + userDisplay + '</td>';
+      html += '<td style="padding: 0.5rem 0.6rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + escAttr(evt.referrer || '') + '">' + esc((evt.referrer || '-')) + '</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     setupKeyForm();
     setupFilterTabs();
     setupSearch();
     setupLogout();
+    setupViewTabs();
+    setupDateFilterTabs();
+    setupEventFilterTabs();
 
     if (adminKey) {
       verifyKey(adminKey).then(function(valid) {

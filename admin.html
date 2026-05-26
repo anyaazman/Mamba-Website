@@ -65,23 +65,60 @@
                 </div>
 
                 <div class="admin-panel" id="adminPanel">
-                    <div class="admin-search-wrap">
-                        <input type="text" id="adminSearch" class="admin-search-input" placeholder="Search by name, email, or MT5 account...">
+                    <!-- View Switcher -->
+                    <div class="filter-tabs" id="viewTabs">
+                        <button class="filter-tab active" data-view="users">Users</button>
+                        <button class="filter-tab" data-view="events">Events</button>
                     </div>
 
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" data-status="">All</button>
-                        <button class="filter-tab" data-status="pending">Pending</button>
-                        <button class="filter-tab" data-status="approved">Approved</button>
-                        <button class="filter-tab" data-status="rejected">Rejected</button>
+                    <!-- Users View -->
+                    <div id="usersView">
+                        <div class="admin-search-wrap">
+                            <input type="text" id="adminSearch" class="admin-search-input" placeholder="Search by name, email, or MT5 account...">
+                        </div>
+                        <div class="filter-tabs" id="userFilterTabs">
+                            <button class="filter-tab active" data-status="">All</button>
+                            <button class="filter-tab" data-status="pending">Pending</button>
+                            <button class="filter-tab" data-status="approved">Approved</button>
+                            <button class="filter-tab" data-status="rejected">Rejected</button>
+                        </div>
+                        <div id="usersContainer"></div>
                     </div>
 
-                    <div id="usersContainer"></div>
+                    <!-- Events View (hidden by default) -->
+                    <div id="eventsView" style="display: none;">
+                        <div class="filter-tabs" id="dateFilterTabs">
+                            <button class="filter-tab active" data-range="">All Time</button>
+                            <button class="filter-tab" data-range="today">Today</button>
+                            <button class="filter-tab" data-range="yesterday">Yesterday</button>
+                            <button class="filter-tab" data-range="7d">Past 7 Days</button>
+                            <button class="filter-tab" data-range="month">This Month</button>
+                            <button class="filter-tab" data-range="custom">Custom</button>
+                        </div>
+                        <div id="customDateRange" style="display: none; margin-bottom: 1rem; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                            <input type="date" id="customDateFrom" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
+                            <span style="color: var(--text-muted);">to</span>
+                            <input type="date" id="customDateTo" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
+                            <button id="customDateApply" class="submit-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Apply</button>
+                        </div>
+                        <div class="filter-tabs" id="eventFilterTabs">
+                            <button class="filter-tab active" data-type="">All Events</button>
+                            <button class="filter-tab" data-type="pageview">Pageviews</button>
+                            <button class="filter-tab" data-type="register">Registrations</button>
+                            <button class="filter-tab" data-type="login">Logins</button>
+                            <button class="filter-tab" data-type="ib_request">IB Requests</button>
+                            <button class="filter-tab" data-type="mt5_added">MT5 Added</button>
+                            <button class="filter-tab" data-type="whitelist_request">Whitelists</button>
+                            <button class="filter-tab" data-type="password_reset">Password Resets</button>
+                        </div>
+                        <div id="eventsContainer"></div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
+    <script src="tracking.js?v=1"></script>
     <script src="demo.js?v=2"></script>
     <script src="admin.js?v=2"></script>
 </body>

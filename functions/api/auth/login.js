@@ -1,4 +1,4 @@
-import { verifySecret, json } from '../_helpers.js';
+import { verifySecret, json, recordEvent } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -29,6 +29,8 @@ export async function onRequestPost({ request, env }) {
     const accounts = await env.DB.prepare(
       'SELECT id, account_number, status, created_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
     ).bind(user.id).all();
+
+    recordEvent(env, 'login', { user_id: user.id });
 
     return json({
       token,
