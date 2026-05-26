@@ -1,4 +1,4 @@
-import { json } from '../_helpers.js';
+import { json } from './_helpers.js';
 
 const VALID_TYPES = ['pageview', 'register', 'login', 'ib_request', 'mt5_added', 'whitelist_request', 'password_reset'];
 
