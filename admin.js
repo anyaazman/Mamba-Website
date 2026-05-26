@@ -116,9 +116,11 @@
 
   function renderUsers(users) {
     var container = document.getElementById('usersContainer');
+    var scrollY = window.scrollY;
 
     if (!users || users.length === 0) {
       container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No users found.</p>';
+      window.scrollTo(0, scrollY);
       return;
     }
 
@@ -166,6 +168,7 @@
 
     container.innerHTML = html;
     bindActions();
+    window.scrollTo(0, scrollY);
   }
 
   function bindActions() {
@@ -403,9 +406,11 @@
 
   function renderEvents(events) {
     var container = document.getElementById('eventsContainer');
+    var scrollY = window.scrollY;
 
     if (!events || events.length === 0) {
       container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No events found.</p>';
+      window.scrollTo(0, scrollY);
       return;
     }
 
@@ -434,6 +439,7 @@
 
     html += '</tbody></table></div>';
     container.innerHTML = html;
+    window.scrollTo(0, scrollY);
   }
 
   document.addEventListener('DOMContentLoaded', function() {
