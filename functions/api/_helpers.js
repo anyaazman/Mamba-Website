@@ -1,0 +1,79 @@
+const encoder = new TextEncoder();
+
+function bytesToHex(bytes) {
+  return [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToBytes(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+  }
+  return bytes;
+}
+
+export async function hashSecret(secret) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+    key,
+    256
+  );
+  return bytesToHex(salt) + ':' + bytesToHex(new Uint8Array(bits));
+}
+
+export async function verifySecret(secret, stored) {
+  const [saltHex, hashHex] = stored.split(':');
+  if (!saltHex || !hashHex) return false;
+  const salt = hexToBytes(saltHex);
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+    key,
+    256
+  );
+  return bytesToHex(new Uint8Array(bits)) === hashHex;
+}
+
+export async function authenticateUser(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+
+  const token = authHeader.slice(7);
+  const user = await env.DB.prepare(
+    `SELECT u.id, u.name, u.email, u.ib_status, u.ib_email, u.created_at
+     FROM tokens t
+     JOIN users u ON t.user_id = u.id
+     WHERE t.token = ? AND t.expires_at > datetime('now')`
+  ).bind(token).first();
+
+  if (!user) return null;
+
+  const accounts = await env.DB.prepare(
+    'SELECT id, account_number, status, created_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
+  ).bind(user.id).all();
+
+  user.mt5_accounts = accounts.results;
+  return user;
+}
+
+async function sha256(text) {
+  const data = encoder.encode(text);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return bytesToHex(new Uint8Array(hash));
+}
+
+export async function verifyAdminKey(request, env) {
+  const adminKey = request.headers.get('X-Admin-Key');
+  if (!adminKey) return false;
+  const hash = await sha256(adminKey);
+  const result = await env.DB.prepare(
+    'SELECT id FROM admin_keys WHERE key_hash = ?'
+  ).bind(hash).first();
+  return !!result;
+}
+
+export function json(data, status = 200) {
+  return new Response(JSON.stringify(data), { status });
+}

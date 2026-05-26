@@ -11,5 +11,7 @@ Sitemap: https://www.mambaapp.online/sitemap.xml
 Crawl-delay: 1
 
 # Disallow admin or private directories (none currently)
-# Disallow: /admin/
-# Disallow: /private/
+Disallow: /dashboard.html
+Disallow: /admin.html
+Disallow: /reset-password.html
+Disallow: /login.html

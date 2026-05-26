@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Member Area - Mamba Management App</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="portal.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="loading-screen" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo loading-logo-img">
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">INITIALIZING NEURAL MATRIX...</p>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <div class="logo-left">
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
+                    </div>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <section style="min-height: calc(100vh - 98px); display: flex; align-items: center; justify-content: center; padding: 2rem 0;">
+            <div class="portal-container" style="width: 100%;">
+                <div class="portal-card">
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" data-target="login">Sign In</button>
+                        <button class="auth-tab" data-target="register">Create Account</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form class="auth-form login-form" novalidate>
+                        <div class="form-error"></div>
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" name="email" placeholder="Enter your email" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="submit-btn">Sign In</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form class="auth-form register-form" style="display: none;" novalidate>
+                        <div class="form-error"></div>
+                        <div class="form-group">
+                            <label for="reg-name">Full Name</label>
+                            <input type="text" id="reg-name" name="name" placeholder="Enter your full name" required autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email</label>
+                            <input type="email" id="reg-email" name="email" placeholder="Enter your email" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" name="password" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-confirm">Confirm Password</label>
+                            <input type="password" id="reg-confirm" name="confirm_password" placeholder="Re-enter your password" required minlength="6" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-recovery">Recovery Phrase</label>
+                            <input type="text" id="reg-recovery" name="recovery_phrase" placeholder="A phrase only you know" required autocomplete="off">
+                            <span class="form-hint">You'll need this to reset your password. Example: "blue ocean 42"</span>
+                        </div>
+                        <button type="submit" class="submit-btn">Create Account</button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <a href="reset-password.html">Forgot your password?</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" id="floatingTelegram">
+        <div class="telegram-menu" id="telegramMenu">
+            <a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                <span>Community</span>
+            </a>
+            <a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                </svg>
+                <span>Admin</span>
+            </a>
+        </div>
+        <button class="telegram-fab" id="telegramFab" aria-label="Contact us on Telegram">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script src="demo.js?v=2"></script>
+    <script src="login.js?v=2"></script>
+</body>
+</html>

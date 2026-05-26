@@ -1,3 +1,31 @@
+// ==== MEMBER AREA PROMO POPUP ====
+(function() {
+    var overlay = document.getElementById('promoOverlay');
+    var closeBtn = document.getElementById('promoClose');
+    if (!overlay) return;
+
+    // Show once per session
+    if (sessionStorage.getItem('mamba_promo_shown')) return;
+    sessionStorage.setItem('mamba_promo_shown', '1');
+
+    // Show after loading screen (2.5s delay)
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            overlay.classList.add('active');
+        }, 2500);
+    });
+
+    closeBtn.addEventListener('click', function() {
+        overlay.classList.remove('active');
+    });
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.classList.remove('active');
+        }
+    });
+})();
+
 // ==== NEURAL TRADING MATRIX - INTERACTIVE EXPERIENCE ====
 
 // ==== COMING SOON TOAST ====
@@ -96,7 +124,7 @@ function initializeNeuralMatrix() {
     initFeatureVideos(); // Changed: Videos play without WebP transition
     initCenterViewportAnimations();
     initMobileVideoFix();
-    initCard3DTilt();
+    // initCard3DTilt(); // disabled - tilt removed
 }
 
 // ==== NAVIGATION SYSTEM ====

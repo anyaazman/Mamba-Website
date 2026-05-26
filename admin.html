@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin Panel - Mamba Management App</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="portal.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="loading-screen" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo loading-logo-img">
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">INITIALIZING ADMIN PANEL...</p>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <div class="logo-left">
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
+                    </div>
+                </a>
+            </div>
+            <div style="margin-left: auto;">
+                <button class="logout-btn" id="adminLogoutBtn">Exit</button>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <section style="padding: 2rem 0; min-height: calc(100vh - 98px);">
+            <div class="portal-container-wide">
+                <div class="dashboard-header">
+                    <h1>Admin Panel</h1>
+                </div>
+
+                <div class="admin-key-screen" id="keyScreen">
+                    <div class="portal-container" style="width: 100%;">
+                        <div class="portal-card">
+                            <h2>Admin Access</h2>
+                            <p>Enter your admin key to access the panel.</p>
+                            <form class="admin-key-form" id="keyForm" novalidate>
+                                <div class="key-error" style="display: none;"></div>
+                                <input type="password" name="admin_key" placeholder="Admin Key" required autocomplete="off">
+                                <button type="submit" class="submit-btn">Unlock</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-panel" id="adminPanel">
+                    <div class="admin-search-wrap">
+                        <input type="text" id="adminSearch" class="admin-search-input" placeholder="Search by name, email, or MT5 account...">
+                    </div>
+
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-status="">All</button>
+                        <button class="filter-tab" data-status="pending">Pending</button>
+                        <button class="filter-tab" data-status="approved">Approved</button>
+                        <button class="filter-tab" data-status="rejected">Rejected</button>
+                    </div>
+
+                    <div id="usersContainer"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="demo.js?v=2"></script>
+    <script src="admin.js?v=2"></script>
+</body>
+</html>

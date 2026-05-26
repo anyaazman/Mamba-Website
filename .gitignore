@@ -24,5 +24,8 @@ desktop.ini
 # === Claude Code Config ===
 .claude/
 
+# === Cloudflare Wrangler ===
+.wrangler/
+
 # === Node (if ever added) ===
 node_modules/

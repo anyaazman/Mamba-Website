@@ -101,9 +101,16 @@
     <header class="header" role="banner">
         <nav class="nav" role="navigation" aria-label="Main navigation">
             <div class="logo-left">
-                <div class="logo-icon">
-                    <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
-                </div>
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
+                    </div>
+                </a>
+            </div>
+            <div style="margin-left: auto;">
+                <a href="login.html" class="cta-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; font-size: 0.7rem;">
+                    <span>MEMBER AREA</span>
+                </a>
             </div>
         </nav>
     </header>
@@ -139,10 +146,10 @@
                         </div>
                     </div>
                     <div class="hero-actions">
-                        <button class="cta-primary">
-                            <span>DOWNLOAD NOW</span>
+                        <a href="login.html" class="cta-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <span>START NOW</span>
                             <div class="btn-scan"></div>
-                        </button>
+                        </a>
                         <a href="how-Mamba-work.html" class="cta-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
                             <span>HOW MAMBA WORKS</span>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -348,8 +355,8 @@ Customize your Take Profit, Stop Loss, and Break Even parameters effortlessly.</
                         <span>HOW MAMBA WORKS</span>
                         <div class="btn-scan"></div>
                     </a>
-                    <a href="#access" class="cta-primary" style="text-decoration: none;">
-                        <span>DOWNLOAD NOW</span>
+                    <a href="login.html" class="cta-primary" style="text-decoration: none;">
+                        <span>START NOW</span>
                         <div class="btn-scan"></div>
                     </a>
                 </div>
@@ -566,6 +573,17 @@ Track positions, fine-tune parameters, and manage multiple trades effortlessly â
         </button>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <!-- Member Area Promo Popup -->
+    <div class="promo-overlay" id="promoOverlay">
+        <div class="promo-popup">
+            <button class="promo-close" id="promoClose" aria-label="Close popup">&times;</button>
+            <div class="promo-icon">ðŸš€</div>
+            <h2>Ready to Level Up Your Trading?</h2>
+            <p>Join the Member Area to access your dashboard, manage MT5 accounts, and unlock the full power of Mamba automated trading.</p>
+            <a href="login.html" class="promo-cta">Member Area</a>
+        </div>
+    </div>
+
+    <script src="script.js?v=6"></script>
 </body>
 </html>
