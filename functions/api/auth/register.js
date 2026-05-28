@@ -1,4 +1,4 @@
-import { hashSecret, json, recordEvent } from '../_helpers.js';
+import { hashSecret, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -32,6 +32,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(userId, token).run();
 
     await recordEvent(env, 'register', { user_id: userId });
+    await notifyAdmin(env, '🆕 New Registration', { Name: name, Email: email });
 
     return json({
       token,

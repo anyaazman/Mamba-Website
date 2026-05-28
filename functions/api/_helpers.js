@@ -87,3 +87,32 @@ export async function recordEvent(env, type, { page, user_id, metadata } = {}) {
     console.error('recordEvent error:', e.message);
   }
 }
+
+export async function notifyAdmin(env, title, fields) {
+  try {
+    const token = env.TELEGRAM_BOT_TOKEN;
+    const chatId = env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) return;
+
+    const time = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+    let text = `<b>${title}</b>\n`;
+    if (fields) {
+      Object.entries(fields).forEach(([key, value]) => {
+        text += `<b>${key}:</b> ${value}\n`;
+      });
+    }
+    text += `<b>Time:</b> ${time}`;
+
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'HTML'
+      })
+    });
+  } catch (e) {
+    console.error('notifyAdmin error:', e.message);
+  }
+}

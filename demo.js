@@ -67,6 +67,7 @@
             var tok = 'demo-token-' + Date.now();
             db.tokens.push({ user_id: nu.id, token: tok, expires_at: new Date(Date.now() + 7*86400000).toISOString() });
             addDemoEvent('register', nu.id);
+            console.log('[DEMO NOTIFY] 🆕 New Registration | Name: ' + body.name + ' | Email: ' + body.email);
             saveDb(db);
             json = { token: tok, user: { id: nu.id, name: nu.name, email: nu.email, ib_status: 'pending', mt5_accounts: [] } }; status = 201;
           }
@@ -130,14 +131,14 @@
             var acc = db.mt5_accounts.find(function(a) { return a.id === body.account_id && a.user_id === au5.id; });
             if (!acc) { json = { error: 'MT5 account not found.' }; status = 404; }
             else if (acc.status === 'approved') { json = { error: 'Already approved.' }; status = 400; }
-            else { acc.status = 'pending'; addDemoEvent('whitelist_request', au5.id, { account_id: body.account_id }); saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
+            else { acc.status = 'pending'; addDemoEvent('whitelist_request', au5.id, { account_id: body.account_id }); console.log('[DEMO NOTIFY] 📊 MT5 Whitelist Request | Name: ' + au5.name + ' | Email: ' + au5.email + ' | Account ID: ' + body.account_id); saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/user/request-ib')) {
           var au6 = getAuthUser();
           if (!au6) { json = { error: 'Not authenticated.' }; status = 401; }
           else if (!body.ib_email || !body.ib_email.trim()) { json = { error: 'Valetax email is required.' }; status = 400; }
-          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
+          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); console.log('[DEMO NOTIFY] 🔐 IB Verification Request | Name: ' + au6.name + ' | Email: ' + au6.email + ' | Valetax Email: ' + body.ib_email.trim()); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
         }
 
         // --- ADMIN ---

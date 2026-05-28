@@ -1,4 +1,4 @@
-import { authenticateUser, json, recordEvent } from '../_helpers.js';
+import { authenticateUser, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   const user = await authenticateUser(request, env);
@@ -20,6 +20,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(ib_email.trim(), user.id).run();
 
     await recordEvent(env, 'ib_request', { user_id: user.id });
+    await notifyAdmin(env, '🔐 IB Verification Request', { Name: user.name, Email: user.email, 'Valetax Email': ib_email.trim() });
 
     return json({ success: true, message: 'IB verification request submitted.' });
   } catch (e) {

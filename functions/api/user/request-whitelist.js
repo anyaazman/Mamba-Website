@@ -1,4 +1,4 @@
-import { authenticateUser, json, recordEvent } from '../_helpers.js';
+import { authenticateUser, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   const user = await authenticateUser(request, env);
@@ -28,6 +28,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(account_id).run();
 
     await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
+    await notifyAdmin(env, '📊 MT5 Whitelist Request', { Name: user.name, Email: user.email, 'Account ID': String(account_id) });
 
     return json({ success: true, message: 'Whitelist request submitted.' });
   } catch (e) {

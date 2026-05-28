@@ -26,6 +26,7 @@ desktop.ini
 
 # === Cloudflare Wrangler ===
 .wrangler/
+.dev.vars
 
 # === Node (if ever added) ===
 node_modules/
