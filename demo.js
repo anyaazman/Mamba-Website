@@ -120,7 +120,7 @@
             json = { error: 'This MT5 account is already added.' }; status = 409;
           } else {
             var na = { id: Date.now(), user_id: au4.id, account_number: body.account_number, status: 'pending', created_at: new Date().toISOString() };
-            db.mt5_accounts.push(na); addDemoEvent('mt5_added', au4.id, { account_number: body.account_number }); saveDb(db);
+            db.mt5_accounts.push(na); addDemoEvent('mt5_added', au4.id, { account_number: body.account_number }); console.log('[DEMO NOTIFY] 💳 MT5 Account Added | Name: ' + au4.name + ' | Email: ' + au4.email + ' | Account: ' + body.account_number); saveDb(db);
             json = { success: true, account: { id: na.id, account_number: na.account_number, status: 'pending' } }; status = 201;
           }
         }

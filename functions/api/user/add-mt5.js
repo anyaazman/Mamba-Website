@@ -1,4 +1,4 @@
-import { authenticateUser, json, recordEvent } from '../_helpers.js';
+import { authenticateUser, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   const user = await authenticateUser(request, env);
@@ -24,6 +24,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(user.id, account_number.trim()).run();
 
     await recordEvent(env, 'mt5_added', { user_id: user.id, metadata: { account_number: account_number.trim() } });
+    await notifyAdmin(env, '💳 MT5 Account Added', { Name: user.name, Email: user.email, 'Account': account_number.trim() });
 
     return json({
       success: true,
