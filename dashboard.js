@@ -193,7 +193,7 @@ function showComingSoon(event) {
     document.getElementById('ibModal').classList.remove('active');
   }
 
-  function submitIBRequest(email) {
+  function submitIBRequest(email, type) {
     if (!email || !email.trim()) {
       showToast('Please enter your Valetax email.', 'error');
       return;
@@ -201,7 +201,7 @@ function showComingSoon(event) {
     var submitBtns = document.querySelectorAll('#submitIBNew, #submitIBExisting');
     submitBtns.forEach(function(b) { b.disabled = true; b.textContent = 'Submitting...'; });
 
-    apiCall('POST', '/user/request-ib', { ib_email: email.trim() }).then(function(result) {
+    apiCall('POST', '/user/request-ib', { ib_email: email.trim(), ib_type: type }).then(function(result) {
       if (result.ok) {
         showToast('IB verification requested.', 'success');
         closeIBModal();
@@ -236,10 +236,10 @@ function showComingSoon(event) {
 
     // Submit buttons
     document.getElementById('submitIBNew').addEventListener('click', function() {
-      submitIBRequest(document.getElementById('ibEmailNew').value);
+      submitIBRequest(document.getElementById('ibEmailNew').value, 'new');
     });
     document.getElementById('submitIBExisting').addEventListener('click', function() {
-      submitIBRequest(document.getElementById('ibEmailExisting').value);
+      submitIBRequest(document.getElementById('ibEmailExisting').value, 'existing');
     });
 
     // Close on backdrop click

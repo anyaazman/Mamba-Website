@@ -138,7 +138,7 @@
           var au6 = getAuthUser();
           if (!au6) { json = { error: 'Not authenticated.' }; status = 401; }
           else if (!body.ib_email || !body.ib_email.trim()) { json = { error: 'Valetax email is required.' }; status = 400; }
-          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); console.log('[DEMO NOTIFY] 🔐 IB Verification Request | Name: ' + au6.name + ' | Email: ' + au6.email + ' | Valetax Email: ' + body.ib_email.trim()); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
+          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); console.log('[DEMO NOTIFY] 🔐 IB Verification Request | Name: ' + au6.name + ' | Email: ' + au6.email + ' | Valetax Email: ' + body.ib_email.trim() + ' | Selection: ' + (body.ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account')); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
         }
 
         // --- ADMIN ---

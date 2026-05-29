@@ -5,7 +5,7 @@ export async function onRequestPost({ request, env }) {
   if (!user) return json({ error: 'Not authenticated.' }, 401);
 
   try {
-    const { ib_email } = await request.json();
+    const { ib_email, ib_type } = await request.json();
 
     if (!ib_email || !ib_email.trim()) {
       return json({ error: 'Valetax email is required.' }, 400);
@@ -20,7 +20,12 @@ export async function onRequestPost({ request, env }) {
     ).bind(ib_email.trim(), user.id).run();
 
     await recordEvent(env, 'ib_request', { user_id: user.id });
-    await notifyAdmin(env, '🔐 IB Verification Request', { Name: user.name, Email: user.email, 'Valetax Email': ib_email.trim() });
+    await notifyAdmin(env, '🔐 IB Verification Request', {
+      Name: user.name,
+      Email: user.email,
+      'Valetax Email': ib_email.trim(),
+      'Selection': ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account'
+    });
 
     return json({ success: true, message: 'IB verification request submitted.' });
   } catch (e) {
