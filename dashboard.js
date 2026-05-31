@@ -23,6 +23,7 @@ function showComingSoon(event) {
 
   var API_BASE = '/api';
   var token = localStorage.getItem('mamba_token');
+  var currentUser = null;
 
   function hideLoadingScreen() {
     var ls = document.querySelector('.loading-screen');
@@ -61,6 +62,10 @@ function showComingSoon(event) {
 
   function setUser(user) {
     localStorage.setItem('mamba_user', JSON.stringify(user));
+  }
+
+  function hasRequestedIB() {
+    return currentUser && currentUser.ib_email && currentUser.ib_email.trim() !== '';
   }
 
   // --- Onboarding ---
@@ -138,6 +143,10 @@ function showComingSoon(event) {
     var wlBtn = document.getElementById('onboardingWhitelistBtn');
     if (wlBtn) {
       wlBtn.addEventListener('click', function() {
+        if (!hasRequestedIB()) {
+          openIBRequiredPopup();
+          return;
+        }
         var mt5Card = document.querySelector('#mt5AccountsList').closest('.portal-card');
         if (mt5Card) {
           mt5Card.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -248,6 +257,27 @@ function showComingSoon(event) {
     });
   }
 
+  // --- IB Required Modal ---
+  function openIBRequiredPopup() {
+    document.getElementById('ibRequiredModal').classList.add('active');
+  }
+
+  function closeIBRequiredPopup() {
+    document.getElementById('ibRequiredModal').classList.remove('active');
+  }
+
+  function setupIBRequiredPopup() {
+    var modal = document.getElementById('ibRequiredModal');
+    document.getElementById('ibRequiredCancel').addEventListener('click', closeIBRequiredPopup);
+    document.getElementById('ibRequiredGoBtn').addEventListener('click', function() {
+      closeIBRequiredPopup();
+      openIBModal();
+    });
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeIBRequiredPopup();
+    });
+  }
+
   // --- MT5 Accounts List ---
   function renderMT5Accounts(accounts) {
     var list = document.getElementById('mt5AccountsList');
@@ -274,6 +304,10 @@ function showComingSoon(event) {
 
     list.querySelectorAll('.request-whitelist-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
+        if (!hasRequestedIB()) {
+          openIBRequiredPopup();
+          return;
+        }
         var accountId = parseInt(btn.getAttribute('data-account-id'));
         btn.disabled = true;
         btn.textContent = 'Submitting...';
@@ -300,6 +334,10 @@ function showComingSoon(event) {
     var errorEl = document.getElementById('addMT5Error');
 
     addBtn.addEventListener('click', function() {
+      if (!hasRequestedIB()) {
+        openIBRequiredPopup();
+        return;
+      }
       form.style.display = form.style.display === 'none' ? 'block' : 'none';
       if (form.style.display === 'block') input.focus();
     });
@@ -355,6 +393,7 @@ function showComingSoon(event) {
         return;
       }
       setUser(result.data.user);
+      currentUser = result.data.user;
       renderOnboarding(result.data.user);
       renderIBBanner(result.data.user);
       renderMT5Accounts(result.data.user.mt5_accounts);
@@ -468,6 +507,7 @@ function showComingSoon(event) {
     setupLogout();
     setupEditModal();
     setupIBModal();
+    setupIBRequiredPopup();
     setupAddMT5();
     refreshDashboard();
   });
