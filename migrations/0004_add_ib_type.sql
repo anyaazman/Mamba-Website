@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN ib_type TEXT DEFAULT '';

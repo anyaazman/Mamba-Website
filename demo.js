@@ -14,7 +14,7 @@
 
   function cloneUser(u) {
     var accs = getDb().mt5_accounts.filter(function(a) { return a.user_id === u.id; });
-    return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', created_at: u.created_at, mt5_accounts: accs.map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; }) };
+    return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', ib_type: u.ib_type || '', created_at: u.created_at, mt5_accounts: accs.map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; }) };
   }
 
   window.fetch = function(url, options) {
@@ -62,7 +62,7 @@
           if (db.users.some(function(u) { return u.email === body.email; })) {
             json = { error: 'Email already registered.' }; status = 409;
           } else {
-            var nu = { id: Date.now(), name: body.name, email: body.email, password: body.password, recovery_phrase: body.recovery_phrase, ib_status: 'pending', ib_email: '', created_at: new Date().toISOString() };
+            var nu = { id: Date.now(), name: body.name, email: body.email, password: body.password, recovery_phrase: body.recovery_phrase, ib_status: 'pending', ib_email: '', ib_type: '', created_at: new Date().toISOString() };
             db.users.push(nu);
             var tok = 'demo-token-' + Date.now();
             db.tokens.push({ user_id: nu.id, token: tok, expires_at: new Date(Date.now() + 7*86400000).toISOString() });
@@ -138,7 +138,7 @@
           var au6 = getAuthUser();
           if (!au6) { json = { error: 'Not authenticated.' }; status = 401; }
           else if (!body.ib_email || !body.ib_email.trim()) { json = { error: 'Valetax email is required.' }; status = 400; }
-          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); addDemoEvent('ib_request', au6.id); console.log('[DEMO NOTIFY] 🔐 IB Verification Request | Name: ' + au6.name + ' | Email: ' + au6.email + ' | Valetax Email: ' + body.ib_email.trim() + ' | Selection: ' + (body.ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account')); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
+          else { au6.ib_status = 'pending'; au6.ib_email = body.ib_email.trim(); au6.ib_type = body.ib_type || ''; addDemoEvent('ib_request', au6.id); console.log('[DEMO NOTIFY] 🔐 IB Verification Request | Name: ' + au6.name + ' | Email: ' + au6.email + ' | Valetax Email: ' + body.ib_email.trim() + ' | Selection: ' + (body.ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account')); saveDb(db); json = { success: true, message: 'IB verification request submitted.' }; }
         }
 
         // --- ADMIN ---
@@ -151,7 +151,7 @@
             var filter = new URL(urlStr, 'http://localhost').searchParams.get('status');
             var users = db.users.map(function(u) {
               var accs = db.mt5_accounts.filter(function(a) { return a.user_id === u.id; }).map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; });
-              return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', created_at: u.created_at, mt5_accounts: accs };
+              return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', ib_type: u.ib_type || '', created_at: u.created_at, mt5_accounts: accs };
             });
             if (filter) { users = users.filter(function(u) { return u.ib_status === filter; }); }
             json = { users: users };

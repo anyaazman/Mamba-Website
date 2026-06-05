@@ -132,6 +132,7 @@
       html += '<span class="user-name">' + esc(user.name) + '</span>';
       html += '<span class="user-email">' + esc(user.email) + '</span>';
       html += user.ib_email ? '<span class="user-ib-email">Valetax: ' + esc(user.ib_email) + '</span>' : '';
+      html += user.ib_type ? '<span class="user-ib-email">Selection: ' + esc(user.ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax') + '</span>' : '';
       html += '</div>';
       html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
       html += '<span class="status-badge status-' + user.ib_status + '">IB: ' + user.ib_status.toUpperCase() + '</span>';

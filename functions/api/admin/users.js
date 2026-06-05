@@ -8,7 +8,7 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get('status');
 
-  let query = 'SELECT id, name, email, ib_status, ib_email, created_at, updated_at FROM users';
+  let query = 'SELECT id, name, email, ib_status, ib_email, ib_type, created_at, updated_at FROM users';
   const params = [];
 
   if (statusFilter && ['pending', 'approved', 'rejected'].includes(statusFilter)) {

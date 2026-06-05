@@ -16,8 +16,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     await env.DB.prepare(
-      "UPDATE users SET ib_status = 'pending', ib_email = ?, updated_at = datetime('now') WHERE id = ?"
-    ).bind(ib_email.trim(), user.id).run();
+      "UPDATE users SET ib_status = 'pending', ib_email = ?, ib_type = ?, updated_at = datetime('now') WHERE id = ?"
+    ).bind(ib_email.trim(), ib_type || '', user.id).run();
 
     await recordEvent(env, 'ib_request', { user_id: user.id });
     await notifyAdmin(env, '🔐 IB Verification Request', {
