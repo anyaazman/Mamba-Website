@@ -397,8 +397,10 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
   z-index: 10000;
-  align-items: center;
+  overscroll-behavior: contain;
+  align-items: safe center;
   justify-content: center;
+  padding: 1rem 0;
 }
 
 .modal-overlay.active {
@@ -412,6 +414,14 @@
   padding: 2rem;
   width: 90%;
   max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* IB modal — wider on desktop, responsive on mobile */
+#ibModal .modal-card {
+  max-width: 500px;
 }
 
 .modal-card h3 {
@@ -758,6 +768,376 @@
 @media (max-width: 480px) {
   .ib-option-cards {
     flex-direction: column;
+  }
+
+  /* IB modal — narrower on phones */
+  #ibModal .modal-card {
+    max-width: 95%;
+    padding: 1.25rem;
+  }
+
+  /* Carousel content compacting */
+  .ib-carousel-slide {
+    padding: 1rem 0.75rem;
+    min-height: 160px;
+  }
+
+  .ib-guide-title {
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+  }
+
+  .ib-step-card {
+    padding: 0.7rem 0.65rem;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ib-step-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .ib-step-title {
+    font-size: 0.7rem;
+  }
+
+  .ib-step-desc {
+    font-size: 0.65rem;
+  }
+
+  .ib-change-btn {
+    font-size: 0.68rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .ib-step-copy-row {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .ib-copy-label,
+  .ib-copy-text {
+    font-size: 0.63rem;
+  }
+
+  .ib-carousel-dots {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* --- IB Carousel (Existing Account path) --- */
+.ib-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--neural-border);
+  background: var(--neural-elevated);
+  margin-bottom: 1rem;
+  transition: min-height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ib-carousel-track {
+  display: flex;
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.ib-carousel-track.dragging {
+  transition: none;
+}
+
+.ib-carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* --- Slide 1: Step-numbered guide --- */
+.ib-guide-title {
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1.25rem;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.ib-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.9rem 0.85rem;
+  background: var(--neural-elevated);
+  border: 1px solid var(--neural-border);
+  border-left: 3px solid var(--cyan-primary);
+  border-radius: 10px;
+  margin-bottom: 0.65rem;
+  box-sizing: border-box;
+}
+
+.ib-step-number {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 132, 255, 0.12);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  border-radius: 50%;
+  color: var(--cyan-primary);
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ib-step-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.ib-step-title {
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ib-step-desc {
+  color: var(--text-muted);
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* Step action button (Step 1) */
+.ib-change-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid rgba(10, 132, 255, 0.45);
+  border-radius: 8px;
+  color: var(--cyan-primary);
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.25rem;
+}
+
+.ib-change-btn:hover {
+  border-color: var(--cyan-primary);
+  background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+  box-shadow: 0 0 20px rgba(10, 132, 255, 0.25);
+}
+
+/* Copy row inside step (Steps 2 & 3) */
+.ib-step-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--neural-border);
+  border-radius: 7px;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+}
+
+.ib-copy-label {
+  flex: 1;
+  color: var(--text-primary);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.ib-copy-text {
+  flex: 1;
+  color: var(--text-secondary);
+  font-family: var(--font-primary);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.ib-copy-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 132, 255, 0.1);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  border-radius: 8px;
+  color: var(--cyan-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ib-copy-btn:hover,
+.ib-copy-btn:active {
+  background: rgba(10, 132, 255, 0.2);
+  border-color: var(--cyan-primary);
+}
+
+.ib-copy-btn.copied {
+  background: rgba(48, 213, 200, 0.15);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+
+/* --- Slide 2 & 3: Images --- */
+.ib-carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+/* --- Dots --- */
+.ib-carousel-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem 0;
+}
+
+.ib-carousel-dot {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ib-carousel-dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neural-border);
+  transition: all 0.25s ease;
+}
+
+.ib-carousel-dot.active::after {
+  background: var(--cyan-primary);
+  box-shadow: 0 0 6px rgba(10, 132, 255, 0.5);
+  width: 10px;
+  height: 10px;
+}
+
+/* --- Nav Arrows --- */
+.ib-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ib-carousel-arrow:hover,
+.ib-carousel-arrow:active {
+  background: rgba(10, 132, 255, 0.2);
+  border-color: rgba(10, 132, 255, 0.5);
+  color: var(--cyan-primary);
+}
+
+.ib-carousel-prev {
+  left: 0.4rem;
+}
+
+.ib-carousel-next {
+  right: 0.4rem;
+}
+
+@media (max-width: 360px) {
+  .ib-carousel-arrow {
+    display: none;
+  }
+
+  .ib-carousel-slide {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .ib-step-card {
+    padding: 0.6rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .ib-step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .ib-step-title { font-size: 0.65rem; }
+  .ib-step-desc  { font-size: 0.6rem; }
+
+  .ib-change-btn {
+    font-size: 0.63rem;
+    padding: 0.5rem;
+  }
+
+  .ib-copy-label,
+  .ib-copy-text {
+    font-size: 0.6rem;
+  }
+
+  .ib-copy-btn {
+    width: 40px;
+    height: 40px;
   }
 }
 

@@ -166,7 +166,7 @@
 
     <!-- IB Request Modal -->
     <div class="modal-overlay" id="ibModal">
-        <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-card" id="ibModalCard">
             <h3 id="ibModalTitle">Request IB Verification</h3>
             <!-- Step 1: Selection -->
             <div id="ibStepSelect">
@@ -205,10 +205,77 @@
             </div>
             <!-- Step 2b: Existing account path -->
             <div id="ibStepExisting" style="display: none;">
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">When opening your MT5 Valetax account, ensure referral code <strong style="color: var(--cyan-primary);">3505549</strong> was entered as shown below:</p>
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <img src="referral-code.webp" alt="Enter referral code 3505549" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--neural-border);">
+                <!-- Carousel -->
+                <div class="ib-carousel" id="ibCarousel">
+                    <div class="ib-carousel-track" id="ibCarouselTrack">
+                        <!-- Slide 1: Step-numbered guide -->
+                        <div class="ib-carousel-slide ib-carousel-slide-1">
+                            <h4 class="ib-guide-title">HOW TO CHANGE YOUR IB</h4>
+                            <!-- Step 1 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">①</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Open Support Ticket Page</span>
+                                    <span class="ib-step-desc">Click below to open the Valetax support ticket page in a new tab</span>
+                                    <a href="https://ma.valetaxintl.com/user/tickets/new-ticket?utm_medium=chat&utm_campaign=link-shared-in-chat&utm_source=livechat.com&utm_content=ma.valetaxintl.com" target="_blank" rel="noopener noreferrer" class="ib-change-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                        Open Valetax Support Ticket
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Step 2 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">②</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Update Partner Code</span>
+                                    <span class="ib-step-desc">On the ticket page, find the title field and enter this</span>
+                                    <div class="ib-step-copy-row">
+                                        <span class="ib-copy-label">Changing Partner Code To 3505549</span>
+                                        <button class="ib-copy-btn" data-copy="Changing Partner Code To 3505549" aria-label="Copy partner code">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Step 3 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">③</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Paste Ticket Comment</span>
+                                    <span class="ib-step-desc">Copy this message and paste it into the Comment description</span>
+                                    <div class="ib-step-copy-row">
+                                        <span class="ib-copy-text">I want to change my partner code to 3505549<br><br>As they give me Proper Education To Trade</span>
+                                        <button class="ib-copy-btn" data-copy="I want to change my partner code to 3505549&#10;&#10;As they give me Proper Education To Trade" aria-label="Copy ticket message">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 2: Screenshot -->
+                        <div class="ib-carousel-slide ib-carousel-slide-2">
+                            <img src="ib-carousel-2.webp" alt="Step 2 - Valetax IB change process" class="ib-carousel-img">
+                        </div>
+                        <!-- Slide 3: Screenshot -->
+                        <div class="ib-carousel-slide ib-carousel-slide-3">
+                            <img src="ib-carousel-3.webp" alt="Step 3 - Valetax IB change process" class="ib-carousel-img">
+                        </div>
+                    </div>
+                    <!-- Nav arrows -->
+                    <button class="ib-carousel-arrow ib-carousel-prev" id="ibCarouselPrev" aria-label="Previous slide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button class="ib-carousel-arrow ib-carousel-next" id="ibCarouselNext" aria-label="Next slide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
+                <!-- Dot indicators -->
+                <div class="ib-carousel-dots" id="ibCarouselDots">
+                    <button class="ib-carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
+                    <button class="ib-carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+                    <button class="ib-carousel-dot" data-slide="2" aria-label="Slide 3"></button>
+                </div>
+                <!-- Email + buttons (unchanged) -->
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label for="ibEmailExisting">Enter the email associated with your Valetax account:</label>
                     <input type="email" id="ibEmailExisting" placeholder="Your Valetax email" style="width: 100%; padding: 0.8rem 1rem; background: transparent; border: 1px solid #414141; border-radius: 8px; color: #fff; font-family: var(--font-primary); font-size: 0.95rem;">

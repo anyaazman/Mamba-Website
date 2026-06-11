@@ -25,6 +25,28 @@ function showComingSoon(event) {
   var token = localStorage.getItem('mamba_token');
   var currentUser = null;
 
+  // --- Scroll Lock for Modals (prevents background page from scrolling) ---
+  var _modalScrollPosition = 0;
+  var _activeModals = 0;
+
+  function lockBodyScroll() {
+    if (_activeModals === 0) {
+      _modalScrollPosition = window.scrollY || document.documentElement.scrollTop;
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+    _activeModals++;
+  }
+
+  function unlockBodyScroll() {
+    _activeModals = Math.max(0, _activeModals - 1);
+    if (_activeModals === 0) {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, _modalScrollPosition);
+    }
+  }
+
   function hideLoadingScreen() {
     var ls = document.querySelector('.loading-screen');
     if (ls) { ls.classList.add('loaded'); document.body.classList.add('page-loaded'); }
@@ -195,11 +217,13 @@ function showComingSoon(event) {
     document.getElementById('ibStepSelect').style.display = 'block';
     document.getElementById('ibStepNew').style.display = 'none';
     document.getElementById('ibStepExisting').style.display = 'none';
+    lockBodyScroll();
     modal.classList.add('active');
   }
 
   function closeIBModal() {
     document.getElementById('ibModal').classList.remove('active');
+    unlockBodyScroll();
   }
 
   function submitIBRequest(email, type) {
@@ -255,15 +279,235 @@ function showComingSoon(event) {
     modal.addEventListener('click', function(e) {
       if (e.target === modal) closeIBModal();
     });
+
+    // --- Carousel setup ---
+    var carouselTrack = document.getElementById('ibCarouselTrack');
+    var carouselDots = document.querySelectorAll('#ibCarouselDots .ib-carousel-dot');
+    var carouselPrev = document.getElementById('ibCarouselPrev');
+    var carouselNext = document.getElementById('ibCarouselNext');
+    var carouselSlides = carouselTrack.querySelectorAll('.ib-carousel-slide');
+    var totalSlides = carouselSlides.length;
+    var currentSlide = 0;
+
+    function goToSlide(n) {
+      // Handle wrap-around
+      currentSlide = ((n % totalSlides) + totalSlides) % totalSlides;
+      // Move track
+      carouselTrack.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+      // Sync carousel container height to current slide to avoid jerky resizing
+      var carousel = carouselTrack.parentElement;
+      var currentSlideEl = carouselSlides[currentSlide];
+      carousel.style.minHeight = currentSlideEl.offsetHeight + 'px';
+      // Update dots
+      carouselDots.forEach(function(dot, i) {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+      // Show/hide arrows on slide 1 (hide prev since it wraps to last)
+      // Always show both on slides 2 & 3
+    }
+
+    // Arrow clicks
+    carouselPrev.addEventListener('click', function() { goToSlide(currentSlide - 1); });
+    carouselNext.addEventListener('click', function() { goToSlide(currentSlide + 1); });
+
+    // Dot clicks
+    carouselDots.forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        goToSlide(parseInt(dot.getAttribute('data-slide')));
+      });
+    });
+
+    // Smooth touch/drag carousel with direction locking
+    var dragStartX = 0;
+    var dragStartY = 0;
+    var isDragging = false;
+    var dragLocked = null;        // null | 'horizontal' | 'vertical'
+    var dragOffset = 0;
+    var dragSafetyTimer = null;   // safety timeout against stuck state
+    var DRAG_LOCK_RATIO = 1.5;    // dx must be > dy * 1.5 to lock horizontal
+    var DRAG_LOCK_THRESHOLD = 10; // minimum px movement before locking axis
+    var SAFETY_TIMEOUT_MS = 600;  // auto-reset drag if no touchend
+
+    function startDrag(clientX, clientY) {
+      isDragging = true;
+      dragLocked = null;
+      dragStartX = clientX;
+      dragStartY = clientY;
+      dragOffset = 0;
+      carouselTrack.classList.add('dragging');
+      clearTimeout(dragSafetyTimer);
+      dragSafetyTimer = setTimeout(function() {
+        if (isDragging) {
+          isDragging = false;
+          dragLocked = null;
+          carouselTrack.classList.remove('dragging');
+          carouselTrack.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+        }
+      }, SAFETY_TIMEOUT_MS);
+    }
+
+    function moveDrag(clientX, clientY) {
+      if (!isDragging) return;
+      var dx = clientX - dragStartX;
+      var dy = clientY - dragStartY;
+      if (dragLocked === null) {
+        if (Math.abs(dx) < DRAG_LOCK_THRESHOLD && Math.abs(dy) < DRAG_LOCK_THRESHOLD) return;
+        if (Math.abs(dx) > Math.abs(dy) * DRAG_LOCK_RATIO) {
+          dragLocked = 'horizontal';
+        } else if (Math.abs(dy) > Math.abs(dx) * DRAG_LOCK_RATIO) {
+          dragLocked = 'vertical';
+          isDragging = false;
+          carouselTrack.classList.remove('dragging');
+          carouselTrack.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+          clearTimeout(dragSafetyTimer);
+          return;
+        }
+        return;
+      }
+      if (dragLocked === 'horizontal') {
+        dragOffset = dx;
+        carouselTrack.style.transform = 'translateX(calc(-' + (currentSlide * 100) + '% + ' + dragOffset + 'px))';
+      }
+    }
+
+    function endDrag() {
+      clearTimeout(dragSafetyTimer);
+      if (!isDragging) return;
+      isDragging = false;
+      dragLocked = null;
+      carouselTrack.classList.remove('dragging');
+      var threshold = carouselTrack.offsetWidth * 0.2;
+      if (Math.abs(dragOffset) > threshold) {
+        goToSlide(currentSlide + (dragOffset < 0 ? 1 : -1));
+      } else {
+        carouselTrack.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+      }
+    }
+
+    // Touch events — non-passive on touchmove so we can preventDefault during horizontal swipe
+    carouselTrack.addEventListener('touchstart', function(e) {
+      startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    carouselTrack.addEventListener('touchmove', function(e) {
+      moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+      if (dragLocked === 'horizontal') e.preventDefault();
+    }, { passive: false });
+
+    carouselTrack.addEventListener('touchend', endDrag);
+
+    carouselTrack.addEventListener('touchcancel', function() {
+      clearTimeout(dragSafetyTimer);
+      if (isDragging) {
+        isDragging = false;
+        dragLocked = null;
+        carouselTrack.classList.remove('dragging');
+        carouselTrack.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+      }
+    });
+
+    // Mouse events (desktop drag)
+    carouselTrack.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', function(e) {
+      moveDrag(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', function() {
+      if (isDragging) endDrag();
+    });
+
+    // Copy buttons (mobile-friendly with iOS-safe fallback)
+    carouselTrack.querySelectorAll('.ib-copy-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var text = btn.getAttribute('data-copy').replace(/&#10;/g, '\n');
+
+        function showCopied() {
+          btn.classList.add('copied');
+          var origHTML = btn.innerHTML;
+          btn.innerHTML = '<span style="font-size:0.65rem;font-weight:700;">COPIED!</span>';
+          setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = origHTML;
+          }, 1500);
+        }
+
+        // Primary: Clipboard API (requires HTTPS + secure context)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function() {
+            showCopied();
+          }).catch(function() {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+
+        function fallbackCopy(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.contentEditable = 'true';
+          ta.readOnly = true;
+          // iOS requires the textarea to be in-viewport (not hidden via opacity:0)
+          ta.style.position = 'fixed';
+          ta.style.top = '0';
+          ta.style.left = '0';
+          ta.style.width = '1px';
+          ta.style.height = '1px';
+          ta.style.padding = '0';
+          ta.style.border = 'none';
+          ta.style.outline = 'none';
+          ta.style.boxShadow = 'none';
+          ta.style.background = 'transparent';
+          ta.style.color = 'transparent';
+          document.body.appendChild(ta);
+          // iOS needs focus before selection
+          ta.focus();
+          ta.select();
+          ta.setSelectionRange(0, 999999);
+          try {
+            document.execCommand('copy');
+          } catch (err) {
+            // Last resort — select all text so user can manually copy
+            ta.style.top = '10px';
+            ta.style.left = '10px';
+            ta.style.width = 'auto';
+            ta.style.height = 'auto';
+            ta.style.padding = '8px';
+            ta.style.background = '#1C1C1E';
+            ta.style.color = '#fff';
+            ta.style.border = '2px solid var(--cyan-primary)';
+            ta.style.borderRadius = '8px';
+            ta.style.zIndex = '99999';
+            ta.style.fontSize = '14px';
+            ta.readOnly = false;
+          }
+          document.body.removeChild(ta);
+          showCopied();
+        }
+      });
+    });
+
+    // Reset carousel to slide 1 when returning to selection screen or re-entering
+    // Reset on the existing "Back" buttons that return to selection screen
+    document.getElementById('cancelIBNew').addEventListener('click', function() { goToSlide(0); });
+    document.getElementById('cancelIBExisting').addEventListener('click', function() { goToSlide(0); });
+    // Reset on selecting the existing option
+    document.getElementById('ibOptExisting').addEventListener('click', function() { goToSlide(0); });
   }
 
   // --- IB Required Modal ---
   function openIBRequiredPopup() {
+    lockBodyScroll();
     document.getElementById('ibRequiredModal').classList.add('active');
   }
 
   function closeIBRequiredPopup() {
     document.getElementById('ibRequiredModal').classList.remove('active');
+    unlockBodyScroll();
   }
 
   function setupIBRequiredPopup() {
@@ -421,11 +665,12 @@ function showComingSoon(event) {
     openBtn.addEventListener('click', function() {
       var user = getUser();
       form.querySelector('[name="name"]').value = user.name || '';
+      lockBodyScroll();
       modal.classList.add('active');
     });
 
-    cancelBtn.addEventListener('click', function() { modal.classList.remove('active'); });
-    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
+    cancelBtn.addEventListener('click', function() { modal.classList.remove('active'); unlockBodyScroll(); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) { modal.classList.remove('active'); unlockBodyScroll(); } });
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -440,6 +685,7 @@ function showComingSoon(event) {
         if (result.ok) {
           showToast('Profile updated.', 'success');
           modal.classList.remove('active');
+          unlockBodyScroll();
           refreshDashboard();
         } else {
           var errEl = form.querySelector('.form-error');
