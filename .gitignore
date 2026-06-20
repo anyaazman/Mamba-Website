@@ -30,3 +30,7 @@ desktop.ini
 
 # === Node (if ever added) ===
 node_modules/
+
+# === Playwright / Browser Test Artifacts ===
+.playwright-mcp/
+*-homepage*.png
