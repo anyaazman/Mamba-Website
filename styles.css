@@ -7,7 +7,7 @@
     background: var(--cyan-primary);
     color: #FFFFFF;
     padding: 1rem 2rem;
-    z-index: 10001;
+    z-index: 10020;
     transition: top 0.3s ease;
     text-decoration: none;
     font-weight: 600;
@@ -2930,7 +2930,7 @@ a.step-btn-secondary span,
     border-radius: 12px;
     font-size: 1.25rem;
     font-weight: 600;
-    z-index: 10000;
+    z-index: 10010;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -4757,7 +4757,7 @@ a:focus-visible {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    z-index: 10002;
+    z-index: 9998;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -4896,7 +4896,7 @@ a:focus-visible {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 10010;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.4s ease, visibility 0.4s ease;

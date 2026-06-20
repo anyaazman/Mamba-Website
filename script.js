@@ -569,7 +569,7 @@ function showSuccessModal() {
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 10001;
+        z-index: 10010;
         animation: modalFadeIn 0.3s ease-out;
     `;
 
@@ -624,7 +624,7 @@ function createDemoModal() {
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 10001;
+        z-index: 10010;
         animation: modalFadeIn 0.3s ease-out;
     `;
 

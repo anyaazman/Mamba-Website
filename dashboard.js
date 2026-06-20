@@ -213,17 +213,21 @@ function showComingSoon(event) {
 
   // --- IB Request Modal ---
   function openIBModal() {
-    var modal = document.getElementById('ibModal');
-    document.getElementById('ibStepSelect').style.display = 'block';
-    document.getElementById('ibStepNew').style.display = 'none';
-    document.getElementById('ibStepExisting').style.display = 'none';
+    showIBStepSelect();
     lockBodyScroll();
-    modal.classList.add('active');
+    document.getElementById('ibModal').classList.add('active');
   }
 
   function closeIBModal() {
     document.getElementById('ibModal').classList.remove('active');
     unlockBodyScroll();
+  }
+
+  function showIBStepSelect() {
+    document.getElementById('ibStepSelect').style.display = 'block';
+    document.getElementById('ibStepNew').style.display = 'none';
+    document.getElementById('ibStepExisting').style.display = 'none';
+    document.getElementById('ibModalTitle').textContent = 'Request IB Verification';
   }
 
   function submitIBRequest(email, type) {
@@ -243,6 +247,9 @@ function showComingSoon(event) {
         showToast(result.data.error || 'Request failed.', 'error');
         submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
       }
+    }).catch(function() {
+      showToast('Network error. Please try again.', 'error');
+      submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
     });
   }
 
@@ -264,8 +271,8 @@ function showComingSoon(event) {
 
     // Cancel buttons
     document.getElementById('cancelIB').addEventListener('click', closeIBModal);
-    document.getElementById('cancelIBNew').addEventListener('click', openIBModal);
-    document.getElementById('cancelIBExisting').addEventListener('click', openIBModal);
+    document.getElementById('cancelIBNew').addEventListener('click', showIBStepSelect);
+    document.getElementById('cancelIBExisting').addEventListener('click', showIBStepSelect);
 
     // Submit buttons
     document.getElementById('submitIBNew').addEventListener('click', function() {
@@ -423,7 +430,7 @@ function showComingSoon(event) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        var text = btn.getAttribute('data-copy').replace(/&#10;/g, '\n');
+        var text = btn.getAttribute('data-copy');
 
         function showCopied() {
           btn.classList.add('copied');
@@ -564,6 +571,10 @@ function showComingSoon(event) {
             btn.disabled = false;
             btn.textContent = 'Request Whitelist';
           }
+        }).catch(function() {
+          showToast('Network error. Please try again.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Request Whitelist';
         });
       });
     });
@@ -610,6 +621,10 @@ function showComingSoon(event) {
           saveBtn.disabled = false;
           saveBtn.textContent = 'Add';
         }
+      }).catch(function() {
+        showToast('Network error. Please try again.', 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Add';
       });
     });
 

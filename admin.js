@@ -212,6 +212,8 @@
         }).then(function(res) { return res.json(); })
         .then(function(data) {
           showToast(data.success ? 'Password reset for ' + userName + '.' : (data.error || 'Reset failed.'), data.success ? 'success' : 'error');
+        }).catch(function() {
+          showToast('Network error. Please try again.', 'error');
         });
       });
     });
@@ -233,6 +235,8 @@
             var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
             loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
           }
+        }).catch(function() {
+          showToast('Network error. Please try again.', 'error');
         });
       });
     });
@@ -250,6 +254,8 @@
         var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
         loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
       }
+    }).catch(function() {
+      showToast('Network error. Please try again.', 'error');
     });
   }
 
@@ -265,6 +271,8 @@
         var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
         loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
       }
+    }).catch(function() {
+      showToast('Network error. Please try again.', 'error');
     });
   }
 
