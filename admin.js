@@ -83,13 +83,25 @@
     if (statusFilter) url += '?status=' + statusFilter;
 
     fetch(url, { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        allUsers = data.users;
+      .then(function(res) {
+        return res.text().then(function(text) {
+          var body;
+          try { body = JSON.parse(text); } catch (e) { body = null; }
+          return { ok: res.ok, status: res.status, body: body, raw: text };
+        });
+      })
+      .then(function(r) {
+        if (!r.ok || !r.body || !r.body.users) {
+          var msg = (r.body && r.body.error) ? r.body.error
+                    : (r.raw ? r.raw.slice(0, 300) : ('HTTP ' + r.status));
+          container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load users (HTTP ' + r.status + '): ' + esc(msg) + '</p>';
+          return;
+        }
+        allUsers = r.body.users;
         applyFilters();
       })
-      .catch(function() {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load users.</p>';
+      .catch(function(err) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load users: ' + esc(err && err.message ? err.message : 'network error') + '</p>';
       });
   }
 
@@ -404,12 +416,24 @@
     if (toDate) url += '&to=' + encodeURIComponent(toDate);
 
     fetch(url, { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        renderEvents(data.events);
+      .then(function(res) {
+        return res.text().then(function(text) {
+          var body;
+          try { body = JSON.parse(text); } catch (e) { body = null; }
+          return { ok: res.ok, status: res.status, body: body, raw: text };
+        });
       })
-      .catch(function() {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events.</p>';
+      .then(function(r) {
+        if (!r.ok || !r.body || !r.body.events) {
+          var msg = (r.body && r.body.error) ? r.body.error
+                    : (r.raw ? r.raw.slice(0, 300) : ('HTTP ' + r.status));
+          container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events (HTTP ' + r.status + '): ' + esc(msg) + '</p>';
+          return;
+        }
+        renderEvents(r.body.events);
+      })
+      .catch(function(err) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events: ' + esc(err && err.message ? err.message : 'network error') + '</p>';
       });
   }
 
