@@ -22,19 +22,26 @@ export async function onRequestGet({ request, env }) {
     const result = await env.DB.prepare(query).bind(...params).all();
     const users = result.results;
 
-    // Fetch MT5 accounts for all returned users
+    // Fetch MT5 accounts for all returned users.
+    // D1 caps bound parameters at ~100 per query, so batch the IN clause
+    // to avoid "too many SQL variables" once the user count grows past that.
     if (users.length > 0) {
       const userIds = users.map(u => u.id);
-      const placeholders = userIds.map(() => '?').join(',');
-      const accounts = await env.DB.prepare(
-        `SELECT id, user_id, account_number, status, created_at FROM mt5_accounts WHERE user_id IN (${placeholders}) ORDER BY created_at ASC`
-      ).bind(...userIds).all();
-
       const accountsByUser = {};
-      accounts.results.forEach(a => {
-        if (!accountsByUser[a.user_id]) accountsByUser[a.user_id] = [];
-        accountsByUser[a.user_id].push(a);
-      });
+      const CHUNK = 50;
+
+      for (let i = 0; i < userIds.length; i += CHUNK) {
+        const batch = userIds.slice(i, i + CHUNK);
+        const placeholders = batch.map(() => '?').join(',');
+        const accounts = await env.DB.prepare(
+          `SELECT id, user_id, account_number, status, created_at FROM mt5_accounts WHERE user_id IN (${placeholders}) ORDER BY created_at ASC`
+        ).bind(...batch).all();
+
+        accounts.results.forEach(a => {
+          if (!accountsByUser[a.user_id]) accountsByUser[a.user_id] = [];
+          accountsByUser[a.user_id].push(a);
+        });
+      }
 
       users.forEach(u => {
         u.mt5_accounts = accountsByUser[u.id] || [];
