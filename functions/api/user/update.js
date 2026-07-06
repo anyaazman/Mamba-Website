@@ -7,13 +7,14 @@ export async function onRequestPut({ request, env }) {
   try {
     const { name } = await request.json();
 
-    if (!name) {
-      return json({ error: 'Name is required.' }, 400);
+    const trimmed = typeof name === 'string' ? name.trim() : '';
+    if (!trimmed || trimmed.length > 100) {
+      return json({ error: 'Name is required (max 100 characters).' }, 400);
     }
 
     await env.DB.prepare(
       "UPDATE users SET name = ?, updated_at = datetime('now') WHERE id = ?"
-    ).bind(name, user.id).run();
+    ).bind(trimmed, user.id).run();
 
     return json({ success: true, message: 'Profile updated.' });
   } catch (e) {

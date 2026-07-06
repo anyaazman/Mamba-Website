@@ -180,24 +180,34 @@ function showComingSoon(event) {
   }
   function renderIBBanner(user) {
     var status = user.ib_status;
+    // New accounts default to 'pending' in the DB even before they request
+    // anything — distinguish "never requested" from "requested, under review"
+    var requested = !!(user.ib_email && user.ib_email.trim() !== '');
+    var effective = status === 'approved' ? 'approved'
+      : status === 'rejected' ? 'rejected'
+      : requested ? 'pending' : 'none';
+
     var config = {
       approved: { icon: '&#10003;', text: 'IB VERIFIED', cls: 'approved' },
       pending:  { icon: '&#9203;', text: 'IB VERIFICATION PENDING', cls: 'pending' },
-      rejected: { icon: '&#10007;', text: 'IB VERIFICATION REJECTED', cls: 'rejected' }
+      rejected: { icon: '&#10007;', text: 'IB VERIFICATION REJECTED', cls: 'rejected' },
+      none:     { icon: '&#9675;', text: 'IB NOT VERIFIED YET', cls: 'none' }
     };
-    var cfg = config[status] || config.pending;
+    var cfg = config[effective];
 
     var html = '<div class="status-badge-lg ' + cfg.cls + '">';
     html += '<span class="badge-icon">' + cfg.icon + '</span>';
     html += '<span>' + cfg.text + '</span>';
     html += '</div>';
 
-    if (status !== 'approved') {
+    if (effective !== 'approved') {
       html += '<div style="margin-top: 1rem;">';
-      if (status === 'rejected') {
+      if (effective === 'rejected') {
         html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Your IB verification was not approved. You can re-request.</p>';
+      } else if (effective === 'pending') {
+        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Your request is being reviewed. We\'ll verify your Valetax account shortly.</p>';
       } else {
-        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Request verification that you are under our IB network.</p>';
+        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Request verification that you are under our IB network to unlock all features.</p>';
       }
       html += '<button class="request-btn" id="requestIBBtn">Request IB Verification</button>';
       html += '</div>';

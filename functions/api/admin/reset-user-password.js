@@ -8,8 +8,8 @@ export async function onRequestPost({ request, env }) {
   try {
     const { user_id, new_password } = await request.json();
 
-    if (!user_id || !new_password || new_password.length < 6) {
-      return json({ error: 'user_id and new_password (min 6 chars) are required.' }, 400);
+    if (!user_id || typeof new_password !== 'string' || new_password.length < 8 || new_password.length > 128) {
+      return json({ error: 'user_id and new_password (min 8 chars) are required.' }, 400);
     }
 
     const hashedPw = await hashSecret(new_password);

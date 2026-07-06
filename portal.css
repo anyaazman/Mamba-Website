@@ -252,6 +252,12 @@
   border: 2px solid rgba(255, 59, 48, 0.5);
 }
 
+.status-badge-lg.none {
+  background: rgba(161, 161, 166, 0.08);
+  color: var(--text-secondary, #A1A1A6);
+  border: 2px solid rgba(161, 161, 166, 0.35);
+}
+
 /* --- Request Button --- */
 .request-btn {
   padding: 0.6rem 1.5rem;

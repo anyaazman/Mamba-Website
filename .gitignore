@@ -34,3 +34,6 @@ node_modules/
 # === Playwright / Browser Test Artifacts ===
 .playwright-mcp/
 *-homepage*.png
+
+# === Source/original media (not deployed) ===
+originals/

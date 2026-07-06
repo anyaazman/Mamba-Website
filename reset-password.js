@@ -47,8 +47,8 @@
         showError(form, 'Passwords do not match.');
         return;
       }
-      if (password.length < 6) {
-        showError(form, 'New password must be at least 6 characters.');
+      if (password.length < 8) {
+        showError(form, 'New password must be at least 8 characters.');
         return;
       }
 
@@ -73,6 +73,6 @@
       });
     });
 
-    setTimeout(hideLoadingScreen, 800);
+    setTimeout(hideLoadingScreen, 150);
   });
 })();

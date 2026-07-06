@@ -1,13 +1,14 @@
 import { authenticateUser, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
   const user = await authenticateUser(request, env);
   if (!user) return json({ error: 'Not authenticated.' }, 401);
 
   try {
     const { account_id } = await request.json();
 
-    if (!account_id) {
+    if (!Number.isInteger(account_id) || account_id <= 0) {
       return json({ error: 'account_id is required.' }, 400);
     }
 
@@ -28,7 +29,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(account_id).run();
 
     await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
-    await notifyAdmin(env, '📊 MT5 Whitelist Request', { Name: user.name, Email: user.email, 'Account ID': String(account_id) });
+    context.waitUntil(notifyAdmin(env, '📊 MT5 Whitelist Request', { Name: user.name, Email: user.email, 'Account ID': String(account_id) }));
 
     return json({ success: true, message: 'Whitelist request submitted.' });
   } catch (e) {

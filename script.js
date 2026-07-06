@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoadingScreen();
                 loadingHidden = true;
             }
-        }, 800); // Minimum display time
+        }, 150); // Minimum display time
     }
     initializeNeuralMatrix();
 });
@@ -101,7 +101,7 @@ window.addEventListener('load', function() {
                 hideLoadingScreen();
                 loadingHidden = true;
             }
-        }, 500);
+        }, 150);
     }
 });
 
@@ -333,8 +333,7 @@ function initFormSystem() {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const submitBtn = form.querySelector('.submit-btn');
-            const formData = new FormData(form);
+            const submitBtn = form.querySelector('.form-submit-btn') || form.querySelector('.submit-btn');
 
             // Validate required fields
             const requiredFields = form.querySelectorAll('[required]');
@@ -347,17 +346,59 @@ function initFormSystem() {
                 }
             });
 
-            if (isValid) {
-                // Create success animation
-                createNeuralSubmissionEffect(submitBtn, () => {
-                    showSuccessModal();
-                    form.reset();
-                });
-            } else {
+            if (!isValid) {
                 createFormErrorEffect(form);
+                return;
             }
+
+            const email = form.querySelector('#email').value.trim();
+            const message = form.querySelector('#textarea').value.trim();
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+
+            fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, message: message })
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(result => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                if (result.ok) {
+                    showFormStatus(form, '', false);
+                    createNeuralSubmissionEffect(submitBtn, () => {
+                        showSuccessModal();
+                        form.reset();
+                    });
+                } else {
+                    showFormStatus(form, result.data.error || 'Failed to send. Please try again.', true);
+                    createFormErrorEffect(form);
+                }
+            })
+            .catch(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                showFormStatus(form, 'Network error. Please check your connection and try again.', true);
+                createFormErrorEffect(form);
+            });
         });
     }
+}
+
+function showFormStatus(form, message, isError) {
+    let statusEl = form.querySelector('.form-status');
+    if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.className = 'form-status';
+        const submitBtn = form.querySelector('.form-submit-btn') || form.querySelector('.submit-btn');
+        form.insertBefore(statusEl, submitBtn);
+    }
+    statusEl.textContent = message;
+    statusEl.classList.toggle('error', !!isError);
+    statusEl.style.display = message ? 'block' : 'none';
 }
 
 // ==== UTILITY FUNCTIONS ====
@@ -515,6 +556,7 @@ function createErrorEffect(field) {
 }
 
 function createNeuralSubmissionEffect(button, callback) {
+    const originalHTML = button.innerHTML;
     button.style.background = 'linear-gradient(135deg, #39ff14 0%, #00ffff 100%)';
     button.innerHTML = '<span>PROCESSING...</span>';
     button.disabled = true;
@@ -546,7 +588,7 @@ function createNeuralSubmissionEffect(button, callback) {
         setTimeout(() => {
             callback();
             button.disabled = false;
-            button.innerHTML = '<span>INITIATE ACCESS PROTOCOL</span>';
+            button.innerHTML = originalHTML;
             button.style.background = '';
         }, 1500);
     }, 2000);

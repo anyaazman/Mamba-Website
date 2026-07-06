@@ -40,7 +40,8 @@ export async function authenticateUser(request, env) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
 
-  const token = authHeader.slice(7);
+  // Tokens are stored hashed so a DB leak doesn't expose live sessions
+  const token = await hashToken(authHeader.slice(7));
   const user = await env.DB.prepare(
     `SELECT u.id, u.name, u.email, u.ib_status, u.ib_email, u.created_at
      FROM tokens t
@@ -64,6 +65,49 @@ async function sha256(text) {
   return bytesToHex(new Uint8Array(hash));
 }
 
+export async function hashToken(token) {
+  return sha256(token);
+}
+
+export function isValidEmail(email) {
+  return typeof email === 'string'
+    && email.length <= 254
+    && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// Fixed-window rate limiter backed by D1. Fails open so a limiter/DB
+// problem can never lock users out of the site.
+export async function rateLimit(env, scope, request, limit, windowSeconds) {
+  try {
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const now = Math.floor(Date.now() / 1000);
+    const bucket = Math.floor(now / windowSeconds);
+    const key = scope + ':' + ip + ':' + bucket;
+    const expiresAt = (bucket + 2) * windowSeconds;
+
+    const row = await env.DB.prepare(
+      'INSERT INTO rate_limits (rl_key, count, expires_at) VALUES (?, 1, ?) ' +
+      'ON CONFLICT(rl_key) DO UPDATE SET count = count + 1 RETURNING count'
+    ).bind(key, expiresAt).first();
+
+    if (row && row.count === 1) {
+      await env.DB.prepare('DELETE FROM rate_limits WHERE expires_at < ?').bind(now).run();
+    }
+
+    return !row || row.count <= limit;
+  } catch (e) {
+    console.error('rateLimit error:', e.message);
+    return true;
+  }
+}
+
+function escapeTelegramHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export async function verifyAdminKey(request, env) {
   const adminKey = request.headers.get('X-Admin-Key');
   if (!adminKey) return false;
@@ -75,7 +119,10 @@ export async function verifyAdminKey(request, env) {
 }
 
 export function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status });
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' }
+  });
 }
 
 export async function recordEvent(env, type, { page, user_id, metadata } = {}) {
@@ -98,7 +145,9 @@ export async function notifyAdmin(env, title, fields) {
     let text = `<b>${title}</b>\n`;
     if (fields) {
       Object.entries(fields).forEach(([key, value]) => {
-        text += `<b>${key}:</b> ${value}\n`;
+        // User-supplied values must be escaped or a "<" in a name would
+        // make Telegram reject the whole message (parse_mode: HTML)
+        text += `<b>${key}:</b> ${escapeTelegramHtml(value)}\n`;
       });
     }
     text += `<b>Time:</b> ${time}`;

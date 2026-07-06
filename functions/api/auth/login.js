@@ -1,11 +1,18 @@
-import { verifySecret, json, recordEvent } from '../_helpers.js';
+import { verifySecret, hashToken, json, recordEvent, rateLimit } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
+    if (!(await rateLimit(env, 'login', request, 10, 300))) {
+      return json({ error: 'Too many login attempts. Please wait a few minutes and try again.' }, 429);
+    }
+
     const { email, password } = await request.json();
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       return json({ error: 'Email and password are required.' }, 400);
+    }
+    if (email.length > 254 || password.length > 128) {
+      return json({ error: 'Invalid email or password.' }, 401);
     }
 
     const user = await env.DB.prepare(
@@ -24,7 +31,10 @@ export async function onRequestPost({ request, env }) {
     const token = crypto.randomUUID();
     await env.DB.prepare(
       'INSERT INTO tokens (user_id, token, expires_at) VALUES (?, ?, datetime("now", "+7 days"))'
-    ).bind(user.id, token).run();
+    ).bind(user.id, await hashToken(token)).run();
+
+    // Opportunistic cleanup so the tokens table doesn't grow forever
+    await env.DB.prepare("DELETE FROM tokens WHERE expires_at <= datetime('now')").run();
 
     const accounts = await env.DB.prepare(
       'SELECT id, account_number, status, created_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'

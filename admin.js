@@ -214,9 +214,9 @@
       btn.addEventListener('click', function() {
         var userId = btn.getAttribute('data-user-id');
         var userName = btn.getAttribute('data-name');
-        var newPw = prompt('Enter new password for ' + userName + ' (min 6 chars):');
+        var newPw = prompt('Enter new password for ' + userName + ' (min 8 chars):');
         if (!newPw) return;
-        if (newPw.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+        if (newPw.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
         fetch(API_BASE + '/admin/reset-user-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
@@ -458,7 +458,12 @@
     html += '</tr></thead><tbody>';
 
     events.forEach(function(evt) {
-      var time = new Date(evt.created_at + 'Z').toLocaleString();
+      // SQLite returns "YYYY-MM-DD HH:MM:SS" (UTC); Safari can't parse the
+      // space-separated form, so normalize to ISO 8601 first
+      var iso = evt.created_at.indexOf('T') === -1
+        ? evt.created_at.replace(' ', 'T') + 'Z'
+        : evt.created_at;
+      var time = new Date(iso).toLocaleString();
       var userDisplay = evt.user_name ? esc(evt.user_name) : (evt.user_id ? 'User #' + evt.user_id : '<em style="color: var(--text-muted);">anonymous</em>');
 
       html += '<tr style="border-bottom: 1px solid var(--border-color);">';

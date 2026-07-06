@@ -105,8 +105,12 @@
         showError(form, 'Passwords do not match.');
         return;
       }
-      if (password.length < 6) {
-        showError(form, 'Password must be at least 6 characters.');
+      if (password.length < 8) {
+        showError(form, 'Password must be at least 8 characters.');
+        return;
+      }
+      if (recovery.length < 8) {
+        showError(form, 'Recovery phrase must be at least 8 characters.');
         return;
       }
 
@@ -176,6 +180,6 @@
     setupTabs();
     setupLogin();
     setupRegister();
-    setTimeout(hideLoadingScreen, 800);
+    setTimeout(hideLoadingScreen, 150);
   });
 })();

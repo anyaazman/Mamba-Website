@@ -1,11 +1,9 @@
 name = "mamba-website"
 compatibility_date = "2025-05-20"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
 database_name = "mamba-db"
 database_id = "67eba1af-8b20-426a-a530-bbef233309b6"
-
-[pages]
-# Static site with Functions directory
