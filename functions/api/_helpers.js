@@ -165,3 +165,41 @@ export async function notifyAdmin(env, title, fields) {
     console.error('notifyAdmin error:', e.message);
   }
 }
+
+// Sync an MT5 account to/from the trading backend whitelist (Manager service).
+// action: 'add' | 'remove'. Fails open — returns { ok:false } instead of throwing
+// so a backend outage can never break the website flow. { skipped:true } means
+// the integration isn't configured (caller should fall back to the manual flow).
+export async function syncBackendWhitelist(env, action, login, notes = '') {
+  const base = env.BACKEND_MANAGER_URL;
+  const key = env.BACKEND_ADMIN_KEY;
+  if (!base || !key) return { ok: false, skipped: true };
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 5000);
+  try {
+    let res;
+    if (action === 'add') {
+      res = await fetch(`${base}/api/admin/accounts/whitelist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+        body: JSON.stringify({ login: String(login), notes }),
+        signal: ctrl.signal
+      });
+    } else {
+      res = await fetch(`${base}/api/admin/accounts/whitelist/${encodeURIComponent(login)}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${key}` },
+        signal: ctrl.signal
+      });
+      // 404 means the account is already absent from the backend whitelist.
+      if (res.status === 404) return { ok: true };
+    }
+    return { ok: res.ok };
+  } catch (e) {
+    console.error('syncBackendWhitelist error:', e.message);
+    return { ok: false };
+  } finally {
+    clearTimeout(timer);
+  }
+}

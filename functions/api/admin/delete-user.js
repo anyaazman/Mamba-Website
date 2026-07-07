@@ -1,6 +1,7 @@
-import { verifyAdminKey, json } from '../_helpers.js';
+import { verifyAdminKey, json, syncBackendWhitelist } from '../_helpers.js';
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
   if (!(await verifyAdminKey(request, env))) {
     return json({ error: 'Unauthorized.' }, 403);
   }
@@ -15,6 +16,15 @@ export async function onRequestPost({ request, env }) {
     const user = await env.DB.prepare('SELECT id FROM users WHERE id = ?').bind(user_id).first();
     if (!user) {
       return json({ error: 'User not found.' }, 404);
+    }
+
+    // Remove this user's MT5 accounts from the backend whitelist before we drop
+    // the D1 rows. Best-effort so backend availability never blocks deletion.
+    const accounts = await env.DB.prepare(
+      'SELECT account_number FROM mt5_accounts WHERE user_id = ?'
+    ).bind(user_id).all();
+    for (const acc of accounts.results) {
+      context.waitUntil(syncBackendWhitelist(env, 'remove', acc.account_number));
     }
 
     await env.DB.prepare('DELETE FROM tokens WHERE user_id = ?').bind(user_id).run();

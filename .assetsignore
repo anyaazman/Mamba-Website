@@ -1,0 +1,16 @@
+# Files that should not be served as static assets by Cloudflare Pages.
+# Mirrors .gitignore's non-web excludes (archives, backups, dev notes).
+*.zip
+Cloudflare web test/
+website-for-cloudflare*/
+*.md
+*.backup
+nul
+*.bat
+process-logo.py
+Thumbs.db
+.DS_Store
+desktop.ini
+.wrangler/
+.dev.vars
+.git/
