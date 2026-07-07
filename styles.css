@@ -5134,3 +5134,215 @@ a:focus-visible {
         scroll-behavior: auto !important;
     }
 }
+
+/* ==== SUPPORT / CONTACT PAGE ==== */
+.support-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+}
+
+.support-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.support-hero h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+.support-hero p {
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.7;
+    font-size: 0.98rem;
+}
+
+.support-methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 3.5rem;
+}
+
+.support-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 2rem 1.25rem;
+    background: var(--neural-surface);
+    border: 1px solid var(--neural-border);
+    border-radius: 16px;
+    text-decoration: none;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.support-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--cyan-primary);
+    box-shadow: var(--glow-cyan);
+}
+
+.support-card-primary {
+    border-color: rgba(10, 132, 255, 0.5);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.08) 0%, var(--neural-surface) 60%);
+}
+
+.support-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(10, 132, 255, 0.12);
+    color: var(--cyan-primary);
+    margin-bottom: 0.5rem;
+}
+
+.support-card-primary .support-card-icon {
+    background: var(--gradient-cyan);
+    color: #fff;
+}
+
+.support-card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.support-card-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.support-card-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.support-form-section {
+    background: var(--neural-surface);
+    border: 1px solid var(--neural-border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+}
+
+.support-form-section h2 {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.support-form-section > p {
+    color: var(--text-secondary);
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+}
+
+.support-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.support-form label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.support-form input,
+.support-form textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--neural-black);
+    border: 1px solid var(--neural-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+    outline: none;
+    border-color: var(--cyan-primary);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+}
+
+.support-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.support-submit {
+    width: 100%;
+    padding: 0.95rem;
+    background: var(--gradient-cyan);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.support-submit:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.support-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.support-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.support-note a {
+    color: var(--cyan-primary);
+    text-decoration: none;
+}
+
+.support-note a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+    .support-methods {
+        grid-template-columns: 1fr;
+    }
+    .support-form-section {
+        padding: 2rem 1.25rem;
+    }
+}
