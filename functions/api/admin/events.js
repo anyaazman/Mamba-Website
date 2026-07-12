@@ -1,6 +1,6 @@
 import { verifyAdminKey, json } from '../_helpers.js';
 
-const VALID_TYPES = ['pageview', 'register', 'login', 'ib_request', 'mt5_added', 'whitelist_request', 'password_reset'];
+const VALID_TYPES = ['pageview', 'register', 'login', 'ib_request', 'mt5_added', 'whitelist_request', 'whitelist_synced', 'password_reset'];
 
 export async function onRequestGet({ request, env }) {
   try {

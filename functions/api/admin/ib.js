@@ -12,9 +12,14 @@ export async function onRequestPost({ request, env }) {
       return json({ error: 'user_id and valid status (approved|rejected) are required.' }, 400);
     }
 
-    await env.DB.prepare(
+    const result = await env.DB.prepare(
       "UPDATE users SET ib_status = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(status, user_id).run();
+
+    // Without this the admin gets a success toast for a user that doesn't exist
+    if (!result.meta.changes) {
+      return json({ error: 'User not found.' }, 404);
+    }
 
     return json({ success: true, message: `IB verification ${status}.` });
   } catch (e) {

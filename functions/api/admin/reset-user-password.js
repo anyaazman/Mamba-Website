@@ -14,9 +14,15 @@ export async function onRequestPost({ request, env }) {
 
     const hashedPw = await hashSecret(new_password);
 
-    await env.DB.prepare(
+    const result = await env.DB.prepare(
       "UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(hashedPw, user_id).run();
+
+    // Without this the admin is told the password was reset for a user that
+    // doesn't exist — and would hand out a password that works nowhere
+    if (!result.meta.changes) {
+      return json({ error: 'User not found.' }, 404);
+    }
 
     await env.DB.prepare('DELETE FROM tokens WHERE user_id = ?').bind(user_id).run();
 
