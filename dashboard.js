@@ -122,6 +122,7 @@ function showComingSoon(event) {
     html += '</div>';
 
     // Step 2: Request IB Access
+    var ibState = ibEffectiveStatus(user);
     var step2Class = ibDone ? 'onboarding-step completed' : 'onboarding-step';
     html += '<div class="' + step2Class + '" id="onboardingStep2">';
     html += '<div class="onboarding-step-badge">' + (ibDone ? '&#10003;' : '2') + '</div>';
@@ -129,10 +130,15 @@ function showComingSoon(event) {
     html += '<h4>Request IB Access</h4>';
     html += '<p>Get verified under our Introducing Broker network to unlock full platform features and support.</p>';
     html += '<div class="demo-note">Try for free &mdash; open a Valetax MT5 demo account to test the platform before trading live.</div>';
-    if (!ibDone) {
-      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">Request IB Verification</button>';
-    } else {
+    if (ibState === 'approved') {
       html += '<button class="onboarding-step-btn" disabled>Verified</button>';
+    } else if (ibState === 'pending') {
+      // Must agree with the banner above, which already says "under review".
+      html += '<button class="onboarding-step-btn" disabled>Verification Pending</button>';
+    } else if (ibState === 'rejected') {
+      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">Re-request IB Verification</button>';
+    } else {
+      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">Request IB Verification</button>';
     }
     html += '</div>';
     html += '</div>';
@@ -146,7 +152,7 @@ function showComingSoon(event) {
     html += '<h4>Apply for Whitelist</h4>';
     html += '<p>Add your MT5 account and request whitelist approval to enable automated trading with Mamba.</p>';
     if (!step3Done) {
-      html += '<button class="onboarding-step-btn" id="onboardingWhitelistBtn">' + (hasAccount ? 'Request Whitelist' : 'Add MT5 Account') + '</button>';
+      html += '<button class="onboarding-step-btn" id="onboardingWhitelistBtn">' + (hasAccount ? 'Go to MT5 Accounts' : 'Add MT5 Account') + '</button>';
     } else {
       html += '<button class="onboarding-step-btn" disabled>Approved</button>';
     }
@@ -184,14 +190,19 @@ function showComingSoon(event) {
       });
     }
   }
+  // Single source of truth for IB state, shared by the banner and the
+  // onboarding steps. New accounts default to 'pending' in the DB before the
+  // user has requested anything, so the presence of ib_email is what separates
+  // "never requested" from "requested, under review".
+  function ibEffectiveStatus(user) {
+    var requested = !!(user.ib_email && String(user.ib_email).trim() !== '');
+    return user.ib_status === 'approved' ? 'approved'
+         : user.ib_status === 'rejected' ? 'rejected'
+         : requested ? 'pending' : 'none';
+  }
+
   function renderIBBanner(user) {
-    var status = user.ib_status;
-    // New accounts default to 'pending' in the DB even before they request
-    // anything — distinguish "never requested" from "requested, under review"
-    var requested = !!(user.ib_email && user.ib_email.trim() !== '');
-    var effective = status === 'approved' ? 'approved'
-      : status === 'rejected' ? 'rejected'
-      : requested ? 'pending' : 'none';
+    var effective = ibEffectiveStatus(user);
 
     var config = {
       approved: { icon: '&#10003;', text: 'IB VERIFIED', cls: 'approved' },
