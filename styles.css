@@ -5802,3 +5802,89 @@ a:focus-visible {
 }
 
 .form-consent a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ==================================================================
+   PRICING & FAQ
+   The site previously never stated a price or how the business earns.
+   For an IB-funded product that is the strongest available trust
+   asset, so it gets its own section rather than a line in the terms.
+   Uses native <details> so it works without JavaScript.
+   ================================================================== */
+.faq-section {
+    padding: 6rem 0;
+    background: #000000;
+}
+
+.faq-lead {
+    max-width: 46rem;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+}
+
+.faq-lead p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.faq-lead strong { color: var(--text-primary); }
+
+.faq-list {
+    max-width: 46rem;
+    margin: 0 auto;
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--neural-border);
+}
+
+.faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    /* Comfortably above the 44px WCAG target size. */
+    padding: 1.35rem 0;
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+    content: '+';
+    flex: 0 0 auto;
+    color: var(--cyan-primary);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+    transition: transform 0.25s ease;
+}
+
+.faq-item[open] summary::after { transform: rotate(45deg); }
+
+.faq-item summary:hover,
+.faq-item summary:focus-visible { color: var(--cyan-primary); }
+
+.faq-item p {
+    margin: 0;
+    padding: 0 0 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.75;
+}
+
+@media (max-width: 768px) {
+    .faq-section { padding: 4rem 0; }
+    .faq-item summary { font-size: 0.88rem; padding: 1.2rem 0; }
+    .faq-item p { font-size: 0.85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .faq-item summary::after { transition: none; }
+}

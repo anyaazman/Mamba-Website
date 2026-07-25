@@ -39,7 +39,7 @@
 
     <!-- Favicon & Styles -->
     <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
-    <link rel="stylesheet" href="styles.css?v=17">
+    <link rel="stylesheet" href="styles.css?v=18">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
@@ -94,6 +94,70 @@
         if (show) document.documentElement.className += ' has-app-banner';
       } catch (e) { /* never let the gate break the page */ }
     })();
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What does Mamba cost?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Mamba is free to download and use. We are compensated by Valetax as an Introducing Broker, based on the trading activity of accounts referred under our partner code. This does not add anything to your trading costs \u2014 your spreads and commissions are the broker's standard rates either way."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Do I need a Valetax account?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Mamba manages trades on a MetaTrader 5 account held with Valetax, our partner broker. If you already have a Valetax account you can ask us to move it under our partner code instead of opening a new one."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I try it without risking money?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Open a free Valetax demo account and run Mamba against simulated funds. Nothing is deposited and no real money is at risk while you are on a demo server."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does Mamba hold or access my money?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. Your funds stay with the broker. Mamba connects to your MT5 account to manage open trades \u2014 it cannot deposit, withdraw, or transfer anything."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does Mamba decide what to trade?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. Mamba is a trade-management tool, not a signal service and not investment advice. You open positions; Mamba applies the stop-loss, breakeven and trailing-stop rules you configure."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What happens if I stop using Mamba?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Your broker account is yours and remains yours. You can stop using the app at any time; any settings it was applying simply stop being applied."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which devices are supported?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "iOS 15.1 or later, and Android. The app is published as Mamba Management by Rahsia Bumi Enterprise."
+                }
+            }
+        ]
+    }
     </script>
 </head>
 <body>
@@ -534,6 +598,54 @@ Track positions, fine-tune parameters, and manage multiple trades effortlessly â
                 </div>
             </div>
         </section>
+
+        <section id="faq" class="faq-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-number">04</span>
+                        PRICING &amp; COMMON QUESTIONS
+                    </h2>
+                    <div class="title-underline"></div>
+                </div>
+
+                <div class="faq-lead">
+                    <p><strong>Mamba is free to use.</strong> We earn from the broker, not from you &mdash; and
+                    we never hold your funds. The full detail is below.</p>
+                </div>
+
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>What does Mamba cost?</summary>
+                        <p>Mamba is free to download and use. We are compensated by Valetax as an Introducing Broker, based on the trading activity of accounts referred under our partner code. This does not add anything to your trading costs â€” your spreads and commissions are the broker's standard rates either way.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Do I need a Valetax account?</summary>
+                        <p>Yes. Mamba manages trades on a MetaTrader 5 account held with Valetax, our partner broker. If you already have a Valetax account you can ask us to move it under our partner code instead of opening a new one.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Can I try it without risking money?</summary>
+                        <p>Yes. Open a free Valetax demo account and run Mamba against simulated funds. Nothing is deposited and no real money is at risk while you are on a demo server.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Does Mamba hold or access my money?</summary>
+                        <p>No. Your funds stay with the broker. Mamba connects to your MT5 account to manage open trades â€” it cannot deposit, withdraw, or transfer anything.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Does Mamba decide what to trade?</summary>
+                        <p>No. Mamba is a trade-management tool, not a signal service and not investment advice. You open positions; Mamba applies the stop-loss, breakeven and trailing-stop rules you configure.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>What happens if I stop using Mamba?</summary>
+                        <p>Your broker account is yours and remains yours. You can stop using the app at any time; any settings it was applying simply stop being applied.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Which devices are supported?</summary>
+                        <p>iOS 15.1 or later, and Android. The app is published as Mamba Management by Rahsia Bumi Enterprise.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">
@@ -560,6 +672,7 @@ Track positions, fine-tune parameters, and manage multiple trades effortlessly â
                     <a href="#features">What It Does</a>
                     <a href="#innovation">Capabilities</a>
                     <a href="#access">Get Started</a>
+                    <a href="#faq">Pricing &amp; FAQ</a>
                 </div>
 
                 <div class="footer-links">
