@@ -5888,3 +5888,16 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     .faq-item summary::after { transition: none; }
 }
+
+/* Who the company is, and explicitly what it is not. Forex sites are expected
+   to state this; "not a broker / no client funds / not advice" is the honest
+   and reassuring version for an IB-model operator. */
+.footer-identity {
+    margin-top: 1rem;
+    max-width: 34rem;
+    color: #949494;
+    font-size: 0.72rem;
+    line-height: 1.7;
+}
+
+.footer-identity strong { color: #c9c9c9; }
