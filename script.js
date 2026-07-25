@@ -226,29 +226,6 @@ function initHeroAnimations() {
         }, index * 800);
     });
 
-    // CTA button interactions
-    const ctaPrimary = document.querySelector('.cta-primary');
-    const ctaSecondary = document.querySelector('.cta-secondary');
-
-    if (ctaPrimary) {
-        ctaPrimary.addEventListener('click', () => {
-            createRippleEffect(ctaPrimary, '#39ff14');
-            // Scroll to access section
-            const accessSection = document.querySelector('#access');
-            if (accessSection) {
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                smoothScrollTo(accessSection.offsetTop - headerHeight, 1000);
-            }
-        });
-    }
-
-    if (ctaSecondary) {
-        ctaSecondary.addEventListener('click', () => {
-            createRippleEffect(ctaSecondary, '#00ffff');
-            // Create modal for demo video
-            createDemoModal();
-        });
-    }
 }
 
 // ==== SCROLL REVEAL SYSTEM ====
@@ -617,68 +594,6 @@ function showSuccessModal() {
             modal.remove();
         }
     }, 5000);
-}
-
-function createDemoModal() {
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10010;
-        animation: modalFadeIn 0.3s ease-out;
-    `;
-
-    const content = document.createElement('div');
-    content.style.cssText = `
-        background: #161b22;
-        border: 2px solid #00ffff;
-        border-radius: 16px;
-        padding: 3rem;
-        text-align: center;
-        max-width: 600px;
-        box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
-    `;
-
-    content.innerHTML = `
-        <h3 style="color: #ffffff; font-size: 1.35rem; margin-bottom: 1rem;">Live demo coming soon</h3>
-        <p style="color: #c9d1d9; line-height: 1.6; margin-bottom: 2rem;">
-            We're preparing a full walkthrough of the app. In the meantime you can open a
-            free Valetax demo account and run Mamba against simulated funds &mdash; no
-            deposit required.
-        </p>
-        <button onclick="this.closest('.modal').remove()" style="
-            background: linear-gradient(135deg, #00ffff 0%, #39ff14 100%);
-            color: #0a0a0a;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-right: 1rem;
-        ">UNDERSTOOD</button>
-        <button onclick="this.closest('.modal').remove(); document.querySelector('#access').scrollIntoView();" style="
-            background: transparent;
-            color: #00ffff;
-            border: 2px solid #00ffff;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-        ">REQUEST EARLY ACCESS</button>
-    `;
-
-    modal.className = 'modal';
-    modal.appendChild(content);
-    document.body.appendChild(modal);
 }
 
 // ==== CSS ANIMATIONS VIA JAVASCRIPT ====

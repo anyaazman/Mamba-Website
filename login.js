@@ -35,6 +35,13 @@
   }
 
   function setupTabs() {
+    // Acquisition CTAs link to login.html#register. Without this, a first-time
+    // visitor who clicks "START NOW" lands on a Sign In form for an account
+    // they do not have yet.
+    function tabFromHash() {
+      return window.location.hash === '#register' ? 'register' : 'login';
+    }
+
     var tabs = document.querySelectorAll('.auth-tab');
     var loginForm = document.querySelector('.login-form');
     var registerForm = document.querySelector('.register-form');
@@ -48,6 +55,13 @@
         registerForm.style.display = target === 'register' ? 'flex' : 'none';
       });
     });
+
+    // Open the tab named by the URL hash on first load.
+    (function () {
+      var want = tabFromHash();
+      var t = document.querySelector('.auth-tab[data-target="' + want + '"]');
+      if (t && want === 'register') t.click();
+    })();
   }
 
   function setupLogin() {
