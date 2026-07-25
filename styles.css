@@ -5918,3 +5918,45 @@ a:focus-visible {
 
 .step-disclosure strong { color: #d6dbe0; }
 .step-disclosure a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Footer risk warning on the marketing pages. Replaces a low-contrast,
+   emoji-prefixed 90-word paragraph: a legally material notice should not be
+   introduced by a cartoon, and #8E8E93 on black failed comfortable reading. */
+/* Scoped to .footer-bottom: the bare `.footer-risk` selector loses to
+   `.footer-bottom p`, which would drag colour back to --text-muted. */
+.footer-bottom .footer-risk {
+    max-width: 75ch;
+    margin: 0;
+    padding: 1.1rem 0 0 1.1rem;
+    border-left: 3px solid #f0a020;
+    color: #c9c9c9;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+}
+
+.footer-bottom .footer-risk strong { color: #ffffff; }
+.footer-bottom .footer-risk a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Registration consent. A ticked box is evidence; a paragraph is not. */
+.form-consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 1.25rem 0;
+}
+
+.form-consent-row input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.2rem;
+    accent-color: var(--cyan-primary);
+}
+
+.form-consent-row label {
+    color: #c9c9c9;
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+.form-consent-row a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
