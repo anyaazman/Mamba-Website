@@ -4912,8 +4912,7 @@ a:focus-visible {
     background: linear-gradient(145deg, #111 0%, #1C1C1E 100%);
     border: 1px solid rgba(10, 132, 255, 0.3);
     border-radius: 20px;
-    /* Top padding clears the absolutely-positioned close button. */
-    padding: 3.25rem 2rem 2.25rem;
+    padding: 2.75rem 2rem 2.25rem;
     text-align: center;
     max-width: 460px;
     width: 90%;
@@ -4942,6 +4941,24 @@ a:focus-visible {
 
 .promo-close:hover {
     color: var(--cyan-primary);
+}
+
+.promo-logo {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.25rem;
+    object-fit: contain;
+    /* Matches .header-logo-img / .loading-logo-img: the asset is a black
+       snake on transparency, so it must be inverted before tinting. */
+    filter: brightness(0)
+            invert(1)
+            sepia(1)
+            saturate(5)
+            hue-rotate(160deg)
+            brightness(1.2)
+            drop-shadow(0 0 14px rgba(10, 132, 255, 0.55))
+            drop-shadow(0 0 24px rgba(48, 213, 200, 0.35));
 }
 
 .promo-popup h2 {
@@ -4986,7 +5003,13 @@ a:focus-visible {
 
 @media (max-width: 480px) {
     .promo-popup {
-        padding: 3rem 1.25rem 1.75rem;
+        padding: 2.5rem 1.25rem 1.75rem;
+    }
+
+    .promo-logo {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 1rem;
     }
 
     .promo-popup h2 {
