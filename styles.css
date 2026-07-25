@@ -613,12 +613,12 @@ video.hero-animation::--webkit-media-controls {
 
 .metric-value {
     display: block;
-    font-size: 2rem; /* Reduced by 20% from 2.5rem */
-    font-weight: 800;
+    font-size: 1.5rem;
+    font-weight: 700;
     font-family: var(--font-mono);
-    color: var(--cyan-primary);
+    color: var(--text-primary);
     text-shadow: none;
-    animation: numberGlow 2s ease-in-out infinite alternate;
+    white-space: nowrap;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -3291,9 +3291,17 @@ a.step-btn-secondary span,
         font-size: 3rem;
     }
 
+    .metric-value { font-size: 1.05rem; }
+    .metric-label { font-size: 0.58rem; letter-spacing: 0.5px; }
+
     .hero-metrics {
-        flex-direction: column;
-        gap: 2rem;
+        /* A compact row, not a stack — this sits above the fold. */
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.25rem 1.75rem;
+        margin-bottom: 2rem;
     }
 
     .hero-actions {
@@ -3346,7 +3354,9 @@ a.step-btn-secondary span,
     }
 
     .hero-video {
-        order: -1;
+        /* Was order:-1, which put a 600px mockup above the headline and pushed
+           the value proposition and both CTAs off the first screen. */
+        order: 2;
         width: 100%;
         display: flex;
         justify-content: center;
@@ -3795,7 +3805,7 @@ a.step-btn-secondary span,
     }
 
     .metric-value {
-        font-size: 2rem;
+        font-size: 1.05rem;
     }
 
     .cta-primary,
