@@ -498,42 +498,9 @@ function createErrorEffect(field) {
 }
 
 function createNeuralSubmissionEffect(button, callback) {
-    const originalHTML = button.innerHTML;
-    button.style.background = 'linear-gradient(135deg, #39ff14 0%, #00ffff 100%)';
-    button.innerHTML = '<span>PROCESSING...</span>';
-    button.disabled = true;
-
-    // Create loading particles
-    const particles = [];
-    for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.style.cssText = `
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: #fff;
-            border-radius: 50%;
-            top: ${Math.random() * 100}%;
-            left: ${Math.random() * 100}%;
-            animation: particleFloat 2s ease-out;
-            pointer-events: none;
-        `;
-        button.appendChild(particle);
-        particles.push(particle);
-    }
-
-    setTimeout(() => {
-        particles.forEach(p => p.remove());
-        button.innerHTML = '<span>ACCESS GRANTED</span>';
-        button.style.background = 'linear-gradient(135deg, #39ff14 0%, #39ff14 100%)';
-
-        setTimeout(() => {
-            callback();
-            button.disabled = false;
-            button.innerHTML = originalHTML;
-            button.style.background = '';
-        }, 1500);
-    }, 2000);
+    // The contact API has already returned by the time this runs, so any
+    // "processing" state here would be theatre. Just hand back control.
+    if (typeof callback === 'function') callback();
 }
 
 function createFormErrorEffect(form) {

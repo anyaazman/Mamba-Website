@@ -5792,3 +5792,13 @@ a:focus-visible {
 @media (max-width: 768px) {
     .hero-media-note { font-size: 0.62rem; padding: 0 1rem; }
 }
+
+/* Consent copy shown above the Create Account button. */
+.form-consent {
+    margin: 0 0 1rem;
+    color: #949494;
+    font-size: 0.72rem;
+    line-height: 1.6;
+}
+
+.form-consent a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
