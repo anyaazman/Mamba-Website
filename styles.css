@@ -5618,3 +5618,35 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     .has-app-banner .app-banner { transition: none; }
 }
+
+/* ==================================================================
+   SITE-WIDE RISK NOTICE
+   Forex convention: a risk warning appears on every page, not only
+   where a full footer exists. Deliberately low-contrast-but-legible
+   (4.5:1) so it is present without shouting.
+   ================================================================== */
+.risk-strip {
+    display: block;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.25rem 2rem 2rem;
+    border-top: 1px solid var(--neural-border);
+    color: #949494;
+    font-size: 0.72rem;
+    line-height: 1.7;
+    text-align: left;
+}
+
+.risk-strip strong { color: #c9c9c9; font-weight: 700; }
+
+.risk-strip a {
+    color: var(--cyan-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.risk-strip a:hover { color: var(--neon-green, #30d5c8); }
+
+@media (max-width: 768px) {
+    .risk-strip { padding: 1rem 1.25rem 1.75rem; font-size: 0.68rem; }
+}
