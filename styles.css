@@ -5777,3 +5777,18 @@ a:focus-visible {
     font-size: 0.8rem;
     line-height: 1.6;
 }
+
+/* Caption for the hero app screenshot. Any visible account figures must be
+   labelled as illustrative so they cannot read as a performance claim. */
+.hero-media-note {
+    max-width: 34rem;
+    margin: 1rem auto 0;
+    color: #949494;
+    font-size: 0.66rem;
+    line-height: 1.55;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .hero-media-note { font-size: 0.62rem; padding: 0 1rem; }
+}
