@@ -5372,3 +5372,220 @@ a:focus-visible {
         padding: 2rem 1.25rem;
     }
 }
+/* ==================================================================
+   PLATFORM-AWARE APP DOWNLOAD
+   config.js sets data-platform on <html> and adds .platform-ios /
+   .platform-android to each [data-app-store-section]. On a phone we
+   promote the store that can actually install the app and demote the
+   other, rather than showing two equal-weight buttons where one is a
+   dead end for that device.
+   ================================================================== */
+
+/* Matching store: primary, first in the stack. */
+[data-app-store-section].platform-ios .store-btn.app-store,
+[data-app-store-section].platform-android .store-btn.google-play {
+    order: 1;
+    flex: 1 1 100%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 26px rgba(10, 132, 255, 0.45);
+    border-color: rgba(10, 132, 255, 0.85);
+}
+
+/* Non-matching store: kept available, visually demoted. */
+[data-app-store-section].platform-ios .store-btn.google-play,
+[data-app-store-section].platform-android .store-btn.app-store {
+    order: 2;
+    flex: 0 0 auto;
+    min-width: 0;
+    width: auto;
+    align-self: flex-start;
+    padding: 0.45rem 0.8rem;
+    gap: 0.45rem;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+    opacity: 0.5;
+}
+
+[data-app-store-section].platform-ios .store-btn.google-play:hover,
+[data-app-store-section].platform-android .store-btn.app-store:hover {
+    opacity: 1;
+}
+
+[data-app-store-section].platform-ios .store-btn.google-play .store-icon svg,
+[data-app-store-section].platform-android .store-btn.app-store .store-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+[data-app-store-section].platform-ios .store-btn.google-play .store-label,
+[data-app-store-section].platform-android .store-btn.app-store .store-label {
+    display: none;
+}
+
+[data-app-store-section].platform-ios .store-btn.google-play .store-name,
+[data-app-store-section].platform-android .store-btn.app-store .store-name {
+    font-size: 0.68rem;
+    white-space: nowrap;
+}
+
+/* ==================================================================
+   APP INSTALL BANNER
+   Shown only where the device can install the app AND Apple's native
+   Smart App Banner will not appear (Android, non-Safari iOS browsers,
+   in-app webviews). The pre-paint gate in each page's <head> adds
+   .has-app-banner to <html>; everything below keys off that class.
+
+   The height is a fixed value rather than measured, so the offset
+   reserved on <main> always matches the banner exactly and revealing
+   it costs zero layout shift.
+   ================================================================== */
+
+:root {
+    /* Measured header height. Not the same as main's margin-top, which
+       is slightly smaller — app-banner.js re-measures at runtime so a
+       future header change cannot silently reintroduce an overlap. */
+    --header-h: 108px;
+    --app-banner-h: 0px;
+}
+
+@media (max-width: 768px) { :root { --header-h: 100px; } }
+@media (max-width: 480px) { :root { --header-h: 73px; } }
+
+:root.has-app-banner { --app-banner-h: 64px; }
+@media (max-width: 480px) { :root.has-app-banner { --app-banner-h: 58px; } }
+
+.app-banner { display: none; }
+
+/* Content clearance, applied ONLY when the banner is showing so desktop and
+   iOS Safari keep their existing spacing untouched. Uses the true header
+   height so main clears the header AND the banner. */
+.has-app-banner main {
+    margin-top: calc(var(--header-h) + var(--app-banner-h));
+}
+
+.has-app-banner .hero {
+    min-height: calc(100vh - var(--header-h) - var(--app-banner-h));
+}
+
+.has-app-banner .app-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    height: var(--app-banner-h);
+    box-sizing: border-box;
+    padding: 0 0.85rem;
+    /* Below the header (1000) so the header stays visually dominant, and far
+       below the IB carousel modal and nav drawer which sit at 9998-10020. */
+    z-index: 999;
+    background: rgba(10, 10, 10, 0.98);
+    border-bottom: 1px solid var(--neural-border);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    /* A long app name must never grow the bar into interstitial territory. */
+    overflow: hidden;
+    transform: translateY(0);
+    transition: transform 0.3s ease, opacity 0.25s ease;
+}
+
+/* Slides away with the hide-on-scroll header. Moving by its own height plus
+   the header's is what actually clears the viewport — translateY(-100%)
+   alone would park it behind the header instead. */
+.has-app-banner .app-banner.hidden,
+.has-app-banner .app-banner.app-banner-dismissed {
+    transform: translateY(calc(-100% - var(--header-h)));
+}
+
+.has-app-banner .app-banner.app-banner-dismissed { opacity: 0; }
+
+.app-banner-close {
+    flex: 0 0 auto;
+    width: 44px;                 /* WCAG 2.5.8 target size, next to a CTA */
+    height: 44px;
+    margin-left: -0.85rem;       /* hugs the edge without shrinking the target */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #949494;              /* 4.5:1 on near-black; #666 is only ~3.6:1 */
+    cursor: pointer;
+}
+
+.app-banner-close svg { width: 15px; height: 15px; }
+.app-banner-close:hover,
+.app-banner-close:focus-visible { color: #ffffff; }
+
+.app-banner-icon {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+}
+
+.app-banner-text {
+    flex: 1 1 auto;
+    min-width: 0;                /* lets the ellipsis actually engage */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.25;
+}
+
+.app-banner-title,
+.app-banner-sub,
+.app-banner-meta {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-banner-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.app-banner-sub,
+.app-banner-meta {
+    font-size: 0.61rem;
+    color: #949494;
+    letter-spacing: 0.3px;
+}
+
+.app-banner-cta {
+    flex: 0 0 auto;
+    min-width: 62px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.9rem;
+    border-radius: 100px;
+    background: var(--gradient-neon, linear-gradient(135deg, #00d4ff, #0a84ff));
+    color: #000000;
+    font-family: var(--font-primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+/* At 400% zoom the viewport drops to ~145px tall. Keeping a promo bar there
+   would fail Reflow (1.4.10) and Focus Not Obscured (2.4.11), so drop it. */
+@media (max-height: 400px) {
+    :root.has-app-banner { --app-banner-h: 0px; }
+    .has-app-banner .app-banner { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .has-app-banner .app-banner { transition: none; }
+}
