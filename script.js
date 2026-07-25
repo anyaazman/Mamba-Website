@@ -26,7 +26,7 @@
     });
 })();
 
-// ==== NEURAL TRADING MATRIX - INTERACTIVE EXPERIENCE ====
+// ==== HOMEPAGE INTERACTIONS ====
 
 // ==== COMING SOON TOAST ====
 function showComingSoon(event) {
@@ -226,21 +226,6 @@ function initHeroAnimations() {
         }, index * 800);
     });
 
-    // Animated metrics counters
-    const metrics = document.querySelectorAll('.metric-value');
-
-    const observerMetrics = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounter(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    metrics.forEach(metric => {
-        observerMetrics.observe(metric);
-    });
-
     // CTA button interactions
     const ctaPrimary = document.querySelector('.cta-primary');
     const ctaSecondary = document.querySelector('.cta-secondary');
@@ -438,26 +423,6 @@ function typeWriter(element, text, speed) {
     type();
 }
 
-function animateCounter(element) {
-    const target = element.textContent;
-    const isNumber = /^\d/.test(target);
-
-    if (isNumber) {
-        const finalValue = parseFloat(target.replace(/[^\d.]/g, ''));
-        let current = 0;
-        const increment = finalValue / 60;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= finalValue) {
-                element.textContent = target;
-                clearInterval(timer);
-            } else {
-                element.textContent = target.replace(/[\d.]+/, current.toFixed(target.includes('.') ? 3 : 0));
-            }
-        }, 16);
-    }
-}
-
 function createRippleEffect(element, color) {
     const ripple = document.createElement('div');
     const rect = element.getBoundingClientRect();
@@ -628,8 +593,8 @@ function showSuccessModal() {
 
     content.innerHTML = `
         <div style="font-size: 4rem; margin-bottom: 1rem;">🚀</div>
-        <h3 style="color: #39ff14; font-size: 1.5rem; margin-bottom: 1rem; text-transform: uppercase;">NEURAL ACCESS INITIATED</h3>
-        <p style="color: #c9d1d9; margin-bottom: 2rem;">Welcome to the future of algorithmic trading. Your neural link has been established.</p>
+        <h3 style="color: #30d5c8; font-size: 1.35rem; margin-bottom: 1rem;">Message sent</h3>
+        <p style="color: #c9d1d9; margin-bottom: 2rem;">Thanks for getting in touch. Our team will reply to your email within one business day.</p>
         <button onclick="this.closest('.modal').remove()" style="
             background: linear-gradient(135deg, #39ff14 0%, #00ffff 100%);
             color: #0a0a0a;
@@ -639,7 +604,7 @@ function showSuccessModal() {
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-        ">ENTER THE MATRIX</button>
+        ">Close</button>
     `;
 
     modal.className = 'modal';
@@ -682,16 +647,12 @@ function createDemoModal() {
     `;
 
     content.innerHTML = `
-        <h3 style="color: #00ffff; font-size: 2rem; margin-bottom: 2rem; text-transform: uppercase;">NEURAL DEMO PROTOCOL</h3>
-        <div style="background: #0a0a0a; border: 1px solid #30363d; border-radius: 8px; padding: 2rem; margin-bottom: 2rem;">
-            <div style="color: #39ff14; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6;">
-                > Initializing neural trading matrix...<br>
-                > Connecting to quantum servers...<br>
-                > Loading algorithmic protocols...<br>
-                > Demo ready for deployment.<br><br>
-                <span style="color: #00ffff;">[SYSTEM]: Demo will be available in the next release cycle.</span>
-            </div>
-        </div>
+        <h3 style="color: #ffffff; font-size: 1.35rem; margin-bottom: 1rem;">Live demo coming soon</h3>
+        <p style="color: #c9d1d9; line-height: 1.6; margin-bottom: 2rem;">
+            We're preparing a full walkthrough of the app. In the meantime you can open a
+            free Valetax demo account and run Mamba against simulated funds &mdash; no
+            deposit required.
+        </p>
         <button onclick="this.closest('.modal').remove()" style="
             background: linear-gradient(135deg, #00ffff 0%, #39ff14 100%);
             color: #0a0a0a;
