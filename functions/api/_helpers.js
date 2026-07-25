@@ -52,7 +52,7 @@ export async function authenticateUser(request, env) {
   if (!user) return null;
 
   const accounts = await env.DB.prepare(
-    'SELECT id, account_number, status, created_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
+    'SELECT id, account_number, status, created_at, whitelist_requested_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
   ).bind(user.id).all();
 
   user.mt5_accounts = accounts.results;

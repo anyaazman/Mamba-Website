@@ -572,7 +572,12 @@ function showComingSoon(event) {
       html += '<span class="mt5-account-number">' + escapeHtml(acc.account_number) + '</span>';
       html += '<span class="status-badge status-' + acc.status + '">' + acc.status.toUpperCase() + '</span>';
       html += '</div>';
-      if (acc.status !== 'approved') {
+      // 'pending' covers both "just added" and "requested, awaiting review",
+      // so whitelist_requested_at is what tells them apart.
+      var awaitingReview = acc.status === 'pending' && !!acc.whitelist_requested_at;
+      if (awaitingReview) {
+        html += '<span class="mt5-review-note">Requested &mdash; under review</span>';
+      } else if (acc.status !== 'approved') {
         html += '<button class="request-btn request-whitelist-btn" data-account-id="' + acc.id + '" style="font-size: 0.7rem; padding: 0.35rem 0.9rem;">' + (acc.status === 'rejected' ? 'Re-request' : 'Request Whitelist') + '</button>';
       }
       html += '</div>';

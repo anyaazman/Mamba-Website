@@ -14,7 +14,7 @@
 
   function cloneUser(u) {
     var accs = getDb().mt5_accounts.filter(function(a) { return a.user_id === u.id; });
-    return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', ib_type: u.ib_type || '', created_at: u.created_at, mt5_accounts: accs.map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; }) };
+    return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', ib_type: u.ib_type || '', created_at: u.created_at, mt5_accounts: accs.map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at, whitelist_requested_at: a.whitelist_requested_at || null }; }) };
   }
 
   window.fetch = function(url, options) {
@@ -109,7 +109,7 @@
           var au3 = getAuthUser();
           if (!au3) { json = { error: 'Not authenticated.' }; status = 401; }
           else {
-            var accs = db.mt5_accounts.filter(function(a) { return a.user_id === au3.id; }).map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; });
+            var accs = db.mt5_accounts.filter(function(a) { return a.user_id === au3.id; }).map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at, whitelist_requested_at: a.whitelist_requested_at || null }; });
             json = { accounts: accs };
           }
         }
@@ -131,7 +131,7 @@
             var acc = db.mt5_accounts.find(function(a) { return a.id === body.account_id && a.user_id === au5.id; });
             if (!acc) { json = { error: 'MT5 account not found.' }; status = 404; }
             else if (acc.status === 'approved') { json = { error: 'Already approved.' }; status = 400; }
-            else { acc.status = 'pending'; addDemoEvent('whitelist_request', au5.id, { account_id: body.account_id }); console.log('[DEMO NOTIFY] 📊 MT5 Whitelist Request | Name: ' + au5.name + ' | Email: ' + au5.email + ' | Account ID: ' + body.account_id); saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
+            else { acc.status = 'pending'; acc.whitelist_requested_at = new Date().toISOString(); addDemoEvent('whitelist_request', au5.id, { account_id: body.account_id }); console.log('[DEMO NOTIFY] 📊 MT5 Whitelist Request | Name: ' + au5.name + ' | Email: ' + au5.email + ' | Account ID: ' + body.account_id); saveDb(db); json = { success: true, message: 'Whitelist request submitted.' }; }
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/user/request-ib')) {
@@ -150,7 +150,7 @@
           else {
             var filter = new URL(urlStr, 'http://localhost').searchParams.get('status');
             var users = db.users.map(function(u) {
-              var accs = db.mt5_accounts.filter(function(a) { return a.user_id === u.id; }).map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at }; });
+              var accs = db.mt5_accounts.filter(function(a) { return a.user_id === u.id; }).map(function(a) { return { id: a.id, account_number: a.account_number, status: a.status, created_at: a.created_at, whitelist_requested_at: a.whitelist_requested_at || null }; });
               return { id: u.id, name: u.name, email: u.email, ib_status: u.ib_status, ib_email: u.ib_email || '', ib_type: u.ib_type || '', created_at: u.created_at, mt5_accounts: accs };
             });
             if (filter) { users = users.filter(function(u) { return u.ib_status === filter; }); }

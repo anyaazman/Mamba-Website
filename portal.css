@@ -1513,3 +1513,13 @@
     padding: 0.6rem 0.5rem;
   }
 }
+
+/* Shown instead of the request button once a whitelist request is recorded.
+   Without it the row looks identical before and after requesting, because
+   mt5_accounts.status is 'pending' in both cases. */
+.mt5-review-note {
+    color: #949494;
+    font-size: 0.7rem;
+    font-style: italic;
+    white-space: nowrap;
+}

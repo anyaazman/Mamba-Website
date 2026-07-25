@@ -43,8 +43,10 @@ export async function onRequestPost(context) {
     }
 
     // Backend sync failed / not configured — preserve the existing manual flow.
+    // Stamp the request time so the dashboard can tell "added" from
+    // "requested"; status is 'pending' in both cases.
     await env.DB.prepare(
-      "UPDATE mt5_accounts SET status = 'pending' WHERE id = ?"
+      "UPDATE mt5_accounts SET status = 'pending', whitelist_requested_at = datetime('now') WHERE id = ?"
     ).bind(account_id).run();
 
     await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });

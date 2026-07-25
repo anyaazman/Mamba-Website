@@ -1,0 +1,23 @@
+-- Record when a whitelist request was made, so "added" and "requested" are
+-- distinguishable states.
+--
+-- Why a timestamp rather than a new status: mt5_accounts.status defaults to
+-- 'pending' on insert, and request-whitelist.js also sets 'pending' on the
+-- manual path when backend sync fails. The two states were therefore
+-- byte-identical, so the dashboard rendered the same PENDING badge and the
+-- same "Request Whitelist" button before and after a request — the user had
+-- no way to tell it had registered. The column's CHECK constraint,
+-- CHECK(status IN ('pending','approved','rejected')), leaves no room for a
+-- 'requested' value without rewriting the table, so the request time is
+-- recorded alongside instead. This mirrors how ib_email already distinguishes
+-- "never requested" from "under review" for IB verification.
+--
+-- NOT idempotent: SQLite has no ADD COLUMN IF NOT EXISTS, so re-running this
+-- fails with "duplicate column name". Same property as 0002 and 0004.
+--
+-- Numbered 0008 because 0007 is reserved by the pending, not-yet-committed
+-- 0007_add_valetax_session.sql in the working tree.
+--
+-- Run: wrangler d1 execute mamba-db --remote --file=migrations/0008_add_whitelist_requested_at.sql
+
+ALTER TABLE mt5_accounts ADD COLUMN whitelist_requested_at TEXT;
