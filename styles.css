@@ -5766,3 +5766,14 @@ a:focus-visible {
 @media (max-width: 380px) {
     .header-actions .cta-secondary { padding: 0.45rem 0.7rem !important; font-size: 0.6rem !important; }
 }
+
+/* Introducing-Broker disclosure shown inline where the broker is introduced. */
+.ib-note {
+    display: block;
+    margin-top: 0.85rem;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--neural-border);
+    color: #949494;
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
