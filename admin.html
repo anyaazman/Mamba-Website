@@ -69,6 +69,7 @@
                     <div class="filter-tabs" id="viewTabs">
                         <button class="filter-tab active" data-view="users">Users</button>
                         <button class="filter-tab" data-view="events">Events</button>
+                        <button class="filter-tab" data-view="valetax">Valetax</button>
                     </div>
 
                     <!-- Users View -->
@@ -114,6 +115,34 @@
                         </div>
                         <div id="eventsContainer"></div>
                     </div>
+
+                    <!-- Valetax View (hidden by default) -->
+                    <div id="valetaxView" style="display: none;">
+                        <div class="portal-card" style="max-width: 480px; margin: 0 auto;">
+                            <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Valetax Partner Session</h3>
+                            <p id="valetaxStatusLine" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Checking status…</p>
+
+                            <!-- Connect flow -->
+                            <div id="valetaxConnect">
+                                <button id="valetaxGetCaptchaBtn" class="submit-btn" style="width: 100%;">Connect Valetax</button>
+
+                                <div id="valetaxCaptchaBox" style="display: none; margin-top: 1.25rem;">
+                                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">Type the number shown below:</p>
+                                    <div style="background: #fff; border-radius: 8px; padding: 0.5rem; text-align: center; margin-bottom: 0.75rem;">
+                                        <img id="valetaxCaptchaImg" alt="CAPTCHA" style="max-width: 100%; height: auto;">
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <input type="text" id="valetaxCaptchaInput" inputmode="numeric" autocomplete="off" placeholder="e.g. 1938" style="flex: 1; padding: 0.6rem 0.8rem; background: transparent; border: 1px solid #414141; border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 1rem; letter-spacing: 2px;">
+                                        <button id="valetaxLoginBtn" class="submit-btn" style="white-space: nowrap; padding: 0.6rem 1rem;">Sign In</button>
+                                    </div>
+                                    <button id="valetaxRefreshCaptchaBtn" style="margin-top: 0.5rem; background: none; border: none; color: var(--cyan-primary); font-size: 0.75rem; cursor: pointer;">↻ New image</button>
+                                </div>
+                            </div>
+
+                            <!-- Spike diagnostic output -->
+                            <pre id="valetaxDebug" style="display: none; margin-top: 1.25rem; padding: 0.75rem; background: var(--bg-card, #1C1C1E); border: 1px solid var(--neural-border, #2e2e30); border-radius: 8px; color: var(--text-secondary); font-size: 0.7rem; white-space: pre-wrap; word-break: break-word; overflow-x: auto;"></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -121,6 +150,6 @@
 
     <script src="tracking.js?v=1"></script>
     <script src="demo.js?v=4"></script>
-    <script src="admin.js?v=3"></script>
+    <script src="admin.js?v=4"></script>
 </body>
 </html>

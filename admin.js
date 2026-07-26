@@ -324,15 +324,103 @@
         document.querySelectorAll('#viewTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
         var view = tab.getAttribute('data-view');
-        if (view === 'users') {
-          document.getElementById('usersView').style.display = 'block';
-          document.getElementById('eventsView').style.display = 'none';
-        } else {
-          document.getElementById('usersView').style.display = 'none';
-          document.getElementById('eventsView').style.display = 'block';
-          loadEvents();
-        }
+        document.getElementById('usersView').style.display = view === 'users' ? 'block' : 'none';
+        document.getElementById('eventsView').style.display = view === 'events' ? 'block' : 'none';
+        document.getElementById('valetaxView').style.display = view === 'valetax' ? 'block' : 'none';
+        if (view === 'events') loadEvents();
+        if (view === 'valetax') loadValetaxStatus();
       });
+    });
+  }
+
+  // --- Valetax View (connect flow) ---
+  // The operator solves the Valetax login CAPTCHA here by hand; the backend
+  // only relays the answer and stores the resulting short-lived FX-Token.
+  var currentCaptchaId = null;
+
+  function valetaxDebug(obj) {
+    var el = document.getElementById('valetaxDebug');
+    el.style.display = 'block';
+    el.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+  }
+
+  function loadValetaxStatus() {
+    var line = document.getElementById('valetaxStatusLine');
+    line.textContent = 'Checking status…';
+    fetch(API_BASE + '/admin/valetax/status', { headers: { 'X-Admin-Key': adminKey } })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.connected) {
+          line.innerHTML = '<span style="color: var(--neon-green);">● Connected</span> — session valid until ' + esc(data.expiresAt || 'unknown');
+        } else if (data.expired) {
+          line.innerHTML = '<span style="color: #FFD60A;">● Session expired</span> — sign in again to refresh.';
+        } else {
+          line.innerHTML = '<span style="color: var(--text-muted);">○ Not connected</span>';
+        }
+      })
+      .catch(function() { line.textContent = 'Could not check status.'; });
+  }
+
+  function fetchCaptcha() {
+    var img = document.getElementById('valetaxCaptchaImg');
+    var box = document.getElementById('valetaxCaptchaBox');
+    var btn = document.getElementById('valetaxGetCaptchaBtn');
+    btn.disabled = true; btn.textContent = 'Loading…';
+    fetch(API_BASE + '/admin/valetax/captcha', { headers: { 'X-Admin-Key': adminKey } })
+      .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+      .then(function(r) {
+        btn.disabled = false; btn.textContent = 'Connect Valetax';
+        if (!r.ok || !r.data.imageBase64) {
+          valetaxDebug(r.data);
+          showToast('Captcha failed — see diagnostics.', 'error');
+          return;
+        }
+        currentCaptchaId = r.data.captchaId;
+        img.src = 'data:image/png;base64,' + r.data.imageBase64;
+        box.style.display = 'block';
+        document.getElementById('valetaxCaptchaInput').value = '';
+        document.getElementById('valetaxCaptchaInput').focus();
+      })
+      .catch(function(e) {
+        btn.disabled = false; btn.textContent = 'Connect Valetax';
+        valetaxDebug('Network error: ' + e.message);
+      });
+  }
+
+  function submitValetaxLogin() {
+    var answer = document.getElementById('valetaxCaptchaInput').value.trim();
+    if (!answer) { showToast('Enter the captcha number.', 'error'); return; }
+    if (!currentCaptchaId) { showToast('Get a captcha first.', 'error'); return; }
+    var btn = document.getElementById('valetaxLoginBtn');
+    btn.disabled = true; btn.textContent = '…';
+    fetch(API_BASE + '/admin/valetax/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+      body: JSON.stringify({ captchaId: currentCaptchaId, captchaAnswer: answer })
+    })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        btn.disabled = false; btn.textContent = 'Sign In';
+        valetaxDebug(data);              // spike: always show raw upstream result
+        if (data.stored) {
+          showToast('Connected to Valetax.', 'success');
+          loadValetaxStatus();
+        } else {
+          showToast('Sign-in did not return a token — see diagnostics.', 'error');
+        }
+      })
+      .catch(function(e) {
+        btn.disabled = false; btn.textContent = 'Sign In';
+        valetaxDebug('Network error: ' + e.message);
+      });
+  }
+
+  function setupValetaxView() {
+    document.getElementById('valetaxGetCaptchaBtn').addEventListener('click', fetchCaptcha);
+    document.getElementById('valetaxRefreshCaptchaBtn').addEventListener('click', fetchCaptcha);
+    document.getElementById('valetaxLoginBtn').addEventListener('click', submitValetaxLogin);
+    document.getElementById('valetaxCaptchaInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); submitValetaxLogin(); }
     });
   }
 
@@ -488,6 +576,7 @@
     setupViewTabs();
     setupDateFilterTabs();
     setupEventFilterTabs();
+    setupValetaxView();
 
     if (adminKey) {
       verifyKey(adminKey).then(function(valid) {

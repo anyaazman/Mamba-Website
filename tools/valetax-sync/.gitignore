@@ -1,0 +1,6 @@
+captcha.png
+node_modules/
+package-lock.json
+session.json
+token.json
+valetax-snapshot.json
