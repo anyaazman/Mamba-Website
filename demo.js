@@ -59,7 +59,8 @@
       try {
         // --- AUTH ---
         if (method === 'POST' && urlStr.includes('/api/auth/register')) {
-          if (db.users.some(function(u) { return u.email === body.email; })) {
+          if (body.accept_terms !== true) { json = { error: 'You must accept the Terms of Service, Privacy Policy and Risk Disclosure.' }; status = 400; }
+            else if (db.users.some(function(u) { return u.email === body.email; })) {
             json = { error: 'Email already registered.' }; status = 409;
           } else {
             var nu = { id: Date.now(), name: body.name, email: body.email, password: body.password, recovery_phrase: body.recovery_phrase, ib_status: 'pending', ib_email: '', ib_type: '', created_at: new Date().toISOString() };

@@ -133,7 +133,8 @@
       fetch(API_BASE + '/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, password: password, recovery_phrase: recovery })
+        body: JSON.stringify({ name: name, email: email, password: password, recovery_phrase: recovery,
+                               accept_terms: !!(form.querySelector('[name="accept_terms"]') || {}).checked })
       })
       .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
       .then(function(result) {
