@@ -158,8 +158,13 @@ function initNavigationSystem() {
     if (navItems.length > 0) {
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                e.preventDefault();
                 const targetId = item.getAttribute('href');
+
+                // Only hijack in-page anchors. Real page links (nav.js's
+                // how-Mamba-work.html, support.html, index.html#get-app)
+                // must be left alone or preventDefault kills navigation.
+                if (!targetId || targetId.charAt(0) !== '#' || targetId === '#') return;
+                e.preventDefault();
                 const targetSection = document.querySelector(targetId);
 
                 if (targetSection) {
