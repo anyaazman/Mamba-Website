@@ -226,7 +226,16 @@ function showComingSoon(event) {
       } else {
         html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Request verification that you are under our IB network to unlock all features.</p>';
       }
-      html += '<button class="request-btn" id="requestIBBtn">Request IB Verification</button>';
+      // Offering "Request IB Verification" while the banner directly above says
+      // the request is already under review invited duplicate submissions and
+      // read as though the first one had been lost.
+      if (effective === 'pending') {
+        html += '<button class="request-btn" disabled>Under Review</button>';
+      } else {
+        html += '<button class="request-btn" id="requestIBBtn">' +
+                (effective === 'rejected' ? 'Re-request IB Verification' : 'Request IB Verification') +
+                '</button>';
+      }
       html += '</div>';
     }
 
