@@ -3295,12 +3295,13 @@ a.step-btn-secondary span,
     .metric-label { font-size: 0.58rem; letter-spacing: 0.5px; }
 
     .hero-metrics {
-        /* A compact row, not a stack — this sits above the fold. */
+        /* One metric per row, matching the original hero design. This is
+           taller than a wrapped row, which pushes the CTAs further down the
+           first screen — accepted trade-off, see also .hero-video order. */
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
         justify-content: center;
-        gap: 1.25rem 1.75rem;
+        gap: 2rem;
         margin-bottom: 2rem;
     }
 
@@ -3354,9 +3355,10 @@ a.step-btn-secondary span,
     }
 
     .hero-video {
-        /* Was order:-1, which put a 600px mockup above the headline and pushed
-           the value proposition and both CTAs off the first screen. */
-        order: 2;
+        /* Video leads on mobile, matching the original hero design. Note this
+           pushes the headline, metrics and both CTAs further down the first
+           screen — the trade-off is deliberate. */
+        order: -1;
         width: 100%;
         display: flex;
         justify-content: center;
@@ -5010,6 +5012,76 @@ a:focus-visible {
     transform: translateY(-2px);
     box-shadow: 0 0 50px rgba(0, 180, 216, 0.8);
 }
+
+/* ---- Promo popup: dual CTA (app + member area) ----
+   Which button is primary depends on the device: a phone can install the app,
+   so that leads; a desktop cannot, so Member Area leads and the app button
+   drops to an outline that jumps to the on-page store section. The platform
+   comes from <html data-platform>, set by config.js. */
+.promo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.promo-actions .promo-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.85rem 1.5rem;
+}
+
+.promo-cta svg { width: 17px; height: 17px; flex-shrink: 0; }
+.promo-cta .icon-ios,
+.promo-cta .icon-android { display: none; }
+html[data-platform="ios"] .promo-cta .icon-ios { display: block; }
+html[data-platform="android"] .promo-cta .icon-android { display: block; }
+html[data-platform="ios"] .promo-cta .icon-generic,
+html[data-platform="android"] .promo-cta .icon-generic { display: none; }
+
+/* Outline (secondary) treatment. The :not([data-platform]) case covers the
+   window before config.js runs, and the case where its script never loads. */
+.promo-cta-outline,
+html[data-platform="desktop"] .promo-cta-app,
+html:not([data-platform]) .promo-cta-app {
+    background: transparent;
+    border: 2px solid var(--cyan-primary);
+    color: var(--cyan-primary);
+    box-shadow: none;
+}
+
+html[data-platform="desktop"] .promo-cta-app:hover,
+html:not([data-platform]) .promo-cta-app:hover {
+    background: rgba(10, 132, 255, 0.12);
+    box-shadow: 0 0 24px rgba(10, 132, 255, 0.45);
+}
+
+/* On a phone the app becomes the primary action and Member Area steps back. */
+html[data-platform="ios"] .promo-cta-member,
+html[data-platform="android"] .promo-cta-member {
+    background: transparent;
+    border: 2px solid var(--cyan-primary);
+    color: var(--cyan-primary);
+    box-shadow: none;
+}
+
+html[data-platform="ios"] .promo-cta-member:hover,
+html[data-platform="android"] .promo-cta-member:hover {
+    background: rgba(10, 132, 255, 0.12);
+    box-shadow: 0 0 24px rgba(10, 132, 255, 0.45);
+}
+
+html[data-platform="ios"] .promo-actions,
+html[data-platform="android"] .promo-actions {
+    flex-direction: column;
+}
+
+html[data-platform="ios"] .promo-cta-app,
+html[data-platform="android"] .promo-cta-app { order: 1; }
+html[data-platform="ios"] .promo-cta-member,
+html[data-platform="android"] .promo-cta-member { order: 2; }
 
 @media (max-width: 480px) {
     .promo-popup {

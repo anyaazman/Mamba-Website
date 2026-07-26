@@ -231,6 +231,23 @@ function initHeroAnimations() {
         }, index * 800);
     });
 
+    // Animated metrics counters. Scoped to the hero so it can never pick up a
+    // .metric-value elsewhere — animateCounter rewrites textContent, and the
+    // portal reuses that class name for values that must not be animated.
+    const metrics = document.querySelectorAll('.hero-metrics .metric-value');
+
+    const observerMetrics = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observerMetrics.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    metrics.forEach(metric => {
+        observerMetrics.observe(metric);
+    });
 }
 
 // ==== SCROLL REVEAL SYSTEM ====
@@ -403,6 +420,29 @@ function typeWriter(element, text, speed) {
         }
     }
     type();
+}
+
+// Counts a hero metric up from zero to the value already in the markup.
+// Only runs on values that start with a digit; the trailing unit ("s", "%",
+// "-BIT") is preserved because only the leading numeric run is replaced.
+function animateCounter(element) {
+    const target = element.textContent;
+    const isNumber = /^\d/.test(target);
+
+    if (isNumber) {
+        const finalValue = parseFloat(target.replace(/[^\d.]/g, ''));
+        let current = 0;
+        const increment = finalValue / 60;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= finalValue) {
+                element.textContent = target;
+                clearInterval(timer);
+            } else {
+                element.textContent = target.replace(/[\d.]+/, current.toFixed(target.includes('.') ? 3 : 0));
+            }
+        }, 16);
+    }
 }
 
 function createRippleEffect(element, color) {
