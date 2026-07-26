@@ -5937,15 +5937,22 @@ a:focus-visible {
 .footer-bottom .footer-risk strong { color: #ffffff; }
 .footer-bottom .footer-risk a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
 
-/* Registration consent. A ticked box is evidence; a paragraph is not. */
-.form-consent-row {
+/* Registration consent. A ticked box is evidence; a paragraph is not.
+   Selectors are scoped through .auth-form .form-group because login.html loads
+   portal.css AFTER styles.css: portal.css's `.auth-form .form-group` (0,2,0)
+   forced flex-direction:column, and its `.auth-form input { width:100% }` tied
+   on specificity and won on order, stretching the checkbox to 348px. */
+.auth-form .form-group.form-consent-row {
     display: flex;
+    /* Explicit: portal.css sets column on .auth-form .form-group and this rule
+       previously only set `display`, so the column direction still applied. */
+    flex-direction: row;
     align-items: flex-start;
     gap: 0.6rem;
     margin: 1.25rem 0;
 }
 
-.form-consent-row input {
+.auth-form .form-group.form-consent-row input {
     flex-shrink: 0;
     width: 18px;
     height: 18px;
@@ -5953,10 +5960,15 @@ a:focus-visible {
     accent-color: var(--cyan-primary);
 }
 
-.form-consent-row label {
+.auth-form .form-group.form-consent-row label {
     color: #c9c9c9;
     font-size: 0.78rem;
     line-height: 1.6;
+    /* portal.css uppercases and letter-spaces .auth-form label; consent text
+       is a sentence, not a field label. */
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
 }
 
-.form-consent-row a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
+.auth-form .form-group.form-consent-row a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
