@@ -1,9 +1,13 @@
-import { authenticateUser, json, recordEvent, notifyAdmin } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const user = await authenticateUser(request, env);
   if (!user) return json({ error: 'Not authenticated.' }, 401);
+
+  if (!hasRequestedIB(user)) {
+    return json({ error: 'Please request IB verification before adding an MT5 account.' }, 403);
+  }
 
   try {
     const { account_number } = await request.json();

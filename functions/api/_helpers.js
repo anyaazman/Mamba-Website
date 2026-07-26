@@ -59,6 +59,15 @@ export async function authenticateUser(request, env) {
   return user;
 }
 
+// Mirrors hasRequestedIB() in dashboard.js: a user must have submitted an IB
+// request (ib_email set) before they may add MT5 accounts or request whitelist.
+// Approval is not required — only that the request exists. The dashboard blocks
+// these actions in the UI, but the endpoints are reachable directly, so the
+// same rule has to hold here.
+export function hasRequestedIB(user) {
+  return !!(user && user.ib_email && user.ib_email.trim() !== '');
+}
+
 async function sha256(text) {
   const data = encoder.encode(text);
   const hash = await crypto.subtle.digest('SHA-256', data);

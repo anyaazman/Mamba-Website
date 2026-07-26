@@ -1,9 +1,15 @@
-import { authenticateUser, json, recordEvent, notifyAdmin, syncBackendWhitelist } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, syncBackendWhitelist } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   const user = await authenticateUser(request, env);
   if (!user) return json({ error: 'Not authenticated.' }, 401);
+
+  // Must precede the auto-whitelist sync below: without this an ungated caller
+  // would be approved straight into the trading backend, not merely queued.
+  if (!hasRequestedIB(user)) {
+    return json({ error: 'Please request IB verification before requesting whitelist.' }, 403);
+  }
 
   try {
     const { account_id } = await request.json();

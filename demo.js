@@ -42,6 +42,11 @@
         return k === 'demo-admin';
       }
 
+      // Mirrors hasRequestedIB() in functions/api/_helpers.js
+      function hasRequestedIB(u) {
+        return !!(u && u.ib_email && u.ib_email.trim() !== '');
+      }
+
       function addDemoEvent(type, userId, meta) {
         if (!db.events) db.events = [];
         db.events.push({
@@ -117,6 +122,9 @@
         else if (method === 'POST' && urlStr.includes('/api/user/add-mt5')) {
           var au4 = getAuthUser();
           if (!au4) { json = { error: 'Not authenticated.' }; status = 401; }
+          else if (!hasRequestedIB(au4)) {
+            json = { error: 'Please request IB verification before adding an MT5 account.' }; status = 403;
+          }
           else if (db.mt5_accounts.some(function(a) { return a.user_id === au4.id && a.account_number === body.account_number; })) {
             json = { error: 'This MT5 account is already added.' }; status = 409;
           } else {
@@ -128,6 +136,9 @@
         else if (method === 'POST' && urlStr.includes('/api/user/request-whitelist')) {
           var au5 = getAuthUser();
           if (!au5) { json = { error: 'Not authenticated.' }; status = 401; }
+          else if (!hasRequestedIB(au5)) {
+            json = { error: 'Please request IB verification before requesting whitelist.' }; status = 403;
+          }
           else {
             var acc = db.mt5_accounts.find(function(a) { return a.id === body.account_id && a.user_id === au5.id; });
             if (!acc) { json = { error: 'MT5 account not found.' }; status = 404; }
