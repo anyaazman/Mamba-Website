@@ -52,10 +52,10 @@ export async function authenticateUser(request, env) {
   if (!user) return null;
 
   const accounts = await env.DB.prepare(
-    'SELECT id, account_number, status, created_at, whitelist_requested_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
+    'SELECT * FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
   ).bind(user.id).all();
 
-  user.mt5_accounts = accounts.results;
+  user.mt5_accounts = accounts.results.map(shapeAccount);
   return user;
 }
 
@@ -202,4 +202,17 @@ export async function syncBackendWhitelist(env, action, login, notes = '') {
   } finally {
     clearTimeout(timer);
   }
+}
+
+// Shape an mt5_accounts row for the client. whitelist_requested_at only exists
+// once migration 0008 has been applied, so it is read defensively — the query
+// uses SELECT * precisely so that an un-migrated database still works.
+export function shapeAccount(row) {
+  return {
+    id: row.id,
+    account_number: row.account_number,
+    status: row.status,
+    created_at: row.created_at,
+    whitelist_requested_at: row.whitelist_requested_at != null ? row.whitelist_requested_at : null
+  };
 }

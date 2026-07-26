@@ -46,8 +46,20 @@ export async function onRequestPost(context) {
     // Stamp the request time so the dashboard can tell "added" from
     // "requested"; status is 'pending' in both cases.
     await env.DB.prepare(
-      "UPDATE mt5_accounts SET status = 'pending', whitelist_requested_at = datetime('now') WHERE id = ?"
+      "UPDATE mt5_accounts SET status = 'pending' WHERE id = ?"
     ).bind(account_id).run();
+
+    // Best-effort: the column only exists once migration 0008 has been applied.
+    // Naming it in a statement that must succeed is what took production down.
+    try {
+      await env.DB.prepare(
+        "UPDATE mt5_accounts SET whitelist_requested_at = datetime('now') WHERE id = ?"
+      ).bind(account_id).run();
+    } catch (e) {
+      // Pre-migration database — the request is still recorded via status and
+      // the whitelist_request event; only the visual "under review" state is
+      // unavailable until 0008 runs.
+    }
 
     await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
     context.waitUntil(notifyAdmin(env, '⚠️ MT5 Whitelist — backend sync failed, approve manually', { Name: user.name, Email: user.email, 'Account': String(account.account_number) }));

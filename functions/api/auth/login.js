@@ -1,4 +1,4 @@
-import { verifySecret, hashToken, json, recordEvent, rateLimit } from '../_helpers.js';
+import { verifySecret, hashToken, json, recordEvent, rateLimit, shapeAccount } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -37,7 +37,7 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare("DELETE FROM tokens WHERE expires_at <= datetime('now')").run();
 
     const accounts = await env.DB.prepare(
-      'SELECT id, account_number, status, created_at, whitelist_requested_at FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
+      'SELECT * FROM mt5_accounts WHERE user_id = ? ORDER BY created_at ASC'
     ).bind(user.id).all();
 
     await recordEvent(env, 'login', { user_id: user.id });
@@ -46,7 +46,7 @@ export async function onRequestPost({ request, env }) {
       token,
       user: {
         id: user.id, name: user.name, email: user.email,
-        ib_status: user.ib_status, ib_email: user.ib_email, mt5_accounts: accounts.results
+        ib_status: user.ib_status, ib_email: user.ib_email, mt5_accounts: accounts.results.map(shapeAccount)
       }
     });
   } catch (e) {
