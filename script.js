@@ -4,9 +4,15 @@
     var closeBtn = document.getElementById('promoClose');
     if (!overlay) return;
 
-    // Show once per session
-    if (sessionStorage.getItem('mamba_promo_shown')) return;
-    sessionStorage.setItem('mamba_promo_shown', '1');
+    // Show once per session. sessionStorage throws where site data is blocked,
+    // and this runs at the very top of script.js — an exception here took the
+    // whole file down, including the loading-screen dismissal.
+    try {
+      if (sessionStorage.getItem('mamba_promo_shown')) return;
+      sessionStorage.setItem('mamba_promo_shown', '1');
+    } catch (e) {
+      // Storage unavailable: show the popup this once rather than breaking.
+    }
 
     // Show after loading screen (2.5s delay)
     window.addEventListener('load', function() {

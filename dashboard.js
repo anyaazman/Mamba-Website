@@ -22,7 +22,22 @@ function showComingSoon(event) {
   'use strict';
 
   var API_BASE = '/api';
-  var token = localStorage.getItem('mamba_token');
+
+  // localStorage throws outright in private-mode Safari and in browsers with
+  // site data blocked. Unguarded, that exception killed this entire IIFE before
+  // hideLoadingScreen() could run, leaving those users staring at an opaque
+  // loading overlay forever with no way forward.
+  function safeStorage(action, key, value) {
+    try {
+      if (action === 'get') return localStorage.getItem(key);
+      if (action === 'set') { localStorage.setItem(key, value); return true; }
+      if (action === 'remove') { localStorage.removeItem(key); return true; }
+    } catch (e) {
+      return action === 'get' ? null : false;
+    }
+  }
+
+  var token = safeStorage('get', 'mamba_token');
   var currentUser = null;
 
   // --- Scroll Lock for Modals (prevents background page from scrolling) ---
@@ -79,11 +94,11 @@ function showComingSoon(event) {
   }
 
   function getUser() {
-    try { return JSON.parse(localStorage.getItem('mamba_user')); } catch(e) { return null; }
+    try { return JSON.parse(safeStorage('get', 'mamba_user')); } catch(e) { return null; }
   }
 
   function setUser(user) {
-    localStorage.setItem('mamba_user', JSON.stringify(user));
+    safeStorage('set', 'mamba_user', JSON.stringify(user));
   }
 
   function hasRequestedIB() {
@@ -277,6 +292,10 @@ function showComingSoon(event) {
     apiCall('POST', '/user/request-ib', { ib_email: email.trim(), ib_type: type }).then(function(result) {
       if (result.ok) {
         showToast('IB verification requested.', 'success');
+        // Restore before closing: these were left disabled reading
+        // "Submitting..." on the success path, so reopening the modal (after a
+        // rejection, say) showed buttons that could never be pressed.
+        submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
         closeIBModal();
         refreshDashboard();
       } else {
@@ -687,8 +706,8 @@ function showComingSoon(event) {
   function refreshDashboard() {
     apiCall('GET', '/auth/me').then(function(result) {
       if (!result.ok || result.status === 401) {
-        localStorage.removeItem('mamba_token');
-        localStorage.removeItem('mamba_user');
+        safeStorage('remove', 'mamba_token');
+        safeStorage('remove', 'mamba_user');
         window.location.href = '/login.html' + (window.MAMBA_DEMO ? '?demo' : '');
         return;
       }
@@ -754,11 +773,19 @@ function showComingSoon(event) {
 
   function setupLogout() {
     document.getElementById('logoutBtn').addEventListener('click', function() {
-      apiCall('POST', '/auth/logout').then(function() {
-        localStorage.removeItem('mamba_token');
-        localStorage.removeItem('mamba_user');
+      // Clearing must not depend on the request succeeding. Previously this
+      // lived only in .then(), so a network failure or 5xx left the token and
+      // cached user in place — the button appeared to do nothing and the user
+      // stayed signed in.
+      var finishLogout = function() {
+        safeStorage('remove', 'mamba_token');
+        safeStorage('remove', 'mamba_user');
         window.location.href = '/login.html' + (window.MAMBA_DEMO ? '?demo' : '');
-      });
+      };
+
+      apiCall('POST', '/auth/logout').then(function() {
+        finishLogout();
+      }).catch(finishLogout);
     });
   }
 

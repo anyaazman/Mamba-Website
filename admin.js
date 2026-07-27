@@ -2,7 +2,19 @@
   'use strict';
 
   var API_BASE = '/api';
-  var adminKey = sessionStorage.getItem('mamba_admin_key');
+  // sessionStorage throws where site data is blocked; without this the whole
+  // admin panel script dies before rendering anything.
+  function safeSession(action, key, value) {
+    try {
+      if (action === 'get') return sessionStorage.getItem(key);
+      if (action === 'set') { sessionStorage.setItem(key, value); return true; }
+      if (action === 'remove') { sessionStorage.removeItem(key); return true; }
+    } catch (e) {
+      return action === 'get' ? null : false;
+    }
+  }
+
+  var adminKey = safeSession('get', 'mamba_admin_key');
   var allUsers = [];
   var currentFilter = '';
 
@@ -52,7 +64,7 @@
       verifyKey(key).then(function(valid) {
         if (valid) {
           adminKey = key;
-          sessionStorage.setItem('mamba_admin_key', key);
+          safeSession('set', 'mamba_admin_key', key);
           showAdminPanel();
           loadUsers('');
         } else {
@@ -290,7 +302,7 @@
 
   function setupLogout() {
     document.getElementById('adminLogoutBtn').addEventListener('click', function() {
-      sessionStorage.removeItem('mamba_admin_key');
+      safeSession('remove', 'mamba_admin_key');
       window.location.href = '/index.html';
     });
   }
@@ -581,7 +593,7 @@
     if (adminKey) {
       verifyKey(adminKey).then(function(valid) {
         if (valid) { showAdminPanel(); loadUsers(''); }
-        else { sessionStorage.removeItem('mamba_admin_key'); showKeyScreen(); }
+        else { safeSession('remove', 'mamba_admin_key'); showKeyScreen(); }
         hideLoadingScreen();
       });
     } else {

@@ -3,7 +3,10 @@
 
   function send(payload) {
     var headers = { 'Content-Type': 'application/json' };
-    var token = localStorage.getItem('mamba_token');
+    // Guarded: this sits outside the fetch try/catch below and runs on every
+    // page, so in private-mode Safari it threw before anything else could run.
+    var token = null;
+    try { token = localStorage.getItem('mamba_token'); } catch (e) { /* storage blocked */ }
     if (token) headers['Authorization'] = 'Bearer ' + token;
 
     try {

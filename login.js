@@ -3,6 +3,20 @@
 
   var API_BASE = '/api/auth';
 
+  // localStorage throws in private-mode Safari and where site data is blocked.
+  // Unguarded, that exception kills this whole IIFE — on login.js that left the
+  // visitor stuck behind the opaque loading overlay with no way to sign in.
+  function safeStorage(action, key, value) {
+    try {
+      if (action === 'get') return localStorage.getItem(key);
+      if (action === 'set') { localStorage.setItem(key, value); return true; }
+      if (action === 'remove') { localStorage.removeItem(key); return true; }
+    } catch (e) {
+      return action === 'get' ? null : false;
+    }
+  }
+
+
   function hideLoadingScreen() {
     var ls = document.querySelector('.loading-screen');
     if (ls) { ls.classList.add('loaded'); document.body.classList.add('page-loaded'); }
@@ -90,8 +104,8 @@
           setLoading(form, false);
           return;
         }
-        localStorage.setItem('mamba_token', result.data.token);
-        localStorage.setItem('mamba_user', JSON.stringify(result.data.user));
+        safeStorage('set', 'mamba_token', result.data.token);
+        safeStorage('set', 'mamba_user', JSON.stringify(result.data.user));
         window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
       })
       .catch(function() {
@@ -143,8 +157,8 @@
           setLoading(form, false);
           return;
         }
-        localStorage.setItem('mamba_token', result.data.token);
-        localStorage.setItem('mamba_user', JSON.stringify(result.data.user));
+        safeStorage('set', 'mamba_token', result.data.token);
+        safeStorage('set', 'mamba_user', JSON.stringify(result.data.user));
         window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
       })
       .catch(function() {
@@ -188,7 +202,7 @@
   })();
 
   document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('mamba_token')) {
+    if (safeStorage('get', 'mamba_token')) {
       window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
       return;
     }
