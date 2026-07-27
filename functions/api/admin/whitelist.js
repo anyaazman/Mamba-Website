@@ -1,4 +1,4 @@
-import { verifyAdminKey, json, notifyAdmin, syncBackendWhitelist } from '../_helpers.js';
+import { verifyAdminKey, json, notifyAdmin, syncBackendWhitelist, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -7,7 +7,9 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { account_id, status } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { account_id, status } = body;
 
     if (!account_id || !['approved', 'rejected'].includes(status)) {
       return json({ error: 'account_id and valid status (approved|rejected) are required.' }, 400);

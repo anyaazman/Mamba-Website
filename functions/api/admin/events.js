@@ -12,7 +12,10 @@ export async function onRequestGet({ request, env }) {
     const typeFilter = url.searchParams.get('type');
     const fromDate = url.searchParams.get('from');
     const toDate = url.searchParams.get('to');
-    const limit = Math.min(parseInt(url.searchParams.get('limit')) || 200, 1000);
+    // Math.min alone let ?limit=-1 through, and SQLite treats LIMIT -1 as
+    // "no limit" — dumping the entire events table.
+    const requested = parseInt(url.searchParams.get('limit'), 10);
+    const limit = Math.min(Math.max(Number.isFinite(requested) ? requested : 200, 1), 1000);
 
     let query = `SELECT e.id, e.type, e.page, e.referrer, e.title, e.user_id, e.metadata, e.created_at,
                  u.name as user_name, u.email as user_email

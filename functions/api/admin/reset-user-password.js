@@ -1,4 +1,4 @@
-import { verifyAdminKey, hashSecret, json } from '../_helpers.js';
+import { verifyAdminKey, hashSecret, json, readJson } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   if (!(await verifyAdminKey(request, env))) {
@@ -6,7 +6,9 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const { user_id, new_password } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { user_id, new_password } = body;
 
     if (!user_id || typeof new_password !== 'string' || new_password.length < 8 || new_password.length > 128) {
       return json({ error: 'user_id and new_password (min 8 chars) are required.' }, 400);

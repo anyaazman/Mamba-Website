@@ -1,4 +1,4 @@
-import { json, rateLimit, notifyAdmin, isValidEmail } from './_helpers.js';
+import { json, rateLimit, notifyAdmin, isValidEmail, readJson } from './_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -7,7 +7,9 @@ export async function onRequestPost(context) {
       return json({ error: 'Too many messages. Please try again later.' }, 429);
     }
 
-    const { email, message } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { email, message } = body;
 
     if (!isValidEmail(email)) {
       return json({ error: 'A valid email address is required.' }, 400);

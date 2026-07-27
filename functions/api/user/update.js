@@ -1,11 +1,13 @@
-import { authenticateUser, json } from '../_helpers.js';
+import { authenticateUser, json, readJson } from '../_helpers.js';
 
 export async function onRequestPut({ request, env }) {
   const user = await authenticateUser(request, env);
   if (!user) return json({ error: 'Not authenticated.' }, 401);
 
   try {
-    const { name } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { name } = body;
 
     const trimmed = typeof name === 'string' ? name.trim() : '';
     if (!trimmed || trimmed.length > 100) {

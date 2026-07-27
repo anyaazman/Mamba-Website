@@ -1,4 +1,4 @@
-import { verifyAdminKey, json, syncBackendWhitelist } from '../_helpers.js';
+import { verifyAdminKey, json, syncBackendWhitelist, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -7,7 +7,9 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { user_id } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { user_id } = body;
 
     if (!user_id) {
       return json({ error: 'user_id is required.' }, 400);

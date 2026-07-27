@@ -1,4 +1,4 @@
-import { hashSecret, hashToken, json, recordEvent, notifyAdmin, rateLimit, isValidEmail } from '../_helpers.js';
+import { hashSecret, hashToken, json, recordEvent, notifyAdmin, rateLimit, isValidEmail, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -7,7 +7,9 @@ export async function onRequestPost(context) {
       return json({ error: 'Too many registrations from this connection. Please try again later.' }, 429);
     }
 
-    const { name, email, password, recovery_phrase, accept_terms } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { name, email, password, recovery_phrase, accept_terms } = body;
 
     if (!name || !email || !password || !recovery_phrase) {
       return json({ error: 'Name, email, password, and recovery phrase are required.' }, 400);

@@ -1,4 +1,4 @@
-import { authenticateUser, json, recordEvent, notifyAdmin, isValidEmail } from '../_helpers.js';
+import { authenticateUser, json, recordEvent, notifyAdmin, isValidEmail, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -6,7 +6,9 @@ export async function onRequestPost(context) {
   if (!user) return json({ error: 'Not authenticated.' }, 401);
 
   try {
-    const { ib_email, ib_type } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { ib_email, ib_type } = body;
 
     const email = typeof ib_email === 'string' ? ib_email.trim() : '';
     if (!email) {

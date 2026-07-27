@@ -1,4 +1,4 @@
-import { verifySecret, hashToken, json, recordEvent, rateLimit, shapeAccount } from '../_helpers.js';
+import { verifySecret, hashToken, json, recordEvent, rateLimit, shapeAccount, readJson } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -6,7 +6,9 @@ export async function onRequestPost({ request, env }) {
       return json({ error: 'Too many login attempts. Please wait a few minutes and try again.' }, 429);
     }
 
-    const { email, password } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { email, password } = body;
 
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       return json({ error: 'Email and password are required.' }, 400);

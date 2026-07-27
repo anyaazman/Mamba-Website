@@ -86,6 +86,24 @@ export function isValidEmail(email) {
 
 // Fixed-window rate limiter backed by D1. Fails open so a limiter/DB
 // problem can never lock users out of the site.
+// Read-only companion to rateLimit: reports whether this IP has already blown
+// its budget for `scope`, WITHOUT consuming an attempt. Needed where the
+// counter should only advance on failures (admin-key guessing) but the check
+// must happen before the work.
+export async function overRateLimit(env, scope, request, limit, windowSeconds) {
+  try {
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const bucket = Math.floor(Math.floor(Date.now() / 1000) / windowSeconds);
+    const row = await env.DB.prepare(
+      'SELECT count FROM rate_limits WHERE rl_key = ?'
+    ).bind(scope + ':' + ip + ':' + bucket).first();
+    return !!row && row.count >= limit;
+  } catch (e) {
+    console.error('overRateLimit error:', e.message);
+    return false;
+  }
+}
+
 export async function rateLimit(env, scope, request, limit, windowSeconds) {
   try {
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
@@ -120,12 +138,30 @@ function escapeTelegramHtml(value) {
 export async function verifyAdminKey(request, env) {
   const adminKey = request.headers.get('X-Admin-Key');
   if (!adminKey) return false;
+
+  // Brute-force protection lives here, not in individual endpoints. Previously
+  // only /api/admin/status rate limited, so an attacker guessed against
+  // /api/admin/users instead — unlimited attempts against the same oracle, and
+  // a hit returns the entire user table. Guarding the check itself covers every
+  // admin route by construction, including any added later.
+  //
+  // The budget is checked before verifying and consumed only on failure, so a
+  // valid key is never throttled however often the admin panel polls, while a
+  // guesser is cut off after 10 wrong keys in 15 minutes — including if a later
+  // guess would have been correct.
+  if (await overRateLimit(env, 'adminkey', request, 10, 900)) return false;
+
   const hash = await sha256(adminKey);
   const result = await env.DB.prepare(
     'SELECT id FROM admin_keys WHERE key_hash = ?'
   ).bind(hash).first();
-  return !!result;
+
+  if (result) return true;
+
+  await rateLimit(env, 'adminkey', request, 10, 900);
+  return false;
 }
+
 
 export function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -224,4 +260,18 @@ export function shapeAccount(row) {
     created_at: row.created_at,
     whitelist_requested_at: row.whitelist_requested_at != null ? row.whitelist_requested_at : null
   };
+}
+
+// Parse a JSON request body without turning a client mistake into a 500.
+// `await request.json()` throws on malformed or empty bodies, and every
+// endpoint wraps its handler in a try/catch that answers 500 — so a stray
+// curl with a typo looked like a server fault. Returns null instead; callers
+// answer 400.
+export async function readJson(request) {
+  try {
+    const body = await request.json();
+    return (body && typeof body === 'object') ? body : null;
+  } catch (e) {
+    return null;
+  }
 }

@@ -1,4 +1,4 @@
-import { hashSecret, verifySecret, json, recordEvent, rateLimit } from '../_helpers.js';
+import { hashSecret, verifySecret, json, recordEvent, rateLimit, readJson } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -6,7 +6,9 @@ export async function onRequestPost({ request, env }) {
       return json({ error: 'Too many reset attempts. Please wait a few minutes and try again.' }, 429);
     }
 
-    const { email, recovery_phrase, new_password } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { email, recovery_phrase, new_password } = body;
 
     if (!email || !recovery_phrase || !new_password) {
       return json({ error: 'Email, recovery phrase, and new password are required.' }, 400);

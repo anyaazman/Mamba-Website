@@ -1,6 +1,11 @@
 import { json, hashToken, rateLimit } from './_helpers.js';
 
-const VALID_TYPES = ['pageview', 'register', 'login', 'ib_request', 'mt5_added', 'whitelist_request', 'password_reset'];
+// This endpoint is unauthenticated, so it must only accept the one type a
+// browser legitimately reports. tracking.js sends nothing else. Business
+// events (register, login, ib_request, mt5_added, whitelist_request,
+// password_reset) are written server-side by their own handlers; allowing
+// them here let anyone forge entries in the admin activity feed.
+const VALID_TYPES = ['pageview'];
 
 function clamp(value, max) {
   return typeof value === 'string' ? value.slice(0, max) : '';

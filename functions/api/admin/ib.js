@@ -1,4 +1,4 @@
-import { verifyAdminKey, json } from '../_helpers.js';
+import { verifyAdminKey, json, readJson } from '../_helpers.js';
 
 export async function onRequestPost({ request, env }) {
   if (!(await verifyAdminKey(request, env))) {
@@ -6,7 +6,9 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const { user_id, status } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { user_id, status } = body;
 
     if (!user_id || !['approved', 'rejected'].includes(status)) {
       return json({ error: 'user_id and valid status (approved|rejected) are required.' }, 400);

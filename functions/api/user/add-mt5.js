@@ -1,4 +1,4 @@
-import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -10,7 +10,9 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { account_number } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { account_number } = body;
 
     const num = typeof account_number === 'string' ? account_number.trim() : '';
     if (!num) {

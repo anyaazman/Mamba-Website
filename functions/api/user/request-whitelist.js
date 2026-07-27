@@ -1,4 +1,4 @@
-import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, syncBackendWhitelist } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, syncBackendWhitelist, readJson } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -12,7 +12,9 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { account_id } = await request.json();
+    const body = await readJson(request);
+    if (!body) return json({ error: 'Invalid request body.' }, 400);
+    const { account_id } = body;
 
     if (!Number.isInteger(account_id) || account_id <= 0) {
       return json({ error: 'account_id is required.' }, 400);
