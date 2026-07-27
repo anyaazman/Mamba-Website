@@ -795,6 +795,26 @@ function showComingSoon(event) {
     return div.innerHTML;
   }
 
+  // --- Tutorial video: load YouTube only on demand ---
+  function setupTutorialVideo() {
+    var facade = document.getElementById('tutorialFacade');
+    if (!facade) return;
+    facade.addEventListener('click', function() {
+      var wrap = document.createElement('div');
+      wrap.className = 'video-embed';
+      var f = document.createElement('iframe');
+      // youtube-nocookie + autoplay, since the click IS the intent to watch.
+      f.src = 'https://www.youtube-nocookie.com/embed/6mWWz-YQqXw?autoplay=1&rel=0';
+      f.title = 'Learn the Mamba Management System';
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      f.setAttribute('allowfullscreen', '');
+      f.setAttribute('frameborder', '0');
+      wrap.appendChild(f);
+      facade.replaceWith(wrap);
+    });
+  }
+
   // --- Floating Telegram ---
   (function() {
     var fab = document.getElementById('telegramFab');
@@ -837,6 +857,7 @@ function showComingSoon(event) {
     setupEditModal();
     setupIBModal();
     setupIBRequiredPopup();
+    setupTutorialVideo();
     setupAddMT5();
     refreshDashboard();
   });
