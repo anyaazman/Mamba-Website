@@ -5987,22 +5987,6 @@ html[data-platform="android"] .promo-cta-member { order: 2; }
 
 .footer-identity strong { color: #c9c9c9; }
 
-/* Entity disclosure beside the broker signup CTA. Valetax onboards through
-   two legal entities with very different regulatory standing, so the site
-   must not attribute either one's licence to an account it cannot verify. */
-.step-disclosure {
-    margin: 1rem 0 1.25rem;
-    padding: 0.8rem 0.95rem;
-    background: rgba(255, 255, 255, 0.04);
-    border-left: 3px solid #f0a020;
-    border-radius: 6px;
-    color: #a9b1ba;
-    font-size: 0.75rem;
-    line-height: 1.65;
-}
-
-.step-disclosure strong { color: #d6dbe0; }
-.step-disclosure a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
 
 /* Footer risk warning on the marketing pages. Replaces a low-contrast,
    emoji-prefixed 90-word paragraph: a legally material notice should not be
