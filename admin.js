@@ -345,95 +345,194 @@
     });
   }
 
-  // --- Valetax View (connect flow) ---
-  // The operator solves the Valetax login CAPTCHA here by hand; the backend
-  // only relays the answer and stores the resulting short-lived FX-Token.
-  var currentCaptchaId = null;
+  // --- Valetax View (snapshot import + reconciliation) ---
+  //
+  // The Worker never contacts Valetax. The operator pulls the downline with
+  // tools/valetax-sync (real browser, human-solved CAPTCHA) and uploads the
+  // resulting JSON here; everything below is import + report.
+  var valetaxReport = null;
+  var valetaxBucket = 'claimedNotInValetax';
 
-  function valetaxDebug(obj) {
-    var el = document.getElementById('valetaxDebug');
-    el.style.display = 'block';
-    el.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
-  }
+  var VALETAX_BUCKETS = [
+    { key: 'claimedNotInValetax', label: 'Not under our code',
+      blurb: 'Requested IB verification, but Valetax shows no client with that email under our partner code.',
+      cols: ['Name', 'Mamba email', 'Valetax email given', 'IB status'],
+      row: function(r) { return [r.name, r.email, r.ib_email, r.ib_status]; } },
+    { key: 'accountsNotInValetax', label: 'MT5 not in downline',
+      blurb: 'MT5 accounts on Mamba that do not appear under our code at Valetax.',
+      cols: ['Account', 'Status', 'Name', 'Email'],
+      row: function(r) { return [r.account_number, r.status, r.name, r.email]; } },
+    { key: 'inValetaxNotOnMamba', label: 'No Mamba account',
+      blurb: 'Under our partner code at Valetax, but never registered on Mamba.',
+      cols: ['Valetax email', 'Name', 'Registered', 'Sub-IB'],
+      row: function(r) { return [r.email, r.name, r.registered_at, r.has_children ? 'yes' : '']; } },
+    { key: 'matched', label: 'Matched',
+      blurb: 'Mamba users confirmed present under our partner code.',
+      cols: ['Name', 'Mamba email', 'Valetax email', 'IB status'],
+      row: function(r) { return [r.name, r.email, r.ib_email, r.ib_status]; } }
+  ];
 
   function loadValetaxStatus() {
     var line = document.getElementById('valetaxStatusLine');
-    line.textContent = 'Checking status…';
+    line.textContent = 'Checking for an imported snapshot…';
     fetch(API_BASE + '/admin/valetax/status', { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if (data.connected) {
-          line.innerHTML = '<span style="color: var(--neon-green);">● Connected</span> — session valid until ' + esc(data.expiresAt || 'unknown');
-        } else if (data.expired) {
-          line.innerHTML = '<span style="color: #FFD60A;">● Session expired</span> — sign in again to refresh.';
-        } else {
-          line.innerHTML = '<span style="color: var(--text-muted);">○ Not connected</span>';
+      .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+      .then(function(r) {
+        if (!r.ok) { line.textContent = r.data.error || 'Could not check status.'; return; }
+        var d = r.data;
+        if (!d.hasSnapshot) {
+          line.innerHTML = '<span class="valetax-dot muted">○</span> No snapshot imported yet.';
+          return;
         }
+        // Anything older than a week is stale enough that acting on it could
+        // mean chasing a client who has since moved.
+        var stale = d.ageHours !== null && d.ageHours > 168;
+        line.innerHTML = '<span class="valetax-dot ' + (stale ? 'warn' : 'ok') + '">●</span> ' +
+          esc(String(d.clientCount)) + ' clients, pulled ' +
+          (d.ageHours === null ? 'at an unknown time' : describeAge(d.ageHours)) +
+          (stale ? ' — consider re-pulling' : '');
+        loadValetaxReport();
       })
       .catch(function() { line.textContent = 'Could not check status.'; });
   }
 
-  function fetchCaptcha() {
-    var img = document.getElementById('valetaxCaptchaImg');
-    var box = document.getElementById('valetaxCaptchaBox');
-    var btn = document.getElementById('valetaxGetCaptchaBtn');
-    btn.disabled = true; btn.textContent = 'Loading…';
-    fetch(API_BASE + '/admin/valetax/captcha', { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
-      .then(function(r) {
-        btn.disabled = false; btn.textContent = 'Connect Valetax';
-        if (!r.ok || !r.data.imageBase64) {
-          valetaxDebug(r.data);
-          showToast('Captcha failed — see diagnostics.', 'error');
-          return;
-        }
-        currentCaptchaId = r.data.captchaId;
-        img.src = 'data:image/png;base64,' + r.data.imageBase64;
-        box.style.display = 'block';
-        document.getElementById('valetaxCaptchaInput').value = '';
-        document.getElementById('valetaxCaptchaInput').focus();
-      })
-      .catch(function(e) {
-        btn.disabled = false; btn.textContent = 'Connect Valetax';
-        valetaxDebug('Network error: ' + e.message);
-      });
+  function describeAge(hours) {
+    if (hours < 1) return 'less than an hour ago';
+    if (hours < 24) return hours + (hours === 1 ? ' hour ago' : ' hours ago');
+    var days = Math.round(hours / 24);
+    return days + (days === 1 ? ' day ago' : ' days ago');
   }
 
-  function submitValetaxLogin() {
-    var answer = document.getElementById('valetaxCaptchaInput').value.trim();
-    if (!answer) { showToast('Enter the captcha number.', 'error'); return; }
-    if (!currentCaptchaId) { showToast('Get a captcha first.', 'error'); return; }
-    var btn = document.getElementById('valetaxLoginBtn');
-    btn.disabled = true; btn.textContent = '…';
-    fetch(API_BASE + '/admin/valetax/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-      body: JSON.stringify({ captchaId: currentCaptchaId, captchaAnswer: answer })
-    })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        btn.disabled = false; btn.textContent = 'Sign In';
-        valetaxDebug(data);              // spike: always show raw upstream result
-        if (data.stored) {
-          showToast('Connected to Valetax.', 'success');
-          loadValetaxStatus();
-        } else {
-          showToast('Sign-in did not return a token — see diagnostics.', 'error');
-        }
+  function loadValetaxReport() {
+    fetch(API_BASE + '/admin/valetax/reconcile', { headers: { 'X-Admin-Key': adminKey } })
+      .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+      .then(function(r) {
+        if (!r.ok || !r.data.hasSnapshot) return;
+        valetaxReport = r.data;
+        renderValetaxReport();
       })
-      .catch(function(e) {
-        btn.disabled = false; btn.textContent = 'Sign In';
-        valetaxDebug('Network error: ' + e.message);
+      .catch(function() { /* status line already carries the failure */ });
+  }
+
+  function renderValetaxReport() {
+    var wrap = document.getElementById('valetaxReport');
+    if (!valetaxReport) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+
+    var c = valetaxReport.counts;
+    var summary = VALETAX_BUCKETS.map(function(b) {
+      return '<div class="valetax-stat' + (c[b.key] ? '' : ' is-zero') + '">' +
+             '<span class="valetax-stat-n">' + esc(String(c[b.key])) + '</span>' +
+             '<span class="valetax-stat-l">' + esc(b.label) + '</span></div>';
+    }).join('');
+    document.getElementById('valetaxSummary').innerHTML = summary;
+
+    document.getElementById('valetaxBucketTabs').innerHTML = VALETAX_BUCKETS.map(function(b) {
+      return '<button class="filter-tab' + (b.key === valetaxBucket ? ' active' : '') +
+             '" data-bucket="' + b.key + '">' + esc(b.label) + ' (' + esc(String(c[b.key])) + ')</button>';
+    }).join('');
+
+    document.querySelectorAll('#valetaxBucketTabs .filter-tab').forEach(function(t) {
+      t.addEventListener('click', function() {
+        valetaxBucket = t.getAttribute('data-bucket');
+        renderValetaxReport();
       });
+    });
+
+    var bucket = VALETAX_BUCKETS.filter(function(b) { return b.key === valetaxBucket; })[0];
+    var rows = valetaxReport[bucket.key] || [];
+    var html = '<p class="valetax-blurb">' + esc(bucket.blurb) + '</p>';
+
+    if (!rows.length) {
+      html += '<p class="valetax-empty">Nothing in this bucket.</p>';
+    } else {
+      html += '<div class="valetax-table-wrap"><table class="valetax-table"><thead><tr>' +
+              bucket.cols.map(function(h) { return '<th>' + esc(h) + '</th>'; }).join('') +
+              '</tr></thead><tbody>' +
+              rows.map(function(r) {
+                return '<tr>' + bucket.row(r).map(function(cell) {
+                  return '<td>' + esc(cell === null || cell === undefined ? '' : String(cell)) + '</td>';
+                }).join('') + '</tr>';
+              }).join('') + '</tbody></table></div>';
+    }
+
+    // The POC pulls level 1 only, so any sub-IB hides its own downline and
+    // every count above understates the real book.
+    if (c.subIbsNotRecursed) {
+      html += '<p class="valetax-caveat">' + esc(String(c.subIbsNotRecursed)) +
+              ' client(s) are sub-IBs with their own downline, which this snapshot does not include. ' +
+              'Counts above understate the full book.</p>';
+    }
+
+    document.getElementById('valetaxBucketBody').innerHTML = html;
+  }
+
+  function importValetaxSnapshot() {
+    var input = document.getElementById('valetaxFile');
+    var note = document.getElementById('valetaxImportNote');
+    var btn = document.getElementById('valetaxImportBtn');
+    var file = input.files && input.files[0];
+    if (!file) { showToast('Choose a snapshot file first.', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = 'Importing…';
+    note.hidden = true;
+
+    var reader = new FileReader();
+    reader.onerror = function() {
+      btn.disabled = false; btn.textContent = 'Import snapshot';
+      showToast('Could not read that file.', 'error');
+    };
+    reader.onload = function() {
+      var payload;
+      try { payload = JSON.parse(reader.result); }
+      catch (e) {
+        btn.disabled = false; btn.textContent = 'Import snapshot';
+        note.hidden = false; note.className = 'valetax-note is-error';
+        note.textContent = 'That file is not valid JSON.';
+        return;
+      }
+
+      fetch(API_BASE + '/admin/valetax/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify(payload)
+      })
+        .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+        .then(function(r) {
+          btn.disabled = false; btn.textContent = 'Import snapshot';
+          note.hidden = false;
+          if (!r.ok) {
+            note.className = 'valetax-note is-error';
+            note.textContent = r.data.error || 'Import failed.';
+            return;
+          }
+          note.className = 'valetax-note is-ok';
+          note.textContent = 'Imported ' + r.data.clientsImported + ' clients and ' +
+                             r.data.mt5AccountsImported + ' MT5 accounts.';
+          showToast('Snapshot imported.', 'success');
+          input.value = '';
+          btn.disabled = true;
+          loadValetaxStatus();
+        })
+        .catch(function(e) {
+          btn.disabled = false; btn.textContent = 'Import snapshot';
+          note.hidden = false; note.className = 'valetax-note is-error';
+          note.textContent = 'Network error: ' + e.message;
+        });
+    };
+    reader.readAsText(file);
   }
 
   function setupValetaxView() {
-    document.getElementById('valetaxGetCaptchaBtn').addEventListener('click', fetchCaptcha);
-    document.getElementById('valetaxRefreshCaptchaBtn').addEventListener('click', fetchCaptcha);
-    document.getElementById('valetaxLoginBtn').addEventListener('click', submitValetaxLogin);
-    document.getElementById('valetaxCaptchaInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); submitValetaxLogin(); }
+    var file = document.getElementById('valetaxFile');
+    var btn = document.getElementById('valetaxImportBtn');
+    if (!file || !btn) return;
+    // Only enable the button once a file is actually chosen, so the common
+    // mistake of clicking Import with nothing selected cannot happen.
+    file.addEventListener('change', function() {
+      btn.disabled = !(file.files && file.files.length);
     });
+    btn.addEventListener('click', importValetaxSnapshot);
   }
 
   function setupDateFilterTabs() {

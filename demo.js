@@ -241,6 +241,89 @@
             json = { events: evts };
           }
         }
+        // --- VALETAX RECONCILIATION ---
+        // Mirrors the real endpoints so the admin tab renders in the sandbox.
+        // The demo DB has no downline to match against, so a snapshot import is
+        // held in memory only and reconciled against the demo users.
+        else if (method === 'GET' && urlStr.includes('/api/admin/valetax/status')) {
+          if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
+          else if (!db.valetax_snapshot) { json = { hasSnapshot: false }; }
+          else {
+            var vs = db.valetax_snapshot;
+            json = { hasSnapshot: true, snapshotId: 1, pulledAt: vs.pulledAt,
+                     importedAt: vs.importedAt, clientCount: vs.clients.length, ageHours: 0 };
+          }
+        }
+        else if (method === 'POST' && urlStr.includes('/api/admin/valetax/import')) {
+          if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
+          else if (!body || !Array.isArray(body.clients)) {
+            json = { error: 'Expected a "clients" array — upload valetax-snapshot.json unmodified.' }; status = 400;
+          }
+          else if (!body.clients.length) {
+            json = { error: 'Snapshot contains no clients. Refusing to replace the current one with an empty pull.' }; status = 400;
+          }
+          else {
+            var dc = body.clients.map(function(c) {
+              var tr = c.trading;
+              var rows = Array.isArray(tr) ? tr : (tr && typeof tr === 'object' ? [tr] : []);
+              var logins = [];
+              rows.forEach(function(r) {
+                var l = r && (r.login || r.account || r.accountNumber);
+                if (l && /^\d{3,20}$/.test(String(l))) logins.push(String(l));
+              });
+              return { email: (c.userEmail || c.email || '').trim().toLowerCase(),
+                       name: c.userName || c.name || '',
+                       valetax_user_id: String(c.userId || ''),
+                       registered_at: c.registeredAt || '',
+                       has_children: c.hasChildren ? 1 : 0, logins: logins };
+            });
+            db.valetax_snapshot = { pulledAt: body.pulledAt || null,
+                                    importedAt: new Date().toISOString(), clients: dc };
+            saveDb(db);
+            json = { success: true, snapshotId: 1, pulledAt: body.pulledAt || null,
+                     clientsImported: dc.length,
+                     clientsWithEmail: dc.filter(function(c) { return c.email; }).length,
+                     mt5AccountsImported: dc.reduce(function(n, c) { return n + c.logins.length; }, 0),
+                     subIbsNotRecursed: dc.filter(function(c) { return c.has_children; }).length };
+            status = 201;
+          }
+        }
+        else if (method === 'GET' && urlStr.includes('/api/admin/valetax/reconcile')) {
+          if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
+          else if (!db.valetax_snapshot) {
+            json = { hasSnapshot: false, message: 'No Valetax snapshot imported yet. Run tools/valetax-sync and upload valetax-snapshot.json.' };
+          }
+          else {
+            var vc = db.valetax_snapshot.clients;
+            var vEmails = vc.map(function(c) { return c.email; }).filter(Boolean);
+            var vLogins = vc.reduce(function(a, c) { return a.concat(c.logins); }, []);
+            var claimers = db.users.filter(function(u) { return (u.ib_email || '').trim() !== ''; });
+            var matched = claimers.filter(function(u) { return vEmails.indexOf(u.ib_email.trim().toLowerCase()) !== -1; });
+            var claimedNot = claimers.filter(function(u) { return vEmails.indexOf(u.ib_email.trim().toLowerCase()) === -1; });
+            var notOnMamba = vc.filter(function(c) {
+              if (!c.email) return false;
+              return !db.users.some(function(u) {
+                return (u.ib_email || '').trim().toLowerCase() === c.email ||
+                       (u.email || '').trim().toLowerCase() === c.email;
+              });
+            });
+            var acctsNot = db.mt5_accounts.filter(function(a) { return vLogins.indexOf(String(a.account_number)) === -1; })
+              .map(function(a) {
+                var ow = db.users.find(function(u) { return u.id === a.user_id; }) || {};
+                return { id: a.id, account_number: a.account_number, status: a.status, name: ow.name, email: ow.email };
+              });
+            json = {
+              hasSnapshot: true,
+              snapshot: { id: 1, pulledAt: db.valetax_snapshot.pulledAt,
+                          importedAt: db.valetax_snapshot.importedAt, clientCount: vc.length },
+              counts: { matched: matched.length, claimedNotInValetax: claimedNot.length,
+                        inValetaxNotOnMamba: notOnMamba.length, accountsNotInValetax: acctsNot.length,
+                        subIbsNotRecursed: vc.filter(function(c) { return c.has_children; }).length },
+              matched: matched, claimedNotInValetax: claimedNot,
+              inValetaxNotOnMamba: notOnMamba, accountsNotInValetax: acctsNot
+            };
+          }
+        }
         else { json = { error: 'Demo: unknown route' }; status = 404; }
       } catch(e) { json = { error: 'Demo error: ' + e.message }; status = 500; }
 

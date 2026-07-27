@@ -1616,3 +1616,164 @@
 }
 
 .video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ==================================================================
+   VALETAX RECONCILIATION (admin)
+   Import a downline snapshot pulled by tools/valetax-sync, then read
+   the four buckets it produces. No live broker session is involved.
+   ================================================================== */
+.valetax-import-card {
+    max-width: 640px;
+    margin: 0 auto 1.5rem;
+}
+
+.valetax-heading {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.valetax-status {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.valetax-dot { font-weight: 700; }
+.valetax-dot.ok    { color: var(--neon-green, #30D5C8); }
+.valetax-dot.warn  { color: #FFD60A; }
+.valetax-dot.muted { color: var(--text-muted); }
+
+.valetax-help {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.valetax-help code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+
+.valetax-import-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.valetax-file {
+    flex: 1;
+    min-width: 200px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+.valetax-import-row .submit-btn { white-space: nowrap; }
+.valetax-import-row .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.valetax-note {
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+.valetax-note.is-ok    { color: var(--neon-green, #30D5C8); }
+.valetax-note.is-error { color: var(--danger, #FF3B30); }
+
+/* ---- Report ---- */
+.valetax-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.valetax-stat {
+    background: var(--bg-card, #1C1C1E);
+    border: 1px solid var(--border-color, #2e2e30);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* An empty bucket is good news here, so it should not compete for attention. */
+.valetax-stat.is-zero { opacity: 0.55; }
+
+.valetax-stat-n {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.valetax-stat-l {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+}
+
+.valetax-blurb {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+}
+
+.valetax-empty {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+/* The table can be wider than the panel; it scrolls inside its own box so the
+   page itself never scrolls sideways. */
+.valetax-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-color, #2e2e30);
+    border-radius: 10px;
+}
+
+.valetax-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    min-width: 520px;
+}
+
+.valetax-table th,
+.valetax-table td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #2e2e30);
+}
+
+.valetax-table th {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 1.2px;
+    white-space: nowrap;
+}
+
+.valetax-table td { color: var(--text-secondary); word-break: break-word; }
+.valetax-table tr:last-child td { border-bottom: none; }
+
+.valetax-caveat {
+    margin-top: 0.9rem;
+    color: #FFD60A;
+    font-size: 0.75rem;
+    line-height: 1.55;
+}
+
+@media (max-width: 480px) {
+    .valetax-summary { grid-template-columns: repeat(2, 1fr); }
+    .valetax-import-row { flex-direction: column; align-items: stretch; }
+}
