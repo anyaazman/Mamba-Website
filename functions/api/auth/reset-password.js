@@ -22,8 +22,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     const user = await env.DB.prepare(
-      'SELECT id, recovery_phrase FROM users WHERE email = ?'
-    ).bind(email).first();
+      'SELECT id, recovery_phrase FROM users WHERE LOWER(email) = ?'
+    ).bind(email.trim().toLowerCase()).first();
 
     if (!user) {
       return json({ error: 'Invalid email or recovery phrase.' }, 401);

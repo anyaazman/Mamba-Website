@@ -22,12 +22,20 @@ export async function onRequestPost(context) {
       return json({ error: 'MT5 account number must be 3-20 digits.' }, 400);
     }
 
+    // Scoped to the current user, this let a different account claim a number
+    // someone else had already registered. Whitelist state in the trading
+    // backend is keyed on account_number alone, so a squatted row being
+    // rejected or deleted could strip the real owner's whitelisting.
     const existing = await env.DB.prepare(
-      'SELECT id FROM mt5_accounts WHERE user_id = ? AND account_number = ?'
-    ).bind(user.id, num).first();
+      'SELECT user_id FROM mt5_accounts WHERE account_number = ?'
+    ).bind(num).first();
 
     if (existing) {
-      return json({ error: 'This MT5 account is already added.' }, 409);
+      return json({
+        error: existing.user_id === user.id
+          ? 'This MT5 account is already added.'
+          : 'This MT5 account number is already registered. If it belongs to you, contact support.'
+      }, 409);
     }
 
     const result = await env.DB.prepare(

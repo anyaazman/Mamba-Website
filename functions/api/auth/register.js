@@ -33,7 +33,11 @@ export async function onRequestPost(context) {
       return json({ error: 'You must accept the Terms of Service, Privacy Policy and Risk Disclosure.' }, 400);
     }
 
-    const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
+    // Stored and compared lowercase: SQLite '=' on TEXT is case-sensitive, so
+    // Foo@x.com and foo@x.com made two accounts for one person, and only one
+    // of them could ever be signed into.
+    const normEmail = email.trim().toLowerCase();
+    const existing = await env.DB.prepare('SELECT id FROM users WHERE LOWER(email) = ?').bind(normEmail).first();
     if (existing) {
       return json({ error: 'Email already registered.' }, 409);
     }
@@ -43,7 +47,7 @@ export async function onRequestPost(context) {
 
     const result = await env.DB.prepare(
       'INSERT INTO users (name, email, password, recovery_phrase) VALUES (?, ?, ?, ?)'
-    ).bind(name.trim(), email, hashedPw, hashedRecovery).run();
+    ).bind(name.trim(), normEmail, hashedPw, hashedRecovery).run();
 
     const userId = result.meta.last_row_id;
     const token = crypto.randomUUID();
@@ -59,11 +63,11 @@ export async function onRequestPost(context) {
       metadata: { accepted_terms: true, accepted_at: new Date().toISOString() }
     });
     // Fire-and-forget so the Telegram round trip doesn't delay the response
-    context.waitUntil(notifyAdmin(env, '🆕 New Registration', { Name: name.trim(), Email: email }));
+    context.waitUntil(notifyAdmin(env, '🆕 New Registration', { Name: name.trim(), Email: normEmail }));
 
     return json({
       token,
-      user: { id: userId, name: name.trim(), email, ib_status: 'pending', mt5_accounts: [] }
+      user: { id: userId, name: name.trim(), email: normEmail, ib_status: 'pending', mt5_accounts: [] }
     }, 201);
   } catch (e) {
     console.error('Register error:', e.message, e.stack);
