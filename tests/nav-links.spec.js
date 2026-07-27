@@ -34,7 +34,14 @@ const PAGES = ['index.html', 'how-Mamba-work.html', 'terms-of-service.html'];
       const page = await ctx.newPage();
       await page.goto(`${BASE}/${pg}`, { waitUntil: 'load' });
       await page.waitForTimeout(pg === 'index.html' ? 2600 : 900);
-      await page.evaluate(() => document.getElementById('promoOverlay')?.remove());
+      // Dismiss the promo dialog the way a user does. Ripping the node out
+      // leaves body{overflow:hidden} from its scroll lock in place, which then
+      // blocks the very anchor scrolling this test measures.
+      await page.evaluate(() => {
+        const btn = document.getElementById('promoClose');
+        if (btn) btn.click();
+        document.getElementById('promoOverlay')?.remove();
+      });
 
       const hrefs = await page.evaluate(() =>
         [...document.querySelectorAll('#navLinks a')].map(a => a.getAttribute('href')));
@@ -44,7 +51,11 @@ const PAGES = ['index.html', 'how-Mamba-work.html', 'terms-of-service.html'];
         const p2 = await ctx.newPage();
         await p2.goto(`${BASE}/${pg}`, { waitUntil: 'load' });
         await p2.waitForTimeout(pg === 'index.html' ? 2600 : 900);
-        await p2.evaluate(() => document.getElementById('promoOverlay')?.remove());
+        await p2.evaluate(() => {
+          const btn = document.getElementById('promoClose');
+          if (btn) btn.click();
+          document.getElementById('promoOverlay')?.remove();
+        });
         if (label === 'mobile') { await p2.click('#navToggle'); await p2.waitForTimeout(450); }
 
         const before = p2.url();

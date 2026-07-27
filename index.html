@@ -39,7 +39,7 @@
 
     <!-- Favicon & Styles -->
     <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
-    <link rel="stylesheet" href="styles.css?v=26">
+    <link rel="stylesheet" href="styles.css?v=28">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
@@ -307,7 +307,7 @@
                 <div class="features-clean">
                     <div class="feature-block">
                         <div class="feature-content">
-                            <div class="feature-icon">📱</div>
+                            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div>
                             <h3>Trading Mode</h3>
                             <p>Adaptive strategies for every trader.
 Choose Growth or Superscalping with instant account tracking and effortless MT5 sync.</p>
@@ -338,7 +338,7 @@ Choose Growth or Superscalping with instant account tracking and effortless MT5 
                             </video>
                         </div>
                         <div class="feature-content">
-                            <div class="feature-icon">⚡</div>
+                            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 13 8 13 10 20 14 4 16 11 21 11"/></svg></div>
                             <h3>Advanced Configuration</h3>
                             <p>Precision trading at your fingertips.
 Customize your Take Profit, Stop Loss, and Break Even parameters effortlessly.</p>
@@ -347,7 +347,7 @@ Customize your Take Profit, Stop Loss, and Break Even parameters effortlessly.</
 
                     <div class="feature-block">
                         <div class="feature-content">
-                            <div class="feature-icon">🌐</div>
+                            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg></div>
                             <h3>Secure MT5 Authentication</h3>
                             <p>Connect multiple MT5 accounts with secure authentication, login history, and seamless account switching capabilities.</p>
                         </div>
@@ -483,7 +483,7 @@ Customize your Take Profit, Stop Loss, and Break Even parameters effortlessly.</
                                 <div class="step-card-inner">
                                     <div class="step-header">
                                         <div class="step-number">STEP 1</div>
-                                        <div class="step-icon">🏦</div>
+                                        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><line x1="5" y1="10" x2="5" y2="19"/><line x1="10" y1="10" x2="10" y2="19"/><line x1="14" y1="10" x2="14" y2="19"/><line x1="19" y1="10" x2="19" y2="19"/><line x1="3" y1="19" x2="21" y2="19"/></svg></div>
                                     </div>
                                     <h4>OPEN TRADING ACCOUNT WITH VALETAX</h4>
                                     <p>Built for Traders Who Value Security and Speed.
@@ -520,7 +520,7 @@ Valetax is the broker Mamba connects through. You trade with them directly &mdas
                                 <div class="step-card-inner">
                                     <div class="step-header">
                                         <div class="step-number">STEP 2</div>
-                                        <div class="step-icon">📱</div>
+                                        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div>
                                     </div>
                                     <h4>DOWNLOAD MAMBA MANAGEMENT APP</h4>
                                     <p>Reimagine What Mobile Trading Can Do.
@@ -562,7 +562,7 @@ Cutting-edge technology meets real-time management and instant performance — a
                                 <div class="step-card-inner">
                                     <div class="step-header">
                                         <div class="step-number">STEP 3</div>
-                                        <div class="step-icon">🌍</div>
+                                        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg></div>
                                     </div>
                                     <h4>START TRADING FROM ANYWHERE AROUND THE WORLD</h4>
                                     <p>Your Trading. Fully Mobile.
@@ -750,11 +750,11 @@ Track positions, fine-tune parameters, and manage multiple trades effortlessly �
     </div>
 
     <!-- Member Area Promo Popup -->
-    <div class="promo-overlay" id="promoOverlay">
+    <div class="promo-overlay" id="promoOverlay" role="dialog" aria-modal="true" aria-labelledby="promoTitle" aria-hidden="true">
         <div class="promo-popup">
             <button class="promo-close" id="promoClose" aria-label="Close popup">&times;</button>
             <img src="mamba-logo-transparent.png" alt="" class="promo-logo" width="64" height="64">
-            <h2>Ready to Level Up Your Trading?</h2>
+            <h2 id="promoTitle">Ready to Level Up Your Trading?</h2>
             <p>Get the Mamba Management app on <span data-app-label>the App Store or Google Play</span>, then join the Member Area to manage your MT5 accounts and unlock the full power of Mamba automated trading.</p>
             <div class="promo-actions">
                 <!-- On a phone this is the primary action and resolves straight
@@ -774,6 +774,6 @@ Track positions, fine-tune parameters, and manage multiple trades effortlessly �
     <script src="config.js?v=3"></script>
     <script src="app-banner.js?v=1"></script>
     <script src="nav.js?v=1"></script>    <script src="tracking.js?v=2"></script>
-    <script src="script.js?v=11"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>

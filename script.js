@@ -2,34 +2,63 @@
 (function() {
     var overlay = document.getElementById('promoOverlay');
     var closeBtn = document.getElementById('promoClose');
-    if (!overlay) return;
+    if (!overlay || !closeBtn) return;
 
-    // Show once per session. sessionStorage throws where site data is blocked,
-    // and this runs at the very top of script.js — an exception here took the
-    // whole file down, including the loading-screen dismissal.
-    try {
-      if (sessionStorage.getItem('mamba_promo_shown')) return;
-      sessionStorage.setItem('mamba_promo_shown', '1');
-    } catch (e) {
-      // Storage unavailable: show the popup this once rather than breaking.
+    var lastFocused = null;
+
+    function alreadyShown() {
+        // sessionStorage throws where site data is blocked.
+        try { return !!sessionStorage.getItem('mamba_promo_shown'); } catch (e) { return false; }
     }
 
-    // Show after loading screen (2.5s delay)
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            overlay.classList.add('active');
-        }, 2500);
-    });
+    function markShown() {
+        try { sessionStorage.setItem('mamba_promo_shown', '1'); } catch (e) { /* storage blocked */ }
+    }
 
-    closeBtn.addEventListener('click', function() {
+    if (alreadyShown()) return;
+
+    function open() {
+        // The flag is set HERE, not when the script runs. Previously anyone who
+        // left within the 2.5s delay was recorded as having seen a popup that
+        // never appeared, and never saw it again that session.
+        markShown();
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        lastFocused = document.activeElement;
+        document.body.style.overflow = 'hidden';
+        // The overlay is visibility:hidden until .active applies, and a hidden
+        // element cannot take focus — so focusing in the same frame silently
+        // did nothing. Wait for the style to land first.
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() { closeBtn.focus(); });
+        });
+        document.addEventListener('keydown', onKeydown);
+    }
+
+    function close() {
         overlay.classList.remove('active');
-    });
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onKeydown);
+        // Return focus where it was, so keyboard users are not dumped on <body>.
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
 
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) {
-            overlay.classList.remove('active');
-        }
-    });
+    function onKeydown(e) {
+        if (e.key === 'Escape') { close(); return; }
+        if (e.key !== 'Tab') return;
+        // aria-modal alone does not stop Tab escaping to the page behind, so
+        // the focusable elements inside are cycled explicitly.
+        var f = overlay.querySelectorAll('button, a[href]');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
+    window.addEventListener('load', function() { setTimeout(open, 2500); });
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
 })();
 
 // ==== HOMEPAGE INTERACTIONS ====

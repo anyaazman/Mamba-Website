@@ -5819,7 +5819,20 @@ html[data-platform="android"] .promo-cta-member { order: 2; }
         overflow-y: auto;
     }
 
-    .nav-links.active { right: 0; }
+    /* Off-screen alone left the three links focusable and in the
+       accessibility tree, so a keyboard user tabbed into an invisible menu.
+       visibility:hidden removes them from both; the delay lets the slide-out
+       animation finish before they disappear. */
+    .nav-links {
+        visibility: hidden;
+        transition: right 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    .nav-links.active {
+        right: 0;
+        visibility: visible;
+        transition: right 0.3s ease, visibility 0s linear 0s;
+    }
 
     .nav-links a {
         display: block;
@@ -6044,3 +6057,67 @@ html[data-platform="android"] .promo-cta-member { order: 2; }
 }
 
 .auth-form .form-group.form-consent-row a { color: var(--cyan-primary); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ==================================================================
+   ICONOGRAPHY
+   These slots previously held emoji (📱 🏦 🎯 …) sized by font-size.
+   Emoji render differently on every OS, cannot inherit brand colour,
+   and read as a prototype rather than a financial product. They are
+   now inline stroke SVGs that inherit currentColor.
+   ================================================================== */
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--neural-border);
+    border-radius: 14px;
+    background: rgba(10, 132, 255, 0.06);
+    color: var(--cyan-primary);
+}
+
+.feature-icon svg { width: 26px; height: 26px; }
+
+.step-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    /* Was font-size + a floatIcon animation, which no longer applies. */
+    font-size: 0;
+    border: 1px solid var(--neural-border);
+    border-radius: 12px;
+    background: rgba(10, 132, 255, 0.06);
+    color: var(--cyan-primary);
+    animation: none;
+}
+
+.step-icon svg { width: 22px; height: 22px; }
+
+/* Inline markers beside strategy-parameter headings. */
+h6 > svg,
+h5 > svg,
+.step-features svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    vertical-align: -2px;
+}
+
+@media (max-width: 768px) {
+    .feature-icon { width: 48px; height: 48px; margin-bottom: 1.25rem; }
+    .feature-icon svg { width: 23px; height: 23px; }
+    .step-icon { width: 40px; height: 40px; }
+    .step-icon svg { width: 20px; height: 20px; }
+}
+
+.param-icon {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+}
+
+.param-icon svg { width: 17px; height: 17px; }
