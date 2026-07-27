@@ -1012,6 +1012,10 @@ function initFeatureVideos() {
 
                 console.log('Video entered viewport:', video.src);
 
+                // Approaching the viewport: opt in to a full fetch and start it.
+                if (video.preload !== 'auto') video.preload = 'auto';
+                if (video.readyState < 2) video.load();
+
                 // Force video attributes (critical for mobile)
                 video.muted = true;
                 video.playsInline = true;
@@ -1078,7 +1082,11 @@ function initFeatureVideos() {
         video.playsInline = true;
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
-        video.preload = 'auto';
+        // These three .video-to-webp feature videos sit well below the fold and an
+        // IntersectionObserver already loads them on approach. Forcing preload to
+        // 'auto' here defeated that entirely: all three (~719 KB) were fetched on
+        // page load. 'none' defers them until the observer asks.
+        video.preload = 'none';
 
         // Force visibility immediately (mobile fix)
         video.style.opacity = '1';
@@ -1099,11 +1107,11 @@ function initFeatureVideos() {
             }, { once: true });
         }
 
-        // Mobile-specific: Try to load video immediately
-        if (video.readyState < 2) {
-            video.load();
-            console.log(`Video ${index + 1} load() called`);
-        }
+        // Deliberately NOT loading here. This ran for every feature video the
+        // moment the page initialised, which fetched all three in full (~719 KB)
+        // regardless of the IntersectionObserver registered just above. The
+        // observer now owns loading, so the bytes are spent only if the visitor
+        // actually scrolls to them.
     });
 }
 

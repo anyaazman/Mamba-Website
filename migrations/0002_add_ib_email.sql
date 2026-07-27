@@ -1,5 +1,18 @@
--- Add ib_email column to users table (fixes schema drift in production)
--- The production database was created with an older schema that didn't include this column.
--- Run: wrangler d1 execute mamba-db --remote --file=migrations/0002_add_ib_email.sql
-
-ALTER TABLE users ADD COLUMN ib_email TEXT DEFAULT '';
+-- HISTORICAL — intentionally a no-op.
+--
+-- This migration originally ran:
+--     ALTER TABLE users ADD COLUMN ib_email TEXT DEFAULT '';
+--
+-- 0001_init.sql was later updated to declare ib_email directly (see line 11),
+-- so replaying the full set against a fresh database failed here with
+-- "duplicate column name: ib_email" — which meant a new environment could not
+-- be provisioned by running the migrations in order.
+--
+-- The statement is not simply deleted, because databases created before 0001
+-- gained the column still needed this step, and production has already applied
+-- it. Removing the file would renumber history; leaving it executable would
+-- keep breaking fresh installs. A documented no-op preserves the sequence and
+-- lets `for m in migrations/*.sql; do ... done` succeed end to end.
+--
+-- Verified: with this file inert, all 9 migrations replay cleanly on an empty
+-- database, and the resulting schema matches production.
