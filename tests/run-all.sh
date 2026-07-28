@@ -30,6 +30,7 @@ SUITES=(
   "nav-links.spec.js"
   "user-journey.spec.js"
   "app-banner.spec.js"
+  "api-journey.spec.js"
   "valetax-reconcile.spec.js"
   "valetax-admin-ui.spec.js"
 )
