@@ -24,6 +24,15 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Body must be a JSON object.' }, 400);
   }
 
+  // The only field that reached the database unchecked. A non-string here threw
+  // D1_TYPE_ERROR out of storeSnapshot, which the catch below turned into a 500
+  // — a client mistake reported as a server fault, which is exactly what
+  // readJson in _helpers.js exists to avoid. Absent or null stays legal:
+  // storeSnapshot binds it as NULL and status.js falls back to imported_at.
+  if (body.pulledAt != null && (typeof body.pulledAt !== 'string' || body.pulledAt.length > 64)) {
+    return json({ error: '"pulledAt" must be an ISO date string.' }, 400);
+  }
+
   const clients = body.clients;
   if (!Array.isArray(clients)) {
     return json({ error: 'Expected a "clients" array — upload valetax-snapshot.json unmodified.' }, 400);
@@ -63,7 +72,12 @@ export async function onRequestPost({ request, env }) {
       subIbsNotRecursed: normalised.filter(c => c.has_children === 1).length
     }, 201);
   } catch (e) {
+    // The detail goes to the log, not the response: it is the driver's own
+    // error text, and echoing upstream internals back to the caller is what
+    // made the removed login.js unfit for production. A partly-written snapshot
+    // is left behind here, which is safe — storeSnapshot never marked it
+    // complete, so no reader will pick it up and pruneSnapshots clears it.
     console.error('Valetax import error:', e.message);
-    return json({ error: 'Could not store the snapshot. ' + e.message }, 500);
+    return json({ error: 'Could not store the snapshot. Nothing was changed — check the logs and try again.' }, 500);
   }
 }

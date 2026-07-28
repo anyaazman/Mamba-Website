@@ -36,7 +36,8 @@ export async function onRequestGet({ request, env }) {
       ageHours
     });
   } catch (e) {
+    // Detail to the log only — the response must not carry driver internals.
     console.error('Valetax status error:', e.message);
-    return json({ error: 'Could not read snapshot status. ' + e.message }, 500);
+    return json({ error: 'Could not read snapshot status. Check the logs.' }, 500);
   }
 }

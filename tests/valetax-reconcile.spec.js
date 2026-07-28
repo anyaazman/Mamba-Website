@@ -85,7 +85,8 @@ const ACC_NOT_VALETAX = '5550002';        // does not
 function seed() {
   // Schema first — safe to re-run, every statement is IF NOT EXISTS.
   sqlFile('migrations/0001_init.sql');
-  for (const m of ['0003_add_events.sql', '0011_add_valetax_snapshot.sql']) {
+  for (const m of ['0003_add_events.sql', '0011_add_valetax_snapshot.sql',
+                   '0012_add_valetax_snapshot_completion.sql']) {
     try { sqlFile('migrations/' + m); } catch (e) { /* already applied */ }
   }
   // Columns added by later ALTERs; ignore "duplicate column" on re-run.
@@ -298,6 +299,71 @@ const SNAPSHOT = {
     const res = await api(r === '/api/admin/valetax/login' ? 'POST' : 'GET', r, { key: ADMIN_KEY, body: {} });
     check(`${r} no longer routes (404/405)`, res.status === 404 || res.status === 405, res.status);
   }
+
+  // A snapshot row whose children never landed must be invisible to readers.
+  // Before completed_at existed, getLatestSnapshot took it by newest id and the
+  // report collapsed: matched fell to 0 and every claimer moved into
+  // "not under our code", under a status line that looked perfectly healthy.
+  section('[11] a half-written import is never reconciled');
+  const restored = await api('POST', '/api/admin/valetax/import', { key: ADMIN_KEY, body: SNAPSHOT });
+  check('re-imported the known-good snapshot', restored.status === 201, restored.status);
+  const goodId = restored.data.snapshotId;
+  const baseline = await api('GET', '/api/admin/valetax/reconcile', { key: ADMIN_KEY });
+  const baseMatched = baseline.data.counts.matched;
+  check('baseline has a matched user to lose', baseMatched === 1, baseMatched);
+
+  // Exactly what storeSnapshot leaves behind when it dies after the parent row.
+  sql(`INSERT INTO valetax_snapshots (pulled_at, client_count) VALUES ('2026-07-27T09:00:00.000Z', 3)`);
+
+  const afterPartial = await api('GET', '/api/admin/valetax/status', { key: ADMIN_KEY });
+  check('status still reports the last COMPLETE snapshot',
+    afterPartial.data.hasSnapshot === true && afterPartial.data.snapshotId === goodId,
+    JSON.stringify(afterPartial.data));
+  const recPartial = await api('GET', '/api/admin/valetax/reconcile', { key: ADMIN_KEY });
+  check('reconcile ignores the partial row',
+    recPartial.data.snapshot && recPartial.data.snapshot.id === goodId,
+    JSON.stringify(recPartial.data.snapshot));
+  check('matched did not collapse to zero', recPartial.data.counts.matched === baseMatched,
+    `${recPartial.data.counts.matched} (baseline ${baseMatched})`);
+  check('claimers were not swept into "not under our code"',
+    recPartial.data.counts.claimedNotInValetax === baseline.data.counts.claimedNotInValetax,
+    `${recPartial.data.counts.claimedNotInValetax} vs ${baseline.data.counts.claimedNotInValetax}`);
+
+  // Abandoned rows are already unreadable; prune stops them accumulating.
+  sql(`INSERT INTO valetax_snapshots (pulled_at, client_count, imported_at)
+       VALUES ('2026-07-20T00:00:00.000Z', 7, datetime('now', '-2 hours'))`);
+  const beforePrune = Number((sql(
+    'SELECT COUNT(*) AS n FROM valetax_snapshots WHERE completed_at IS NULL')
+    .match(/"n":\s*(\d+)/) || [])[1]);
+  await api('POST', '/api/admin/valetax/import', { key: ADMIN_KEY, body: SNAPSHOT });
+  const afterPrune = Number((sql(
+    'SELECT COUNT(*) AS n FROM valetax_snapshots WHERE completed_at IS NULL')
+    .match(/"n":\s*(\d+)/) || [])[1]);
+  check('stale incomplete snapshots are pruned', afterPrune < beforePrune,
+    `${beforePrune} -> ${afterPrune}`);
+
+  section('[12] pulledAt is validated, and errors carry no driver internals');
+  const currentId = (await api('GET', '/api/admin/valetax/status', { key: ADMIN_KEY })).data.snapshotId;
+  for (const [label, value] of [['object', { nested: 'x' }], ['array', ['2026-01-01']],
+                                ['number', 1753574400], ['over-long', 'x'.repeat(65)]]) {
+    const res = await api('POST', '/api/admin/valetax/import',
+      { key: ADMIN_KEY, body: { pulledAt: value, clients: SNAPSHOT.clients } });
+    check(`pulledAt as ${label} -> 400`, res.status === 400, `${res.status} ${JSON.stringify(res.data)}`);
+    check(`pulledAt as ${label} explains itself`,
+      !!(res.data && /pulledAt/.test(res.data.error || '')), JSON.stringify(res.data));
+    check(`pulledAt as ${label} leaks no driver internals`,
+      !/D1_|SQLITE|no such column/i.test(JSON.stringify(res.data)), JSON.stringify(res.data));
+  }
+
+  const omitted = await api('POST', '/api/admin/valetax/import',
+    { key: ADMIN_KEY, body: { clients: SNAPSHOT.clients } });
+  check('an absent pulledAt is still accepted', omitted.status === 201, omitted.status);
+  check('absent pulledAt stores as null', omitted.data.pulledAt === null, omitted.data.pulledAt);
+
+  const survived = await api('GET', '/api/admin/valetax/status', { key: ADMIN_KEY });
+  check('rejected imports never displaced the good snapshot',
+    survived.data.hasSnapshot === true && survived.data.snapshotId >= currentId,
+    JSON.stringify(survived.data));
 
   console.log('\nCleaning up fixtures…');
   cleanup();

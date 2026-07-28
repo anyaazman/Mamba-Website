@@ -41,7 +41,8 @@ export async function onRequestGet({ request, env }) {
       accountsNotInValetax: r.accountsNotInValetax
     });
   } catch (e) {
+    // Detail to the log only — the response must not carry driver internals.
     console.error('Valetax reconcile error:', e.message);
-    return json({ error: 'Reconciliation failed. ' + e.message }, 500);
+    return json({ error: 'Reconciliation failed. Check the logs.' }, 500);
   }
 }

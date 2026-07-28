@@ -35,5 +35,10 @@ node_modules/
 .playwright-mcp/
 *-homepage*.png
 
+# === Local design/review screenshots (not deployed, referenced by nothing) ===
+hero.png
+modal-index.png
+login-with-proposed-intro.png
+
 # === Source/original media (not deployed) ===
 originals/

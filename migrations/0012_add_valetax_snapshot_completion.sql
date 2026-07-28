@@ -1,0 +1,44 @@
+-- Mark a Valetax snapshot as whole, so a half-written one is never reconciled.
+--
+-- storeSnapshot (_valetax.js) inserts the valetax_snapshots row FIRST and then
+-- writes the client and account rows across many separate db.batch() calls.
+-- D1 makes each batch atomic but gives us no transaction spanning all of them,
+-- so a request that dies partway leaves the parent row with only some of its
+-- children. getLatestSnapshot picks the newest id regardless, and nothing
+-- compared client_count against the rows actually present — so the partial
+-- snapshot became the one the reconciliation ran against.
+--
+-- Measured on local D1 with identical fixtures, a snapshot row with no client
+-- rows flipped the report from matched=2 / claimedNotInValetax=0 to
+-- matched=0 / claimedNotInValetax=2, while status still reported
+-- {hasSnapshot:true, clientCount:2, ageHours:0}. The operator would read a
+-- healthy freshness line above a report saying nobody is under our partner
+-- code. That is the same catastrophic misread the 422 no-readable-email guard
+-- in import.js was written to prevent, reached by a different route. With
+-- MAX_CLIENTS at 5000 a full import is ~100-200 sequential batches in one
+-- request, so a CPU or wall-clock kill lands exactly here.
+--
+-- Why a completion marker rather than deleting the row in import.js's catch:
+-- the likeliest trigger is the isolate being killed on a limit, and a killed
+-- isolate never runs catch. A row that is never MARKED complete is safe by
+-- default; a row that depends on cleanup code running is not. This is also why
+-- the column is a timestamp rather than a boolean flag — same reasoning as
+-- 0008, where recording when something happened beat inventing a new status.
+--
+-- Readers filter on completed_at IS NOT NULL. NULL means "cannot prove this
+-- snapshot is whole", which covers both in-flight and abandoned writes.
+--
+-- No backfill. Production holds 0 rows in valetax_snapshots (verified against
+-- remote D1 before writing this), so there is nothing to preserve; any row in
+-- a local dev database goes NULL and is re-imported in seconds.
+--
+-- NOT idempotent: SQLite has no ADD COLUMN IF NOT EXISTS, so re-running this
+-- fails with "duplicate column name". Same property as 0002, 0004 and 0008.
+--
+-- Apply this BEFORE deploying the code that reads it — getLatestSnapshot gains
+-- a WHERE on this column, and shipping that first would throw "no such column"
+-- on every Valetax read. Same shape as the whitelist_requested_at regression.
+--
+-- Run: wrangler d1 execute mamba-db --remote --file=migrations/0012_add_valetax_snapshot_completion.sql
+
+ALTER TABLE valetax_snapshots ADD COLUMN completed_at TEXT;

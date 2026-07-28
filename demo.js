@@ -262,6 +262,15 @@
           else if (!body.clients.length) {
             json = { error: 'Snapshot contains no clients. Refusing to replace the current one with an empty pull.' }; status = 400;
           }
+          // The three rejections below mirror import.js. Without them the
+          // sandbox accepted payloads production refuses, so the demo was a
+          // misleading place to learn what a bad snapshot does.
+          else if (body.pulledAt != null && (typeof body.pulledAt !== 'string' || body.pulledAt.length > 64)) {
+            json = { error: '"pulledAt" must be an ISO date string.' }; status = 400;
+          }
+          else if (body.clients.length > 5000) {
+            json = { error: 'Snapshot has ' + body.clients.length + ' clients, above the 5000 limit. Check this is the right file.' }; status = 413;
+          }
           else {
             var dc = body.clients.map(function(c) {
               var tr = c.trading;
@@ -277,15 +286,22 @@
                        registered_at: c.registeredAt || '',
                        has_children: c.hasChildren ? 1 : 0, logins: logins };
             });
-            db.valetax_snapshot = { pulledAt: body.pulledAt || null,
-                                    importedAt: new Date().toISOString(), clients: dc };
-            saveDb(db);
-            json = { success: true, snapshotId: 1, pulledAt: body.pulledAt || null,
-                     clientsImported: dc.length,
-                     clientsWithEmail: dc.filter(function(c) { return c.email; }).length,
-                     mt5AccountsImported: dc.reduce(function(n, c) { return n + c.logins.length; }, 0),
-                     subIbsNotRecursed: dc.filter(function(c) { return c.has_children; }).length };
-            status = 201;
+            var withEmail = dc.filter(function(c) { return c.email; }).length;
+            if (!withEmail) {
+              json = { error: 'No client in this snapshot had a readable email. The Valetax response shape may have changed — not importing.',
+                       clientsSeen: dc.length };
+              status = 422;
+            } else {
+              db.valetax_snapshot = { pulledAt: body.pulledAt || null,
+                                      importedAt: new Date().toISOString(), clients: dc };
+              saveDb(db);
+              json = { success: true, snapshotId: 1, pulledAt: body.pulledAt || null,
+                       clientsImported: dc.length,
+                       clientsWithEmail: withEmail,
+                       mt5AccountsImported: dc.reduce(function(n, c) { return n + c.logins.length; }, 0),
+                       subIbsNotRecursed: dc.filter(function(c) { return c.has_children; }).length };
+              status = 201;
+            }
           }
         }
         else if (method === 'GET' && urlStr.includes('/api/admin/valetax/reconcile')) {

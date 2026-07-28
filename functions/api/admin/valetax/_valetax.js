@@ -69,6 +69,17 @@ export function normaliseClient(raw) {
 }
 
 // Writes a whole snapshot. Returns the new snapshot id.
+//
+// Two-phase on purpose. D1 makes each db.batch() atomic but gives us no
+// transaction spanning all of them, so a large import is many independent
+// writes and a request that dies partway leaves the parent row with only some
+// of its children. completed_at is set only after every batch has landed, and
+// getLatestSnapshot ignores rows where it is NULL — so a half-written snapshot
+// is invisible to the reconciliation rather than being treated as the truth.
+//
+// The marker is set here rather than the row being cleaned up in the caller's
+// catch because the likeliest failure is the isolate being killed on a CPU or
+// wall-clock limit, and a killed isolate never runs catch.
 export async function storeSnapshot(env, pulledAt, clients) {
   const meta = await env.DB.prepare(
     'INSERT INTO valetax_snapshots (pulled_at, client_count) VALUES (?, ?)'
@@ -100,12 +111,22 @@ export async function storeSnapshot(env, pulledAt, clients) {
     await env.DB.batch(statements.slice(i, i + BATCH_SIZE));
   }
 
+  // Every child row is in. Only now does this snapshot become readable.
+  await env.DB.prepare(
+    "UPDATE valetax_snapshots SET completed_at = datetime('now') WHERE id = ?"
+  ).bind(snapshotId).run();
+
   return snapshotId;
 }
 
+// The single read path for both status.js and reconcile.js, so the
+// completeness filter only has to be stated once.
 export async function getLatestSnapshot(env) {
   return env.DB.prepare(
-    'SELECT id, pulled_at, client_count, imported_at FROM valetax_snapshots ORDER BY id DESC LIMIT 1'
+    `SELECT id, pulled_at, client_count, imported_at, completed_at
+       FROM valetax_snapshots
+      WHERE completed_at IS NOT NULL
+      ORDER BY id DESC LIMIT 1`
   ).first();
 }
 
@@ -114,8 +135,22 @@ export async function getLatestSnapshot(env) {
 export async function pruneSnapshots(env, keep = 5) {
   await env.DB.prepare(
     `DELETE FROM valetax_snapshots
-      WHERE id NOT IN (SELECT id FROM valetax_snapshots ORDER BY id DESC LIMIT ?)`
+      WHERE completed_at IS NOT NULL
+        AND id NOT IN (
+          SELECT id FROM valetax_snapshots
+           WHERE completed_at IS NOT NULL
+           ORDER BY id DESC LIMIT ?
+        )`
   ).bind(keep).run();
+
+  // Abandoned writes are already invisible to readers, but they would otherwise
+  // accumulate along with their orphaned children. The hour's grace is so a
+  // concurrent import still in flight is not pruned out from under itself.
+  await env.DB.prepare(
+    `DELETE FROM valetax_snapshots
+      WHERE completed_at IS NULL
+        AND datetime(imported_at) < datetime('now', '-1 hour')`
+  ).run();
   // ON DELETE CASCADE is only honoured when foreign keys are enabled, which is
   // not guaranteed on D1, so clear the children explicitly.
   await env.DB.prepare(
