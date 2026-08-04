@@ -21,6 +21,8 @@
 const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 
 const BASE = process.argv[2] || 'http://localhost:8789';
 const ROOT = path.resolve(__dirname, '..');
@@ -37,13 +39,35 @@ function check(name, ok, detail) {
 }
 function section(t) { console.log('\n' + t); }
 
+// Running wrangler from Node on Windows is awkward: npx is npx.cmd, and since
+// CVE-2024-27980 execFileSync refuses to launch a .cmd at all (ENOENT, then
+// EINVAL). Going through cmd.exe fixes the launch but not the arguments — a
+// shell splits "--command INSERT INTO ..." on spaces and wrangler reports a
+// dozen unknown arguments.
+//
+// So no SQL is ever passed as an argument now. sql() writes the statement to a
+// temp file and both paths use --file, whose one argument is a space-free path.
+// Same code on every platform, and it stays correct if a query ever needs a
+// quote of either kind.
+const NPX = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const SPAWN_OPTS = process.platform === 'win32' ? { shell: true } : {};
+let sqlSeq = 0;
+
 function sql(command) {
-  return execFileSync('npx', ['wrangler', 'd1', 'execute', DB, '--local', '--command', command],
-    { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  // os.tmpdir(), NOT ROOT: `wrangler pages dev` watches the served directory and
+  // reloads on any file change, so writing scratch .sql files into the repo root
+  // bounced the worker mid-suite and surfaced as "fetch failed".
+  const tmp = path.join(os.tmpdir(), `d1-stmt-${process.pid}-${sqlSeq++}.sql`);
+  fs.writeFileSync(tmp, command, 'utf8');
+  try {
+    return sqlFile(tmp);
+  } finally {
+    try { fs.unlinkSync(tmp); } catch { /* best effort */ }
+  }
 }
 function sqlFile(file) {
-  return execFileSync('npx', ['wrangler', 'd1', 'execute', DB, '--local', '--file', file],
-    { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return execFileSync(NPX, ['wrangler', 'd1', 'execute', DB, '--local', '--file', file],
+    { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...SPAWN_OPTS });
 }
 
 async function api(method, route, { key, body, raw } = {}) {
