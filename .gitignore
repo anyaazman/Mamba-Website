@@ -42,3 +42,8 @@ login-with-proposed-intro.png
 
 # === Source/original media (not deployed) ===
 originals/
+
+# D1 exports. A full dump contains every user row - emails, password hashes and
+# recovery phrases - so it must never be committed.
+.backups/
+*.d1-export.sql
