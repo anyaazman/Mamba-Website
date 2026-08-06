@@ -33,6 +33,7 @@ SUITES=(
   "api-journey.spec.js"
   "valetax-reconcile.spec.js"
   "valetax-admin-ui.spec.js"
+  "whitelist-sync-reporting.spec.js"
 )
 
 failed=""

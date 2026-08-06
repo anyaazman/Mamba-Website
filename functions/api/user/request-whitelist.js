@@ -32,12 +32,29 @@ export async function onRequestPost(context) {
       return json({ error: 'This account is already approved.' }, 400);
     }
 
-    // Auto-whitelist in the trading backend. Fails open: if the backend is
-    // unreachable we keep the old 'pending' flow and alert the admin so the
-    // manual approval path still works.
-    const sync = await syncBackendWhitelist(
-      env, 'add', account.account_number, `auto: client request user#${user.id}`
-    );
+    // Auto-whitelist is reserved for users an admin has actually approved.
+    //
+    // hasRequestedIB() above only proves the user typed *an* email into the IB
+    // form; it does not prove anyone checked that email against the Valetax
+    // downline. Without this gate, revoking someone was undoable by the client:
+    // re-submit the IB form with any address (request-ib.js allows it whenever
+    // ib_status is not 'approved'), then request whitelist, and the account was
+    // synced straight back into the trading backend inside a minute with no
+    // admin in the loop. That is how the revocation of 2026-08-07 could have
+    // been reversed by the 37 users it applied to.
+    //
+    // Unapproved users are not refused — they fall through to the manual path
+    // below, which records the request and notifies the admin. Nothing reaches
+    // the trading backend until an admin approves it.
+    const ibApproved = user.ib_status === 'approved';
+
+    // Fails open: if the backend is unreachable we keep the old 'pending' flow
+    // and alert the admin so the manual approval path still works.
+    const sync = ibApproved
+      ? await syncBackendWhitelist(
+          env, 'add', account.account_number, `auto: client request user#${user.id}`
+        )
+      : { ok: false };
 
     if (sync.ok) {
       await env.DB.prepare(
@@ -70,9 +87,25 @@ export async function onRequestPost(context) {
     }
 
     await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
-    context.waitUntil(notifyAdmin(env, '⚠️ MT5 Whitelist — backend sync failed, approve manually', { Name: user.name, Email: user.email, 'Account': String(account.account_number) }));
 
-    return json({ success: true, message: 'Whitelist request submitted.' });
+    // Two different reasons land here and the admin needs to tell them apart:
+    // an unapproved IB is a decision waiting to be made, a failed sync is an
+    // outage to investigate.
+    context.waitUntil(ibApproved
+      ? notifyAdmin(env, '⚠️ MT5 Whitelist — backend sync failed, approve manually', {
+          Name: user.name, Email: user.email, 'Account': String(account.account_number)
+        })
+      : notifyAdmin(env, '🔒 MT5 Whitelist — IB not approved, review before approving', {
+          Name: user.name, Email: user.email, 'Account': String(account.account_number),
+          'IB Status': user.ib_status, 'IB Email': user.ib_email || '—'
+        }));
+
+    return json({
+      success: true,
+      message: ibApproved
+        ? 'Whitelist request submitted.'
+        : 'Whitelist request submitted. It will be activated once your IB verification is approved.'
+    });
   } catch (e) {
     console.error('Request whitelist error:', e.message, e.stack);
     return json({ error: 'Request failed. Please try again.' }, 500);

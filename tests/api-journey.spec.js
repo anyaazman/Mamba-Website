@@ -104,9 +104,15 @@ function seed() {
   // those paths is wrapped in a try/catch that fails open. Applying them here
   // keeps the drift from coming back.
   sqlFile('migrations/0001_init.sql');
+  // 0014 must stay last and must not be dropped from this list. 0006, 0009 and
+  // 0014 each REBUILD the events table to widen its CHECK constraint, so
+  // replaying an earlier one after a later one silently narrows the constraint
+  // again — which is how whitelist-sync-reporting.spec.js came to fail three
+  // "event row written" checks against a database that had 0014 applied.
   for (const m of ['0003_add_events.sql', '0005_add_contact_and_rate_limits.sql',
                    '0006_add_whitelist_synced_event.sql', '0008_add_whitelist_requested_at.sql',
-                   '0009_add_account_deletion_request_event.sql']) {
+                   '0009_add_account_deletion_request_event.sql',
+                   '0014_add_whitelist_divergence_events.sql']) {
     try { sqlFile('migrations/' + m); } catch (e) { /* already applied */ }
   }
   for (const c of ["ALTER TABLE users ADD COLUMN ib_email TEXT DEFAULT ''",
@@ -269,6 +275,40 @@ function cleanup() {
   const untouched = (afterWl.data.user.mt5_accounts || []).find(a => a.id !== target.id);
   check('the other account is untouched', untouched && untouched.whitelist_requested_at === null,
     JSON.stringify(untouched));
+
+  section('[8b] an unapproved IB cannot auto-whitelist itself into the backend');
+  // The defect this pins: request-whitelist only checked that ib_email was
+  // non-empty, so a user whose IB had been revoked could re-submit the IB form
+  // with any address and sync straight back into the trading backend — no admin
+  // involved. Revocation was undoable by the person being revoked.
+  const stillPending = sql(
+    `SELECT status FROM mt5_accounts WHERE id = ${target.id};`);
+  check('a pending-IB user never reaches approved via request-whitelist',
+    !/"status":\s*"approved"/.test(stillPending), stillPending);
+  check('the response says approval is still required',
+    /IB verification is approved/.test(JSON.stringify(wl.data)), JSON.stringify(wl.data));
+
+  // The revoked case specifically: rejected IB, then re-request, then retry.
+  sql(`UPDATE users SET ib_status='rejected', ib_email='' WHERE email='${EMAIL}';`);
+  const revokedWl = await api('POST', '/api/user/request-whitelist',
+    { token, body: { account_id: target.id } });
+  check('a revoked user is refused outright -> 403', revokedWl.status === 403, revokedWl.status);
+
+  const reIb = await api('POST', '/api/user/request-ib',
+    { token, body: { ib_email: IB_EMAIL, ib_type: 'existing' } });
+  check('a revoked user may re-request IB -> 200', reIb.status === 200, reIb.status);
+  const afterReIb = sql(`SELECT ib_status FROM users WHERE email='${EMAIL}';`);
+  check('re-requesting lands in pending, not approved',
+    /"ib_status":\s*"pending"/.test(afterReIb), afterReIb);
+
+  const retryWl = await api('POST', '/api/user/request-whitelist',
+    { token, body: { account_id: target.id } });
+  check('re-requesting IB does not restore the whitelist', retryWl.status === 200, retryWl.status);
+  const afterRetry = sql(`SELECT status FROM mt5_accounts WHERE id = ${target.id};`);
+  check('the account is still NOT approved after the re-request cycle',
+    !/"status":\s*"approved"/.test(afterRetry), afterRetry);
+
+  sql(`UPDATE users SET ib_status='pending' WHERE email='${EMAIL}';`);
 
   section('[9] profile update');
   const longName = await api('PUT', '/api/user/update', { token, body: { name: 'x'.repeat(101) } });
