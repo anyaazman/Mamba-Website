@@ -8,7 +8,7 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
     <link rel="stylesheet" href="styles.css?v=29">
-    <link rel="stylesheet" href="portal.css?v=6">
+    <link rel="stylesheet" href="portal.css?v=7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
@@ -66,6 +66,15 @@
                         Manage Valetax Account
                     </a>
 
+                    <!-- WhatsApp Community Button -->
+                    <a href="https://chat.whatsapp.com/JWQAj7I4dji1SvYB8TsGFZ?s=cl&amp;p=i&amp;ilr=4" target="_blank" rel="noopener noreferrer" class="broker-btn community-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"></path>
+                            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.04-.2-.31a8.17 8.17 0 0 1-1.25-4.38c0-4.54 3.7-8.23 8.23-8.23 2.2 0 4.26.86 5.82 2.41a8.17 8.17 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24z"></path>
+                        </svg>
+                        Join WhatsApp Community
+                    </a>
+
                     <div class="dashboard-row">
                         <!-- MT5 Accounts Card -->
                         <div class="portal-card">
@@ -113,11 +122,23 @@
                              is requested until the member presses play. -->
                         <button type="button" class="video-facade" id="tutorialFacade"
                                 aria-label="Play the Mamba tutorial video (loads YouTube)">
+                            <!-- Decorative: the button's aria-label already announces the action,
+                                 so an alt here would just repeat it to a screen reader. Width and
+                                 height are declared so the box is reserved before the file lands. -->
+                            <img src="mamba-education-thumb.webp" alt="" width="1280" height="720"
+                                 class="video-facade-thumb" decoding="async">
                             <span class="video-facade-play" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                             </span>
-                            <span class="video-facade-label">Play tutorial</span>
-                            <span class="video-facade-note">Loads YouTube when you press play</span>
+                            <!-- The YouTube notice stays in a scrimmed bar at the bottom: the
+                                 thumbnail is white, so it needs its own dark ground to be
+                                 readable at all. -->
+                            <span class="video-facade-bar">
+                                <span class="video-facade-text">
+                                    <span class="video-facade-label">Play tutorial</span>
+                                    <span class="video-facade-note">Loads YouTube when you press play</span>
+                                </span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -216,7 +237,7 @@
                             <h4 class="ib-guide-title">HOW TO CHANGE YOUR IB</h4>
                             <!-- Step 1 -->
                             <div class="ib-step-card">
-                                <div class="ib-step-number">①</div>
+                                <div class="ib-step-number">1</div>
                                 <div class="ib-step-body">
                                     <span class="ib-step-title">Open Support Ticket Page</span>
                                     <span class="ib-step-desc">Click below to open the Valetax support ticket page in a new tab</span>
@@ -228,7 +249,7 @@
                             </div>
                             <!-- Step 2 -->
                             <div class="ib-step-card">
-                                <div class="ib-step-number">②</div>
+                                <div class="ib-step-number">2</div>
                                 <div class="ib-step-body">
                                     <span class="ib-step-title">Update Partner Code</span>
                                     <span class="ib-step-desc">On the ticket page, find the title field and enter this</span>
@@ -242,7 +263,7 @@
                             </div>
                             <!-- Step 3 -->
                             <div class="ib-step-card">
-                                <div class="ib-step-number">③</div>
+                                <div class="ib-step-number">3</div>
                                 <div class="ib-step-body">
                                     <span class="ib-step-title">Paste Ticket Comment</span>
                                     <span class="ib-step-desc">Copy this message and paste it into the Comment description</span>
@@ -264,19 +285,26 @@
                             <img src="ib-carousel-3.webp" alt="Step 3 - Valetax IB change process" class="ib-carousel-img">
                         </div>
                     </div>
-                    <!-- Nav arrows -->
+                </div>
+                <!-- Slide controls. The arrows used to be absolutely positioned inside
+                     the carousel, vertically centred — which on slide 1 put them on top
+                     of the step cards, covering step 2's number badge and the right edge
+                     of its content. They sit beside the dots now, so they cannot overlap
+                     anything on any slide. The IDs are unchanged; dashboard.js finds both
+                     by ID and binds drag to the track, so nothing here depends on where
+                     these buttons live in the DOM. -->
+                <div class="ib-carousel-controls">
                     <button class="ib-carousel-arrow ib-carousel-prev" id="ibCarouselPrev" aria-label="Previous slide">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
+                    <div class="ib-carousel-dots" id="ibCarouselDots">
+                        <button class="ib-carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
+                        <button class="ib-carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+                        <button class="ib-carousel-dot" data-slide="2" aria-label="Slide 3"></button>
+                    </div>
                     <button class="ib-carousel-arrow ib-carousel-next" id="ibCarouselNext" aria-label="Next slide">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
-                </div>
-                <!-- Dot indicators -->
-                <div class="ib-carousel-dots" id="ibCarouselDots">
-                    <button class="ib-carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
-                    <button class="ib-carousel-dot" data-slide="1" aria-label="Slide 2"></button>
-                    <button class="ib-carousel-dot" data-slide="2" aria-label="Slide 3"></button>
                 </div>
                 <!-- Email + buttons (unchanged) -->
                 <div class="form-group" style="margin-bottom: 1rem;">

@@ -393,6 +393,23 @@
   transform: translateY(-2px);
 }
 
+/* --- WhatsApp Community Button ---
+   Shares .broker-btn's layout and only recolours it, so the two sit as a
+   matched pair beneath the IB banner. WhatsApp green rather than the portal
+   cyan: the destination is a third-party app, and the colour is what makes
+   that legible at a glance. */
+.community-btn {
+  background: linear-gradient(135deg, #0e2a1e 0%, #10231a 100%);
+  border-color: rgba(37, 211, 102, 0.4);
+  color: #25d366;
+}
+
+.community-btn:hover {
+  border-color: #25d366;
+  background: linear-gradient(135deg, #10231a 0%, #0e2a1e 100%);
+  box-shadow: 0 0 30px rgba(37, 211, 102, 0.3);
+}
+
 /* --- Edit Profile Modal --- */
 .modal-overlay {
   display: none;
@@ -828,7 +845,7 @@
     font-size: 0.63rem;
   }
 
-  .ib-carousel-dots {
+  .ib-carousel-controls {
     margin-bottom: 0.5rem;
   }
 }
@@ -839,8 +856,12 @@
   overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--neural-border);
-  background: var(--neural-elevated);
-  margin-bottom: 1rem;
+  /* Recessed relative to the step cards inside it. This was --neural-elevated,
+     the exact colour the cards themselves use, so every card was invisible as a
+     card — only its border and the blue accent bar showed against an identical
+     ground. Darkening the well is what lets the cards read as raised. */
+  background: var(--neural-surface);
+  margin-bottom: 0.75rem;
   transition: min-height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   -webkit-user-select: none;
   user-select: none;
@@ -970,7 +991,11 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.6rem 0.75rem;
-  background: var(--bg-card);
+  /* --bg-card is not defined anywhere in the stylesheets, so this resolved to
+     nothing and the row rendered transparent — the inset "here is the text to
+     copy" well never appeared. The fallback matches the one already used for
+     the same variable further down this file. */
+  background: var(--bg-card, #1C1C1E);
   border: 1px solid var(--neural-border);
   border-radius: 7px;
   box-sizing: border-box;
@@ -1034,13 +1059,20 @@
   border-radius: 8px;
 }
 
-/* --- Dots --- */
+/* --- Slide controls (arrows + dots) --- */
+.ib-carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
 .ib-carousel-dots {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
   padding: 0.25rem 0;
 }
 
@@ -1073,45 +1105,37 @@
   height: 10px;
 }
 
-/* --- Nav Arrows --- */
+/* --- Nav Arrows ---
+   No longer overlaid on the slide, so they no longer need the heavy black
+   scrim that made them legible over arbitrary content. They now sit on the
+   modal's own ground beside the dots. */
 .ib-carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  flex-shrink: 0;
   width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 1px solid var(--neural-border);
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
-  z-index: 2;
   -webkit-tap-highlight-color: transparent;
 }
 
 .ib-carousel-arrow:hover,
 .ib-carousel-arrow:active {
-  background: rgba(10, 132, 255, 0.2);
+  background: rgba(10, 132, 255, 0.12);
   border-color: rgba(10, 132, 255, 0.5);
   color: var(--cyan-primary);
 }
 
-.ib-carousel-prev {
-  left: 0.4rem;
-}
-
-.ib-carousel-next {
-  right: 0.4rem;
-}
-
 @media (max-width: 360px) {
-  .ib-carousel-arrow {
-    display: none;
-  }
+  /* The arrows used to be hidden here because at this width, overlaid on the
+     slide, they covered most of a step card. Beside the dots they cost 88px of
+     a 360px row and obstruct nothing, so they stay. */
 
   .ib-carousel-slide {
     padding: 0.75rem 0.5rem;
@@ -1573,16 +1597,15 @@
    YouTube until the member presses play. */
 .video-facade {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
+    display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
-    padding: 1rem;
+    padding: 0;
+    overflow: hidden;
     border: 1px solid var(--neural-border, #2e2e30);
     border-radius: 8px;
+    /* Still painted behind the thumbnail, so the box never flashes white on a
+       slow connection or if the image fails. */
     background: linear-gradient(145deg, #111 0%, #1c1c1e 100%);
     color: #c9c9c9;
     cursor: pointer;
@@ -1592,20 +1615,88 @@
 .video-facade:hover,
 .video-facade:focus-visible { border-color: var(--cyan-primary, #0a84ff); }
 
+.video-facade-thumb {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-facade-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    /* The thumbnail is white, so the controls need their own ground to be
+       readable at all. Fading to transparent keeps the artwork above it clear. */
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.72) 55%,
+        rgba(0, 0, 0, 0) 100%);
+}
+
 .video-facade-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--cyan-primary, #0a84ff);
     color: #000;
+    /* The thumbnail behind is white and carries its own dark lettering, so the
+       button needs a ring and a shadow to separate from it. */
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 0 6px rgba(0, 0, 0, 0.18);
+    transition: transform 0.25s ease;
 }
 
-.video-facade-play svg { width: 26px; height: 26px; margin-left: 2px; }
+/* The centring translate has to be repeated or the hover would drop it back
+   into the corner. */
+.video-facade:hover .video-facade-play,
+.video-facade:focus-visible .video-facade-play { transform: translate(-50%, -50%) scale(1.08); }
+
+.video-facade-play svg { width: 26px; height: 26px; margin-left: 3px; }
+
+.video-facade-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
 .video-facade-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
-.video-facade-note { font-size: 0.7rem; color: #949494; }
+/* Lifted from #949494: on the scrim this is small text over a dark ground and
+   needs the contrast. */
+.video-facade-note { font-size: 0.7rem; color: #bdbdbd; }
+
+/* At phone width the facade is only ~180px tall, so a bar sized for desktop
+   eats nearly half of it and the scrim climbs over the thumbnail's own title.
+   Shrinking the controls keeps the artwork readable without dropping the
+   YouTube notice. */
+@media (max-width: 768px) {
+    .video-facade-bar { padding: 0.6rem 0.7rem; }
+    .video-facade-play { width: 46px; height: 46px; }
+    .video-facade-play svg { width: 20px; height: 20px; }
+    .video-facade-label { font-size: 0.8rem; }
+    .video-facade-note { font-size: 0.65rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .video-facade-play { transition: none; }
+    .video-facade:hover .video-facade-play,
+    .video-facade:focus-visible .video-facade-play { transform: none; }
+}
 
 .video-embed {
     position: relative;
