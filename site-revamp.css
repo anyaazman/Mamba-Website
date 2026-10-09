@@ -1,0 +1,192 @@
+/* Shared client-facing theme for pages that still use the legacy portal stylesheet.
+   Loaded after styles.css so old dark variables and component defaults resolve to
+   the same light-blue system used by the homepage, login and dashboard. */
+:root {
+  --neural-black: #f5f8fc;
+  --neural-dark: #eef4fb;
+  --neural-surface: #ffffff;
+  --neural-elevated: #f7faff;
+  --neural-border: #dce5f0;
+  --cyan-primary: #1268e8;
+  --cyan-secondary: #0b56c2;
+  --cyan-tertiary: #234f88;
+  --electric-blue: #1268e8;
+  --neon-green: #13b89f;
+  --plasma-purple: #5967d9;
+  --text-primary: #10233d;
+  --text-secondary: #607089;
+  --text-muted: #8491a4;
+  --gradient-cyan: linear-gradient(135deg, #1268e8, #48b6d6);
+  --gradient-neon: linear-gradient(135deg, #1268e8, #48d6c3);
+  --glow-cyan: 0 10px 24px rgba(18,104,232,.16);
+  --font-primary: Manrope, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+html, body { background: #f5f8fc !important; color: #10233d !important; }
+body { min-height: 100vh; }
+.header {
+  position: fixed;
+  background: rgba(245,248,252,.96) !important;
+  border-bottom: 1px solid #dce5f0 !important;
+  box-shadow: 0 5px 22px rgba(16,35,61,.07);
+  backdrop-filter: blur(14px);
+}
+.nav { padding: 1rem 2rem; }
+.header-logo-img { filter: none !important; }
+.logo-icon:hover .header-logo-img { filter: none !important; transform: scale(1.04); }
+.nav-links a { color: #607089 !important; }
+.nav-links a:hover, .nav-links a:focus-visible { color: #1268e8 !important; }
+.header-actions .cta-secondary {
+  background: #fff !important;
+  border: 1px solid #b9cce2 !important;
+  color: #10233d !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.header-actions .cta-secondary:hover { background: #edf4ff !important; border-color: #1268e8 !important; }
+.nav-toggle { background: #fff !important; border-color: #cbd8e7 !important; color: #10233d !important; }
+.nav-toggle span { background: #1268e8 !important; }
+main { margin-top: 0; }
+
+/* How Mamba Works */
+body:has(.features-section) main { background: #f5f8fc !important; }
+body:has(.features-section) .hero,
+body:has(.features-section) .features-section,
+body:has(.features-section) .access-section,
+body:has(.features-section) .innovation-section {
+  background: #f5f8fc !important;
+  color: #10233d !important;
+}
+body:has(.features-section) .hero { padding-top: 130px; }
+body:has(.features-section) .hero-title,
+body:has(.features-section) .section-title,
+body:has(.features-section) .section-header h2,
+body:has(.features-section) .access-info h3,
+body:has(.features-section) .step-card h4,
+body:has(.features-section) .feature-content h3,
+body:has(.features-section) .feature-content h4 { color: #10233d !important; }
+body:has(.features-section) .hero-subtitle,
+body:has(.features-section) .step-card p,
+body:has(.features-section) .feature-content p,
+body:has(.features-section) .access-info p,
+body:has(.features-section) .step-features li { color: #607089 !important; }
+body:has(.features-section) .title-line.highlight,
+body:has(.features-section) .title-number,
+body:has(.features-section) .step-number,
+body:has(.features-section) .step-icon { color: #1268e8 !important; }
+body:has(.features-section) .title-underline,
+body:has(.features-section) .section-header::after { background: #1268e8 !important; }
+body:has(.features-section) .step-card {
+  background: #e8f1ff !important;
+  border: 1px solid #ccdef8 !important;
+  border-radius: 16px !important;
+  padding: 1px !important;
+  box-shadow: 0 12px 30px rgba(16,35,61,.06);
+}
+body:has(.features-section) .step-card-inner {
+  background: #fff !important;
+  color: #10233d !important;
+  border-radius: 15px !important;
+  padding: 2rem !important;
+}
+body:has(.features-section) .step-card:hover { box-shadow: 0 16px 34px rgba(18,104,232,.13); }
+body:has(.features-section) .step-features li {
+  background: #f1f6fd !important;
+  border-left-color: #1268e8 !important;
+}
+body:has(.features-section) .step-card-inner > div[style*="background"],
+body:has(.features-section) .feature-block > div[style*="background"] {
+  background: #f7faff !important;
+  color: #10233d !important;
+  border-color: #dce5f0 !important;
+}
+body:has(.features-section) .step-card-inner img,
+body:has(.features-section) .feature-block img { box-shadow: 0 10px 26px rgba(16,35,61,.12) !important; }
+body:has(.features-section) .cta-primary {
+  background: #1268e8 !important;
+  color: #fff !important;
+  border: 0 !important;
+  box-shadow: 0 9px 22px rgba(18,104,232,.2) !important;
+}
+body:has(.features-section) .cta-primary:hover { background: #0b56c2 !important; }
+body:has(.features-section) .ib-note { color: #295284 !important; background: #edf4ff !important; border-color: #ccdef8 !important; }
+body:has(.features-section) .footer {
+  background: #10233d !important;
+  border-top: 0 !important;
+  color: #dce7f4 !important;
+}
+body:has(.features-section) .footer-brand h3,
+body:has(.features-section) .footer-links h4 { color: #fff !important; }
+body:has(.features-section) .footer-brand p,
+body:has(.features-section) .footer-links a,
+body:has(.features-section) .footer-bottom p { color: #b9c7d8 !important; }
+body:has(.features-section) .footer-links a:hover { color: #48d6c3 !important; }
+body:has(.features-section) .footer-line { background: #48d6c3 !important; }
+
+/* Support, legal and deletion pages */
+.support-page, .legal-page, .error-page { color: #10233d !important; }
+.support-hero h1, .legal-page h1, .legal-page h2, .error-page h1 { color: #10233d !important; }
+.support-hero p, .legal-page p, .legal-page li, .error-page p { color: #607089 !important; }
+.legal-page .legal-updated { color: #8491a4 !important; }
+.support-card, .support-form-section {
+  background: #fff !important;
+  border: 1px solid #dce5f0 !important;
+  box-shadow: 0 12px 30px rgba(16,35,61,.06);
+}
+.support-card { color: #10233d !important; }
+.support-card:hover { border-color: #1268e8 !important; box-shadow: 0 14px 30px rgba(18,104,232,.13) !important; }
+.support-card-primary { background: #edf4ff !important; border-color: #b9cce2 !important; }
+.support-card-icon { background: #e4efff !important; color: #1268e8 !important; }
+.support-card-primary .support-card-icon { background: #1268e8 !important; color: #fff !important; }
+.support-card-title, .support-form label { color: #607089 !important; }
+.support-card-value, .support-form-section h2 { color: #10233d !important; }
+.support-card-hint, .support-form-section > p, .support-note { color: #607089 !important; }
+.support-form input, .support-form textarea {
+  background: #f7faff !important;
+  border: 1px solid #cbd8e7 !important;
+  color: #10233d !important;
+}
+.support-form input::placeholder, .support-form textarea::placeholder { color: #8491a4 !important; }
+.support-form input:focus, .support-form textarea:focus { border-color: #1268e8 !important; box-shadow: 0 0 0 3px rgba(18,104,232,.14) !important; }
+.support-submit { background: #1268e8 !important; color: #fff !important; }
+.support-note a, .legal-page a { color: #1268e8 !important; }
+.legal-page .legal-back { color: #1268e8 !important; border-color: #1268e8 !important; background: #fff !important; }
+.legal-page .legal-back:hover { background: #edf4ff !important; }
+.error-page .error-code { background: linear-gradient(135deg,#1268e8,#48b6d6) !important; -webkit-background-clip: text !important; background-clip: text !important; }
+.error-page .cta-primary { background: #1268e8 !important; color: #fff !important; }
+.risk-strip { background: #fff7e8 !important; border-top: 1px solid #f1d29c !important; color: #7a5b25 !important; }
+.risk-strip strong { color: #795415 !important; }
+.risk-strip a { color: #97630c !important; }
+
+/* Admin portal */
+body:has(.admin-panel) { background: #f5f8fc !important; }
+body:has(.admin-panel) main { margin-top: 98px !important; }
+body:has(.admin-panel) .admin-key-screen { min-height: calc(100vh - 170px); }
+body:has(.admin-panel) .portal-card {
+  background: #fff !important;
+  border: 1px solid #dce5f0 !important;
+  box-shadow: 0 12px 30px rgba(16,35,61,.06);
+}
+body:has(.admin-panel) .portal-card h2,
+body:has(.admin-panel) .portal-card h3,
+body:has(.admin-panel) .dashboard-header h1 { color: #10233d !important; }
+body:has(.admin-panel) .portal-card p,
+body:has(.admin-panel) .valetax-help,
+body:has(.admin-panel) .valetax-note { color: #607089 !important; }
+body:has(.admin-panel) .admin-key-form input,
+body:has(.admin-panel) .admin-search-input,
+body:has(.admin-panel) input[type="date"] {
+  background: #f7faff !important;
+  border: 1px solid #cbd8e7 !important;
+  color: #10233d !important;
+}
+body:has(.admin-panel) .submit-btn,
+body:has(.admin-panel) .filter-tab.active { background: #1268e8 !important; color: #fff !important; border-color: #1268e8 !important; }
+body:has(.admin-panel) .filter-tab { color: #607089 !important; border-color: #dce5f0 !important; background: #fff !important; }
+body:has(.admin-panel) .filter-tab:hover { border-color: #1268e8 !important; color: #1268e8 !important; }
+
+@media (max-width: 768px) {
+  .nav { padding: .85rem 1rem !important; }
+  body:has(.features-section) .hero { padding-top: 100px !important; }
+  body:has(.features-section) .step-card-inner { padding: 1.2rem !important; }
+}

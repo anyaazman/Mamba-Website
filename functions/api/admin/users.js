@@ -34,7 +34,7 @@ export async function onRequestGet({ request, env }) {
         const batch = userIds.slice(i, i + CHUNK);
         const placeholders = batch.map(() => '?').join(',');
         const accounts = await env.DB.prepare(
-          `SELECT id, user_id, account_number, status, created_at FROM mt5_accounts WHERE user_id IN (${placeholders}) ORDER BY created_at ASC`
+          `SELECT id, user_id, account_number, status, created_at, whitelist_requested_at FROM mt5_accounts WHERE user_id IN (${placeholders}) ORDER BY created_at ASC`
         ).bind(...batch).all();
 
         accounts.results.forEach(a => {

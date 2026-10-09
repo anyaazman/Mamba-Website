@@ -1,6 +1,10 @@
-// demo.js — Sandbox mode. Add ?demo to any portal URL.
+// demo.js — Sandbox mode for the local preview only.
 (function() {
-  if (!window.location.search.includes('demo')) return;
+  // The preview is served from localhost, so keep its demo API available even
+  // when a visitor follows a plain login.html link without the query flag.
+  var isLocalPreview = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  // Public hosts always use the real API, including URLs carrying ?demo.
+  if (!isLocalPreview) return;
 
   window.MAMBA_DEMO = true;
   var originalFetch = window.fetch;
@@ -11,6 +15,78 @@
     catch(e) { return { users: [], mt5_accounts: [], tokens: [], events: [] }; }
   }
   function saveDb(db) { localStorage.setItem(DEMO_DB_KEY, JSON.stringify(db)); }
+
+  // Explicit local-only sample import. It appends once and never overwrites
+  // an operator's existing account, sessions, imported snapshot, or later edits.
+  function seedAdminSamples() {
+    var raw = localStorage.getItem(DEMO_DB_KEY);
+    var db = raw ? JSON.parse(raw) : { users: [], mt5_accounts: [], tokens: [], events: [] };
+    if (!db || !['users','mt5_accounts','tokens'].every(function(key) { return Array.isArray(db[key]); }) || (db.events && !Array.isArray(db.events))) {
+      throw new Error('Saved demo data could not be read safely. No sample data was added.');
+    }
+    if (db.admin_samples_v1) return { success: true, already_added: true, clients_added: 0 };
+    if (raw && !localStorage.getItem('mamba_demo_before_admin_samples_v1')) localStorage.setItem('mamba_demo_before_admin_samples_v1', raw);
+    if (!db.events) db.events = [];
+    var sequence = Math.max(Date.now(), db.users.concat(db.mt5_accounts, db.events).reduce(function(max, row) { return Math.max(max, Number(row.id) || 0); }, 0));
+    var now = Date.now();
+    function ago(hours) { return new Date(now - hours * 3600000).toISOString(); }
+    var addedUsers = [], addedAccounts = [];
+    function client(name, slug, ibStatus, requested, age) {
+      var email = slug + '.sample@mamba.invalid';
+      // Sample-specific reserved emails cannot accidentally reuse a client.
+      while (db.users.some(function(u) { return u.email === email; })) email = 'sample.' + email;
+      var u = { id: ++sequence, name: name + ' (Sample)', email: email,
+        password: 'MambaDemo!2026', recovery_phrase: 'local sample account recovery only',
+        ib_status: ibStatus, ib_email: requested ? slug + '.broker@example.invalid' : '',
+        ib_type: requested ? 'existing' : '', created_at: ago(age), updated_at: ago(1) };
+      db.users.push(u); addedUsers.push(u.id);
+      event('register', u, age);
+      if (requested) event('ib_request', u, age - 2);
+      return u;
+    }
+    function event(type, user, age, metadata) {
+      db.events.push({ id: ++sequence, type: type, user_id: user ? user.id : null,
+        page: type === 'register' ? '/login' : '/dashboard', referrer: '', title: 'Local sample activity',
+        metadata: JSON.stringify(Object.assign({ simulated: true, source: 'admin-samples-v1' }, metadata || {})), created_at: ago(age) });
+    }
+    function account(u, number, status, requested, age) {
+      while (db.mt5_accounts.some(function(a) { return String(a.account_number) === String(number); })) number++;
+      var a = { id: ++sequence, user_id: u.id, account_number: String(number), status: status,
+        created_at: ago(age), whitelist_requested_at: requested ? ago(age - 1) : null };
+      db.mt5_accounts.push(a); addedAccounts.push(a.id);
+      event('mt5_added', u, age, { account_id: a.id, account_number: a.account_number });
+      if (requested) event('whitelist_request', u, age - 1, { account_id: a.id, account_number: a.account_number });
+      return a;
+    }
+    client('Daniel Tan', 'daniel', 'pending', false, 10);
+    client('Aina Rahman', 'aina', 'pending', true, 24);
+    client('Mei Ling', 'mei', 'approved', true, 48);
+    var sara = client('Sara Lim', 'sara', 'approved', true, 120);
+    var saraPending = account(sara, 88001001, 'pending', true, 4);
+    account(sara, 88001101, 'pending', false, 2);
+    var saraRejected = account(sara, 88001201, 'rejected', true, 30);
+    event('whitelist_sync_failed', sara, 26, { account_id: saraRejected.id, account_number: saraRejected.account_number, action: 'remove', note: 'Sample rejection with unconfirmed backend removal. No live backend contacted.' });
+    var hana = client('Hana Zain', 'hana', 'approved', true, 240);
+    var hanaOne = account(hana, 88002001, 'approved', true, 210);
+    var hanaTwo = account(hana, 88002002, 'approved', true, 180);
+    event('whitelist_synced', hana, 208, { account_number: hanaOne.account_number });
+    event('whitelist_synced', hana, 178, { account_number: hanaTwo.account_number });
+    event('login', hana, 1);
+    client('Rizal Abdullah', 'rizal', 'rejected', true, 96);
+    event('whitelist_orphaned', null, 3, { accounts: ['88999001'], reason: 'Fictional deleted sample client: backend removal unconfirmed. No live account exists.' });
+    var snapshotAdded = !db.valetax_snapshot;
+    if (snapshotAdded) db.valetax_snapshot = {
+      pulledAt: ago(2), importedAt: new Date(now).toISOString(), simulated: true,
+      clients: [
+        { email: sara.ib_email, name: sara.name, valetax_user_id: 'sample-sara', registered_at: ago(120), has_children: 0, logins: [saraPending.account_number] },
+        { email: hana.ib_email, name: hana.name, valetax_user_id: 'sample-hana', registered_at: ago(240), has_children: 0, logins: [hanaOne.account_number, hanaTwo.account_number] },
+        { email: 'noor.broker@example.invalid', name: 'Noor Ismail (Sample)', valetax_user_id: 'sample-noor', registered_at: ago(72), has_children: 0, logins: ['88999002'] }
+      ]
+    };
+    db.admin_samples_v1 = { added_at: new Date(now).toISOString(), user_ids: addedUsers, account_ids: addedAccounts, snapshot_added: snapshotAdded };
+    saveDb(db);
+    return { success: true, clients_added: addedUsers.length, snapshot_added: snapshotAdded };
+  }
 
   function cloneUser(u) {
     var accs = getDb().mt5_accounts.filter(function(a) { return a.user_id === u.id; });
@@ -154,6 +230,10 @@
         }
 
         // --- ADMIN ---
+        else if (method === 'POST' && urlStr.includes('/api/admin/demo-seed')) {
+          if (!isLocalPreview || !isAdmin()) { json = { error: 'Sample data is only available to the local demo admin.' }; status = 403; }
+          else { json = seedAdminSamples(); }
+        }
         else if (method === 'GET' && urlStr.includes('/api/admin/status')) {
           json = { valid: isAdmin() };
         }
@@ -173,24 +253,39 @@
           if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
           else {
             var a2 = db.mt5_accounts.find(function(a) { return a.id === body.account_id; });
-            if (a2) { a2.status = body.status; saveDb(db); }
-            json = { success: true, message: 'MT5 account ' + body.status + '.' };
+            if (!a2) { json = { error: 'MT5 account not found.' }; status = 404; }
+            else if (!['approved','rejected'].includes(body.status)) { json = { error: 'Invalid status.' }; status = 400; }
+            else { a2.status = body.status; saveDb(db); json = { success: true, message: 'MT5 account ' + body.status + '.', backend_synced: true, simulated: true }; }
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/admin/ib')) {
           if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
           else {
             var u2 = db.users.find(function(u) { return u.id === body.user_id; });
-            if (u2) { u2.ib_status = body.status; saveDb(db); }
-            json = { success: true, message: 'IB ' + body.status + '.' };
+            if (!u2) { json = { error: 'User not found.' }; status = 404; }
+            else if (!['approved','rejected'].includes(body.status)) { json = { error: 'Invalid status.' }; status = 400; }
+            else { u2.ib_status = body.status; saveDb(db); json = { success: true, message: 'IB ' + body.status + '.' }; }
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/admin/reset-user-password')) {
           if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
           else {
             var u3 = db.users.find(function(u) { return u.id === body.user_id; });
-            if (u3) { u3.password = body.new_password; db.tokens = db.tokens.filter(function(t) { return t.user_id !== u3.id; }); saveDb(db); }
-            json = { success: true, message: 'User password has been reset.' };
+            if (!u3) { json = { error: 'User not found.' }; status = 404; }
+            else if (typeof body.new_password !== 'string' || body.new_password.length < 8 || body.new_password.length > 128) { json = { error: 'Use a password of 8 to 128 characters.' }; status = 400; }
+            else { u3.password = body.new_password; db.tokens = db.tokens.filter(function(t) { return t.user_id !== u3.id; }); saveDb(db); json = { success: true, message: 'User password has been reset.' }; }
+          }
+        }
+
+        else if (method === 'POST' && urlStr.includes('/api/admin/delete-user')) {
+          if (!isAdmin()) { json = { error: 'Unauthorized.' }; status = 403; }
+          else if (!db.users.some(function(u) { return u.id === body.user_id; })) { json = { error: 'User not found.' }; status = 404; }
+          else {
+            db.tokens = db.tokens.filter(function(t) { return t.user_id !== body.user_id; });
+            db.mt5_accounts = db.mt5_accounts.filter(function(a) { return a.user_id !== body.user_id; });
+            db.users = db.users.filter(function(u) { return u.id !== body.user_id; });
+            (db.events || []).forEach(function(e) { if (e.user_id === body.user_id) e.user_id = null; });
+            saveDb(db); json = { success: true, backend_synced: true, orphaned_accounts: [], simulated: true };
           }
         }
 
@@ -224,21 +319,37 @@
             var typeP = urlObj.searchParams.get('type');
             var fromP = urlObj.searchParams.get('from');
             var toP = urlObj.searchParams.get('to');
-            var evts = (db.events || []).slice();
-            if (typeP) { evts = evts.filter(function(e) { return e.type === typeP; }); }
-            if (fromP) { evts = evts.filter(function(e) { return new Date(e.created_at) >= new Date(fromP); }); }
-            if (toP) { evts = evts.filter(function(e) { return new Date(e.created_at) <= new Date(toP); }); }
-            evts.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
-            evts = evts.slice(0, 200);
-            evts = evts.map(function(e) {
-              var u = db.users.find(function(u) { return u.id === e.user_id; });
-              var result = {};
-              for (var k in e) result[k] = e[k];
-              result.user_name = u ? u.name : null;
-              result.user_email = u ? u.email : null;
-              return result;
-            });
-            json = { events: evts };
+            var queryP = (urlObj.searchParams.get('q') || '').trim().slice(0,200).toLowerCase();
+            var requestedLimit = parseInt(urlObj.searchParams.get('limit'), 10);
+            var eventLimit = Math.min(Math.max(Number.isFinite(requestedLimit) ? requestedLimit : 200, 1),1000);
+            var eventCursor = null;
+            try {
+              if (urlObj.searchParams.has('cursor')) {
+                var rawCursor = urlObj.searchParams.get('cursor');
+                eventCursor = JSON.parse(rawCursor);
+                if (rawCursor.length > 200 || !Number.isSafeInteger(eventCursor.id) || eventCursor.id < 1 || typeof eventCursor.created_at !== 'string' || eventCursor.created_at.length > 40 || !Number.isFinite(Date.parse(eventCursor.created_at))) throw new Error();
+              }
+            } catch (_) { json = {error:'Invalid activity cursor.'}; status=400; }
+            if ((fromP && !Number.isFinite(Date.parse(fromP))) || (toP && !Number.isFinite(Date.parse(toP))) || (fromP && toP && Date.parse(fromP)>Date.parse(toP))) { json={error:'Invalid date range.'};status=400; }
+            if (status === 200) {
+              var evts = (db.events || []).map(function(e) {
+                var u = db.users.find(function(u) { return u.id === e.user_id; });
+                return Object.assign({},e,{user_name:u?u.name:null,user_email:u?u.email:null});
+              });
+              var validTypes=['pageview','register','login','ib_request','mt5_added','whitelist_request','whitelist_synced','password_reset','account_deletion_request','whitelist_sync_failed','whitelist_orphaned'];
+              if (typeP === 'sync_alerts') evts = evts.filter(function(e) { return ['whitelist_sync_failed','whitelist_orphaned'].includes(e.type); });
+              else if (validTypes.includes(typeP)) evts = evts.filter(function(e) { return e.type === typeP; });
+              if (fromP) evts = evts.filter(function(e) { return new Date(e.created_at) >= new Date(fromP); });
+              if (toP) evts = evts.filter(function(e) { return new Date(e.created_at) <= new Date(toP); });
+              if (queryP) evts = evts.filter(function(e) { return String(e.user_name||'').toLowerCase().includes(queryP) || String(e.user_email||'').toLowerCase().includes(queryP) || String(e.user_id)===queryP; });
+              evts.sort(function(a,b) { return new Date(b.created_at)-new Date(a.created_at) || b.id-a.id; });
+              var totalEvents=evts.length;
+              if (eventCursor) evts=evts.filter(function(e) { return new Date(e.created_at)<new Date(eventCursor.created_at) || (new Date(e.created_at).getTime()===new Date(eventCursor.created_at).getTime() && e.id<eventCursor.id); });
+              var hasMoreEvents=evts.length>eventLimit;
+              evts=evts.slice(0,eventLimit);
+              var lastEvent=evts[evts.length-1];
+              json = {events:evts,total:totalEvents,next_cursor:hasMoreEvents&&lastEvent?JSON.stringify({created_at:lastEvent.created_at,id:lastEvent.id}):null};
+            }
           }
         }
         // --- VALETAX RECONCILIATION ---
@@ -251,7 +362,7 @@
           else {
             var vs = db.valetax_snapshot;
             json = { hasSnapshot: true, snapshotId: 1, pulledAt: vs.pulledAt,
-                     importedAt: vs.importedAt, clientCount: vs.clients.length, ageHours: 0 };
+                     importedAt: vs.importedAt, clientCount: vs.clients.length, ageHours: Number.isFinite(Date.parse(vs.pulledAt)) ? Math.max(0,Math.round((Date.now()-Date.parse(vs.pulledAt))/3600000)) : null };
           }
         }
         else if (method === 'POST' && urlStr.includes('/api/admin/valetax/import')) {

@@ -47,3 +47,10 @@ originals/
 # recovery phrases - so it must never be committed.
 .backups/
 *.d1-export.sql
+
+!CLARITY-ADJUSTMENT.md
+
+# Layout backups stay in this local preview; Git history retains released layouts.
+docs/backups/
+!docs/progress.md
+!docs/plans/*.md

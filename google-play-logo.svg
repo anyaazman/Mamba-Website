@@ -1,0 +1,7 @@
+<svg role="img" aria-labelledby="google-play-title" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <title id="google-play-title">Google Play</title>
+  <path fill="#00D7FE" d="M2.74 1.32A1.47 1.47 0 0 0 2.1 2.5v19c0 .47.22.9.58 1.18L13.86 12 2.74 1.32Z"/>
+  <path fill="#00F076" d="m2.74 1.32 13.7 7.6L13.86 12 2.1 2.5c0-.47.24-.9.64-1.18Z"/>
+  <path fill="#FFEA00" d="M2.68 22.68c.3.2.7.22 1.05.02l12.72-7.22-2.59-3.48L2.68 22.68Z"/>
+  <path fill="#FF3A44" d="m16.44 8.92 4.9 2.72a1.49 1.49 0 0 1 0 2.6l-4.87 2.76L13.86 12l2.58-3.08Z"/>
+</svg>

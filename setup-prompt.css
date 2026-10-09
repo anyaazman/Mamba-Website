@@ -1,0 +1,48 @@
+/* Optional homepage invitation, using the existing Mamba palette and type. */
+.setup-prompt {
+  position: fixed;
+  z-index: 5;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 370px;
+  max-width: calc(100vw - 32px);
+  padding: 22px;
+  border: 1px solid var(--line, #dce5f0);
+  border-top: 3px solid var(--blue, #1268e8);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink, #10233d);
+  box-shadow: 0 12px 40px rgba(16, 35, 61, .16);
+  animation: setup-invitation-in 180ms ease-out;
+}
+.setup-prompt[hidden] { display: none; }
+.setup-prompt-heading { display: flex; align-items: center; gap: 12px; padding-right: 28px; }
+.setup-prompt-heading img { flex: 0 0 36px; width: 36px; height: 36px; border-radius: 8px; }
+.setup-prompt h2 { margin: 0; font-size: 21px; line-height: 1.25; letter-spacing: -.035em; font-weight: 800; }
+.setup-prompt p { margin: 13px 0 17px; color: var(--muted, #607089); font-size: 13px; line-height: 1.6; }
+.setup-prompt-close {
+  position: absolute; top: 4px; right: 4px; width: 44px; height: 44px;
+  display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; color: var(--muted, #607089); cursor: pointer;
+}
+.setup-prompt-close svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; }
+.setup-prompt-close:hover { background: var(--paper, #f5f8fc); color: var(--ink, #10233d); }
+.setup-prompt-actions { display: grid; grid-template-columns: 1.35fr 1fr; gap: 8px; }
+.setup-prompt-actions a {
+  min-height: 46px; display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; padding: 10px 8px; font-size: 12px; font-weight: 800; line-height: 1.4; text-align: center;
+}
+.setup-prompt-primary { background: var(--blue, #1268e8); color: #fff; border: 1px solid transparent; }
+.setup-prompt-primary:hover { background: #0b56c2; }
+.setup-prompt-app { background: var(--paper, #f5f8fc); color: var(--ink, #10233d); border: 1px solid var(--line, #dce5f0); }
+.setup-prompt-app:hover { background: #e9f1fd; border-color: #a9c7f3; }
+.setup-prompt .setup-prompt-signin { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 5px 0 -10px; font-size: 12px; }
+.setup-prompt-signin a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--blue, #1268e8); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.setup-prompt a:focus-visible, .setup-prompt button:focus-visible { outline: 3px solid var(--blue, #1268e8); outline-offset: 3px; }
+@keyframes setup-invitation-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 600px) {
+  .setup-prompt { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100% - 24px); max-width: 370px; padding: 17px; }
+  .setup-prompt h2 { font-size: 19px; }
+  .setup-prompt p { margin: 10px 0 13px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .setup-prompt { animation: none; } }

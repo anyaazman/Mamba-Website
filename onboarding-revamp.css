@@ -1,0 +1,157 @@
+/* A connected setup journey; existing actions and account states stay intact. */
+#onboardingCard {
+  min-width: 0;
+  scroll-margin-top: 100px;
+  --setup-ink: #10233d;
+  --setup-copy: #52647c;
+  --setup-blue: #1268e8;
+  --setup-line: #c6d8ef;
+}
+#onboardingCard .onboarding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+#onboardingCard .onboarding-header h3 { font-size: 1.35rem; margin: 0 0 .4rem; }
+#onboardingCard .onboarding-header p { margin: 0; font-size: .9rem; line-height: 1.6; }
+#onboardingCard .onboarding-sequence { color: var(--setup-copy); white-space: nowrap; font-size: .8rem; font-weight: 600; }
+#onboardingSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#onboardingCard .onboarding-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 16px;
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+/* The line and arrow describe order, rather than claiming installation progress. */
+#onboardingCard .onboarding-step:not(:last-child)::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 19px;
+  left: 40px;
+  right: -24px;
+  bottom: auto;
+  width: auto;
+  height: 2px;
+  background: var(--setup-line);
+}
+#onboardingCard .onboarding-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #7799c5;
+  border-right: 2px solid #7799c5;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+#onboardingCard .onboarding-step-badge {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  flex-shrink: 0;
+  font: 800 1rem/1 var(--font-primary);
+  color: #275b9c !important;
+  background: #eaf2fd !important;
+  border: 1px solid #c6d8ef;
+  z-index: 1;
+}
+#onboardingCard .onboarding-download .onboarding-step-badge { background: var(--setup-blue) !important; color: #fff !important; border-color: var(--setup-blue); }
+#onboardingCard .onboarding-step-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 20px;
+  background: #f7faff;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+}
+#onboardingCard .onboarding-download .onboarding-step-body { background: #edf4ff; border-color: #ccdef8; }
+#onboardingCard .onboarding-step-body h4 { font-size: 1rem !important; line-height: 1.4; letter-spacing: -.02em !important; margin-bottom: .65rem; }
+#onboardingCard .onboarding-step-body p { color: var(--setup-copy) !important; font-size: .875rem !important; line-height: 1.65; margin-bottom: 1rem !important; }
+#onboardingCard .download-buttons { display: flex; flex-direction: column; width: 100%; gap: .6rem; margin: auto 0 0; }
+#onboardingCard .store-btn {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  padding: .65rem .9rem;
+  background: var(--setup-ink);
+  border: 1px solid var(--setup-ink);
+  border-radius: 9px;
+  box-shadow: none;
+  text-decoration: none;
+  gap: .65rem;
+  opacity: 1;
+  transition: background .15s ease;
+}
+#onboardingCard .store-btn::before { content: none; }
+#onboardingCard .store-btn:hover { background: #203d61; transform: none; }
+#onboardingCard .store-icon { display: flex; align-items: center; width: 26px; height: 28px; flex-shrink: 0; color: #fff; }
+#onboardingCard .store-icon svg { width: 100%; height: 100%; }
+#onboardingCard .store-label { display: block; color: #dce5f0; font-size: .65rem; letter-spacing: 0; text-transform: none; }
+#onboardingCard .store-name { color: #fff; font-size: .95rem; white-space: nowrap; }
+#onboardingCard .demo-note { font-size: .8rem; line-height: 1.6; color: #295284; background: #eaf1fb; border: 0; border-radius: 7px; padding: .7rem .85rem; margin-bottom: 1rem; }
+#onboardingCard .onboarding-step-btn {
+  width: 100%;
+  min-height: 44px;
+  max-width: 100%;
+  margin-top: auto;
+  padding: .65rem .8rem;
+  font-size: .8rem !important;
+  line-height: 1.45;
+  border: 1px solid transparent;
+  justify-content: center;
+  text-align: center;
+}
+#onboardingCard .onboarding-step-btn:disabled { background: #fff3d9 !important; color: #795415 !important; cursor: default; transform: none; opacity: 1; }
+#onboardingCard .completed .onboarding-step-body { background: #f3fbf8; border-color: #a9decd; }
+#onboardingCard .completed .onboarding-step-badge { background: #ddf3eb !important; color: #166b52 !important; border-color: #a9decd; }
+#onboardingCard .completed .onboarding-step-btn:disabled { background: #ddf3eb !important; color: #166b52 !important; }
+#onboardingCard a:focus-visible, #onboardingCard button:focus-visible { outline: 3px solid var(--setup-blue); outline-offset: 4px; }
+#onboardingCard .platform-ios .google-play, #onboardingCard .platform-android .app-store { background: #fff; border-color: #b5c7e0; }
+#onboardingCard .platform-ios .google-play .store-name, #onboardingCard .platform-ios .google-play .store-icon,
+#onboardingCard .platform-android .app-store .store-name, #onboardingCard .platform-android .app-store .store-icon { color: var(--setup-ink); }
+#onboardingCard .platform-ios .google-play .store-label, #onboardingCard .platform-android .app-store .store-label { color: var(--setup-copy); }
+@media (max-width: 900px) {
+  #onboardingCard .onboarding-header { align-items: flex-start; flex-direction: column; gap: .5rem; }
+  #onboardingSteps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  #onboardingCard .onboarding-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; }
+  #onboardingCard .onboarding-step-badge { width: 32px; min-width: 32px; height: 32px; font-size: .9rem; }
+  #onboardingCard .onboarding-step:not(:last-child)::after { top: 32px; left: 15px; right: auto; bottom: -20px; width: 2px; height: auto; }
+  #onboardingCard .onboarding-step:not(:last-child)::before { top: auto; bottom: 0; left: 11px; right: auto; transform: rotate(135deg); }
+  #onboardingCard .onboarding-step-body { padding: 16px; }
+  #onboardingCard .download-buttons { margin-top: .25rem; }
+}
+@media (max-width: 700px) {
+  /* Prevent the shared dashboard grid from stretching the timeline on phones. */
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (max-width: 360px) {
+  #onboardingCard .onboarding-step { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
+  #onboardingCard .onboarding-step-badge { width: 28px; min-width: 28px; height: 28px; }
+  #onboardingCard .onboarding-step:not(:last-child)::after { left: 13px; top: 28px; }
+  #onboardingCard .onboarding-step:not(:last-child)::before { left: 9px; }
+  #onboardingCard .onboarding-step-body { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { #onboardingCard *, #onboardingCard *::before { transition: none !important; } }

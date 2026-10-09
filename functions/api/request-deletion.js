@@ -31,6 +31,7 @@ export async function onRequestPost(context) {
 
     // Durable record so the request survives even if Telegram is unavailable
     await recordEvent(env, 'account_deletion_request', {
+      required: true,
       page: 'account-deletion.html',
       metadata: { email: cleanEmail, mt5_account: cleanAccount, reason: cleanReason }
     });

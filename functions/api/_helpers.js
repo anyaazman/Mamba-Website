@@ -170,12 +170,14 @@ export function json(data, status = 200) {
   });
 }
 
-export async function recordEvent(env, type, { page, user_id, metadata } = {}) {
+export async function recordEvent(env, type, { page, user_id, metadata, required = false } = {}) {
   try {
     await env.DB.prepare(
       'INSERT INTO events (type, page, user_id, metadata) VALUES (?, ?, ?, ?)'
     ).bind(type, page || '', user_id || null, metadata ? JSON.stringify(metadata) : '{}').run();
   } catch (e) {
+    // Request records are required; optional analytics must not interrupt users.
+    if (required) throw e;
     console.error('recordEvent error:', e.message);
   }
 }

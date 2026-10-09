@@ -23,13 +23,9 @@ export async function onRequestPost(context) {
     }
 
     // Store first so the message survives even if Telegram is down
-    try {
-      await env.DB.prepare(
-        'INSERT INTO contacts (email, message) VALUES (?, ?)'
-      ).bind(email.trim(), msg).run();
-    } catch (e) {
-      console.error('Contact insert error (has migration 0005 been run?):', e.message);
-    }
+    await env.DB.prepare(
+      'INSERT INTO contacts (email, message) VALUES (?, ?)'
+    ).bind(email.trim(), msg).run();
 
     context.waitUntil(notifyAdmin(env, '✉️ Contact Form Message', {
       Email: email.trim(),

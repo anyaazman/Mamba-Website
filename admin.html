@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Admin Panel - Mamba Management App</title>
+    <title>Admin workspace — Mamba</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
     <link rel="stylesheet" href="styles.css?v=29">
@@ -12,8 +12,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mobile-refinements.css?v=2">
+    <link rel="stylesheet" href="site-revamp.css?v=1">
+    <link rel="stylesheet" href="admin-revamp.css?v=1">
 </head>
-<body>
+<body class="admin-revamp">
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <div class="loading-screen" role="status" aria-live="polite" aria-label="Loading">
@@ -47,7 +50,7 @@
         <section style="padding: 2rem 0; min-height: calc(100vh - 98px);">
             <div class="portal-container-wide">
                 <div class="dashboard-header">
-                    <h1>Admin Panel</h1>
+                    <div><h1>Admin workspace</h1><p>Keep each client moving, from registration to approval.</p></div><span id="demoLabel" class="environment-note" hidden>Local demo · simulated data</span>
                 </div>
 
                 <div class="admin-key-screen" id="keyScreen">
@@ -57,7 +60,7 @@
                             <p>Enter your admin key to access the panel.</p>
                             <form class="admin-key-form" id="keyForm" novalidate>
                                 <div class="key-error" style="display: none;"></div>
-                                <input type="password" name="admin_key" placeholder="Admin Key" required autocomplete="off">
+                                <label for="adminKey">Admin key</label><input id="adminKey" type="password" name="admin_key" placeholder="Admin Key" required autocomplete="off">
                                 <button type="submit" class="submit-btn">Unlock</button>
                             </form>
                         </div>
@@ -65,29 +68,39 @@
                 </div>
 
                 <div class="admin-panel" id="adminPanel">
-                    <!-- View Switcher -->
-                    <div class="filter-tabs" id="viewTabs">
-                        <button class="filter-tab active" data-view="users">Users</button>
-                        <button class="filter-tab" data-view="events">Events</button>
+                    <nav class="filter-tabs admin-nav" id="viewTabs" aria-label="Admin sections">
+                        <button class="filter-tab active" data-view="overview" aria-current="page">Overview</button>
+                        <button class="filter-tab" data-view="users">Clients</button>
                         <button class="filter-tab" data-view="valetax">Valetax</button>
-                    </div>
-
-                    <!-- Users View -->
-                    <div id="usersView">
-                        <div class="admin-search-wrap">
-                            <input type="text" id="adminSearch" class="admin-search-input" placeholder="Search by name, email, or MT5 account...">
+                        <button class="filter-tab" data-view="events">Activity</button>
+                    </nav>
+                    <div id="actionNotice" class="action-notice" role="status" hidden></div>
+                    <section id="overviewView" aria-labelledby="overviewTitle">
+                        <div class="section-heading"><div><h2 id="overviewTitle">Your work at a glance</h2><p>Start with the requests that need your review.</p></div><div class="action-row"><button class="admin-button" id="loadDemoClients" hidden>Add sample clients</button><button class="admin-button" id="refreshAdmin">Refresh data</button></div></div>
+                        <div id="overviewStats" class="overview-stats" aria-live="polite"></div>
+                        <div class="overview-grid"><div class="admin-surface"><div class="surface-heading"><h3>Ready for review</h3><span>IB &amp; MT5 requests</span></div><div id="reviewQueue"></div></div>
+                        <aside class="admin-surface workflow-note"><h3>One client. Two approvals.</h3><ol><li><strong>Verify the IB relationship</strong><p>Review the client’s Valetax email against your latest snapshot.</p></li><li><strong>Review each MT5 account</strong><p>Check the account, then approve its whitelist request.</p></li><li><strong>Check the result</strong><p>Portal approval and trading backend confirmation are separate. Follow up on any sync warning.</p></li></ol><button class="admin-button" data-open-view="valetax">Open Valetax comparison</button></aside></div>
+                    </section>
+                    <section id="usersView" style="display:none" aria-labelledby="clientsTitle">
+                        <div class="section-heading"><div><h2 id="clientsTitle">Clients</h2><p>Select a client to review their IB request and MT5 accounts.</p></div><span id="clientCount" class="muted"></span></div>
+                        <label class="field-label" for="adminSearch">Find a client</label>
+                        <input type="search" id="adminSearch" class="admin-search-input" placeholder="Name, Mamba email, Valetax email or MT5 number">
+                        <div class="filter-tabs" id="userFilterTabs" aria-label="Client filters">
+                            <button class="filter-tab active" data-status="">All clients</button>
+                            <button class="filter-tab" data-status="pending">IB requests</button>
+                            <button class="filter-tab" data-status="whitelist">Whitelist requests</button>
+                            <button class="filter-tab" data-status="approved">IB approved</button>
+                            <button class="filter-tab" data-status="rejected">IB rejected</button>
+                            <button class="filter-tab" data-status="not_requested">IB not requested</button>
                         </div>
-                        <div class="filter-tabs" id="userFilterTabs">
-                            <button class="filter-tab active" data-status="">All</button>
-                            <button class="filter-tab" data-status="pending">Pending</button>
-                            <button class="filter-tab" data-status="approved">Approved</button>
-                            <button class="filter-tab" data-status="rejected">Rejected</button>
-                        </div>
-                        <div id="usersContainer"></div>
-                    </div>
+                        <div class="client-workspace"><div id="usersContainer" class="client-list"></div><div id="clientDetail" class="admin-surface client-detail" tabindex="-1"></div></div>
+                    </section>
 
                     <!-- Events View (hidden by default) -->
-                    <div id="eventsView" style="display: none;">
+                    <section id="eventsView" style="display: none;" aria-labelledby="activityTitle">
+                        <div class="section-heading"><div><h2 id="activityTitle">Activity</h2><p>All dates and date filters use Malaysia time (Asia/Kuala_Lumpur).</p></div></div>
+                        <label class="field-label" for="eventSearch">Find client activity</label><input id="eventSearch" class="admin-search-input" type="search" placeholder="Client name, email or user ID">
+                        <p id="activityScope" class="muted" aria-live="polite"></p>
                         <div class="filter-tabs" id="dateFilterTabs">
                             <button class="filter-tab active" data-range="">All Time</button>
                             <button class="filter-tab" data-range="today">Today</button>
@@ -97,9 +110,9 @@
                             <button class="filter-tab" data-range="custom">Custom</button>
                         </div>
                         <div id="customDateRange" style="display: none; margin-bottom: 1rem; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                            <input type="date" id="customDateFrom" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
+                            <label for="customDateFrom">From</label><input type="date" id="customDateFrom" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
                             <span style="color: var(--text-muted);">to</span>
-                            <input type="date" id="customDateTo" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
+                            <label for="customDateTo">To</label><input type="date" id="customDateTo" style="padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: inherit;">
                             <button id="customDateApply" class="submit-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Apply</button>
                         </div>
                         <div class="filter-tabs" id="eventFilterTabs">
@@ -111,13 +124,18 @@
                             <button class="filter-tab" data-type="mt5_added">MT5 Added</button>
                             <button class="filter-tab" data-type="whitelist_request">Whitelists</button>
                             <button class="filter-tab" data-type="whitelist_synced">Whitelists (auto)</button>
-                            <button class="filter-tab" data-type="password_reset">Password Resets</button>
+                            <button class="filter-tab" data-type="password_reset">Password resets</button>
+                            <button class="filter-tab" data-type="account_deletion_request">Deletion requests</button>
+                            <button class="filter-tab" data-type="sync_alerts">Sync alerts</button>
                         </div>
-                        <div id="eventsContainer"></div>
-                    </div>
+                        <div id="eventsContainer" aria-live="polite"></div>
+                        <div class="activity-pagination"><button id="eventsPrevious" class="admin-button" disabled>Previous</button><span id="eventsPage">Page 1</span><button id="eventsNext" class="admin-button" disabled>Next</button></div>
+                    </section>
 
                     <!-- Valetax View (hidden by default) -->
                     <div id="valetaxView" style="display: none;">
+                        <div class="section-heading"><div><h2>Valetax comparison</h2><p>Use a saved broker snapshot to verify your Mamba client records.</p></div></div>
+                        <ol class="import-flow"><li><strong>1. Prepare</strong><span>Pull a fresh snapshot with the Valetax sync tool.</span></li><li><strong>2. Import</strong><span>Select the JSON file below.</span></li><li><strong>3. Review</strong><span>Compare the four groups before taking action.</span></li></ol>
                         <div class="portal-card valetax-import-card">
                             <h3 class="valetax-heading">Valetax Reconciliation</h3>
                             <p id="valetaxStatusLine" class="valetax-status">Checking for an imported snapshot&hellip;</p>
@@ -130,7 +148,7 @@
                             </p>
 
                             <div class="valetax-import-row">
-                                <input type="file" id="valetaxFile" accept="application/json,.json" class="valetax-file">
+                                <label class="field-label" for="valetaxFile">Snapshot file</label><input type="file" id="valetaxFile" accept="application/json,.json" class="valetax-file">
                                 <button id="valetaxImportBtn" class="submit-btn" disabled>Import snapshot</button>
                             </div>
                             <p id="valetaxImportNote" class="valetax-note" hidden></p>
@@ -147,8 +165,13 @@
         </section>
     </main>
 
+    <dialog id="actionDialog" class="admin-dialog" aria-labelledby="dialogTitle" aria-describedby="dialogDescription">
+        <form id="actionForm"><div class="dialog-heading"><h2 id="dialogTitle"></h2><button type="button" id="dialogClose" class="admin-button" aria-label="Close dialog">×</button></div>
+        <p id="dialogDescription"></p><div id="dialogFields"></div><p id="dialogError" class="form-error" role="alert" hidden></p>
+        <div class="dialog-actions"><button type="button" id="dialogCancel" class="admin-button">Cancel</button><button type="submit" id="dialogSubmit" class="admin-button primary">Confirm</button></div></form>
+    </dialog>
     <script src="tracking.js?v=2"></script>
-    <script src="demo.js?v=7"></script>
-    <script src="admin.js?v=6"></script>
+    <script src="demo.js?v=11"></script>
+    <script src="admin.js?v=8"></script>
 </body>
 </html>

@@ -1,569 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-    <!-- SEO Meta Tags -->
-    <title>How Mamba Works - Trading Strategy Guide | Mamba Management</title>
-    <meta name="description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies, setup process, and MT5 integration for automated trading.">
-    <meta name="keywords" content="Mamba trading strategy, V1 Growth, V2 Superscalping, MT5 setup, automated trading, breakeven strategy, trailing stop">
-    <meta name="author" content="Rahsia Bumi Enterprise">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.mambaapp.online/how-Mamba-work.html">
-    <!-- Apple Smart App Banner. Safari on iOS/iPadOS draws this itself: real
-         icon, publisher, and a GET button that becomes OPEN when the app is
-         already installed (install-state detection we cannot replicate in JS).
-         Must stay hardcoded — Safari only reads meta tags on the initial
-         parse, so this cannot be injected from config.js. -->
-    <meta name="apple-itunes-app" content="app-id=6776478463">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://www.mambaapp.online/how-Mamba-work.html">
-    <meta property="og:title" content="How Mamba Works - Trading Strategy Guide | Mamba">
-    <meta property="og:description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies for automated forex trading.">
-    <meta property="og:image" content="https://www.mambaapp.online/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="Mamba Management App">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://www.mambaapp.online/how-Mamba-work.html">
-    <meta name="twitter:title" content="How Mamba Works - Trading Strategy Guide">
-    <meta name="twitter:description" content="Learn how Mamba Management App works. Understand V1 Growth and V2 Superscalping strategies.">
-    <meta name="twitter:image" content="https://www.mambaapp.online/og-image.png">
-
-    <!-- Favicon & Styles -->
-    <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
-    <link rel="stylesheet" href="styles.css?v=29">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
-    <!-- Pre-paint app-banner gate. Runs before first paint so reserving the
-         banner's height causes no layout shift. It only DECIDES; app-banner.js
-         reads window.__MAMBA_BANNER and handles behaviour. A <head> script
-         cannot touch <body>, so it flags documentElement and lets CSS react. -->
-    <script>
-    (function () {
-      try {
-        var ua = navigator.userAgent || '';
-        var iOS = /iPad|iPhone|iPod/.test(ua) ||
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        var android = /Android/i.test(ua) && !/Windows Phone/i.test(ua);
-        var webview = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|TikTok|LinkedInApp|Snapchat|WhatsApp/i.test(ua);
-        var altIOS  = /CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo|Brave/i.test(ua);
-        // Real iOS Safari gets Apple's native banner. There is no API to detect
-        // it, so we must suppress ours or the user sees two stacked bars.
-        var appleNative = iOS && !webview && !altIOS;
-        // app-banner.js stores an absolute expiry timestamp so the two
-        // back-off periods (30d after dismiss, 180d after a store visit)
-        // need no duration bookkeeping here.
-        var dismissed = false;
-        try {
-          var until = localStorage.getItem('mamba_app_banner_hidden_until');
-          if (until) dismissed = Date.now() < parseInt(until, 10);
-        } catch (e) { /* private-mode Safari throws; treat as not dismissed */ }
-        var show = (iOS || android) && !appleNative && !dismissed;
-        window.__MAMBA_BANNER = { show: show, appleNative: appleNative,
-                                  platform: iOS ? 'ios' : android ? 'android' : 'desktop' };
-        if (show) document.documentElement.className += ' has-app-banner';
-      } catch (e) { /* never let the gate break the page */ }
-    })();
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="See how Mamba Management protects a trade after you place it in MetaTrader 5. Learn the V1 Growth and V2 Superscalping modes, then follow the five-step setup.">
+  <meta name="author" content="Rahsia Bumi Enterprise">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.mambaapp.online/how-Mamba-work.html">
+  <title>How Mamba Works | Mamba Management</title>
+  <link rel="icon" type="image/png" href="mamba-logo-transparent.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="how-work-revamp.css?v=2">
 </head>
 <body>
-    <!-- Skip Navigation Link (Accessibility) -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a class="hw-skip" href="#main-content">Skip to main content</a>
 
-    <!-- Loading Screen -->
-    <div class="loading-screen" role="status" aria-live="polite" aria-label="Loading">
-        <div class="loading-content">
-            <div class="loading-logo">
-                <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo loading-logo-img">
-            </div>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
-            <p class="loading-text">LOADING&hellip;</p>
+  <header class="hw-header">
+    <nav class="hw-nav" aria-label="Main navigation">
+      <a class="hw-brand" href="index.html" aria-label="Mamba Management home">
+        <img src="mamba-logo-transparent.png" alt="" width="30" height="40">
+        <span>MAMBA <b>MANAGEMENT</b></span>
+      </a>
+      <button class="hw-nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="hw-nav-links" id="navLinks">
+        <a class="is-current" href="how-Mamba-work.html" aria-current="page">How it works</a>
+        <a href="how-Mamba-work.html#download">Get the app</a>
+        <a href="support.html">Support</a>
+      </div>
+      <a class="hw-nav-cta" href="login.html">Member area <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="hw-hero" aria-labelledby="page-title">
+      <div class="hw-hero-copy">
+        <p class="hw-kicker">A clear trade-management layer for MT5</p>
+        <h1 id="page-title">You choose the trade.<br><em>Mamba manages the protection.</em></h1>
+        <p class="hw-hero-lede">Mamba connects to your MetaTrader 5 account after entry and applies the rules you choose for take profit, stop loss, breakeven, and trailing protection.</p>
+        <div class="hw-actions">
+          <a class="hw-button hw-button-primary" href="#setup">See the setup flow <span aria-hidden="true">↓</span></a>
+          <a class="hw-text-link" href="how-Mamba-work.html#download">Download the app <span aria-hidden="true">↗</span></a>
         </div>
+        <p class="hw-microcopy"><span class="hw-status-dot" aria-hidden="true"></span>Post-entry management · Your account stays with your broker</p>
+      </div>
+
+      <div class="hw-mechanism" aria-label="The Mamba trade-management flow">
+        <div class="hw-mechanism-top"><span>ONE TRADE · MT5</span><span class="hw-live"><i aria-hidden="true"></i> PROTECTION ON</span></div>
+        <div class="hw-chart" aria-hidden="true">
+          <div class="hw-grid-line line-a"></div><div class="hw-grid-line line-b"></div><div class="hw-grid-line line-c"></div>
+          <svg viewBox="0 0 560 210" role="presentation" preserveAspectRatio="none">
+            <path class="hw-area" d="M0 176 C46 164 59 173 91 151 S144 152 171 126 S213 129 243 102 S282 120 311 84 S348 95 379 69 S420 78 450 44 S499 58 560 24 L560 210 L0 210 Z"></path>
+            <path class="hw-price-path" d="M0 176 C46 164 59 173 91 151 S144 152 171 126 S213 129 243 102 S282 120 311 84 S348 95 379 69 S420 78 450 44 S499 58 560 24"></path>
+            <line class="hw-entry-line" x1="171" y1="0" x2="171" y2="210"></line>
+            <line class="hw-sl-line" x1="171" y1="138" x2="560" y2="138"></line>
+            <line class="hw-tp-line" x1="171" y1="52" x2="560" y2="52"></line>
+            <circle class="hw-entry-dot" cx="171" cy="126" r="5"></circle>
+            <circle class="hw-current-dot" cx="560" cy="24" r="6"></circle>
+          </svg>
+          <span class="hw-chart-label hw-entry-label">ENTRY<br><b>you place it</b></span>
+          <span class="hw-chart-label hw-sl-label">SL · protection follows</span>
+          <span class="hw-chart-label hw-tp-label">TP · target</span>
+          <span class="hw-chart-label hw-current-label">price moves<br><b>rules respond</b></span>
+        </div>
+        <div class="hw-mechanism-story">
+          <div class="hw-mechanism-step"><span>01</span><strong>Place your trade</strong><p>You decide the entry and direction in MT5.</p></div>
+          <div class="hw-mechanism-step"><span>02</span><strong>Mamba protects it</strong><p>Your selected mode manages the open position.</p></div>
+          <div class="hw-mechanism-step"><span>03</span><strong>Exit by your rules</strong><p>TP, SL, breakeven or trailing closes the trade.</p></div>
+        </div>
+        <div class="hw-mechanism-bottom"><span>TP / SL / BE / TRAILING</span><span class="hw-rule-pill">RULES ACTIVE</span></div>
+      </div>
+    </section>
+
+    <section class="hw-principle" aria-label="Mamba's role">
+      <div><span class="hw-principle-mark">01</span><span class="hw-kicker">The simple idea</span></div>
+      <p>Trading decisions stay with you. Mamba handles the repetitive protection work after a position is open, so the plan you set is easier to follow.</p>
+    </section>
+
+    <section class="hw-section hw-strategies" id="strategies" aria-labelledby="strategy-title">
+      <div class="hw-section-heading">
+        <div><p class="hw-kicker">Two ways to manage a position</p><h2 id="strategy-title">Choose the mode that<br><em>fits your plan.</em></h2></div>
+        <p>Both modes work after entry. They differ in how protection responds when price moves.</p>
+      </div>
+
+      <div class="hw-strategy-grid">
+        <article class="hw-strategy-card hw-v1">
+          <div class="hw-card-top"><span class="hw-mode-tag">V1</span><span class="hw-mode-type">Growth mode</span></div>
+          <div class="hw-strategy-copy"><h3>Smart breakeven</h3><p>Set a target and a protective stop. When the position reaches your chosen breakeven trigger, Mamba can move the stop to entry so the original risk is removed.</p></div>
+          <dl class="hw-params">
+            <div><dt>TP</dt><dd>Profit target</dd></div><div><dt>SL</dt><dd>Initial risk limit</dd></div><div><dt>BE</dt><dd>Move stop to entry</dd></div>
+          </dl>
+          <figure class="hw-media"><img src="how-it-works/v1-screenshot.webp" alt="Mamba V1 Growth settings showing take profit, stop loss, and breakeven fields" loading="lazy"><figcaption>V1 settings in the Mamba app</figcaption></figure>
+          <details class="hw-video"><summary>Watch the V1 example <span aria-hidden="true">+</span></summary><video muted loop playsinline controls preload="metadata" poster="how-it-works/v1-screenshot.webp"><source src="how-it-works/freecompress-IMG_1758.mp4" type="video/mp4">Your browser does not support the video element.</video></details>
+        </article>
+
+        <article class="hw-strategy-card hw-v2">
+          <div class="hw-card-top"><span class="hw-mode-tag">V2</span><span class="hw-mode-type">Superscalping mode</span></div>
+          <div class="hw-strategy-copy"><h3>Dynamic trailing stop</h3><p>Set a trailing distance and let the stop follow favourable price movement. The stop can tighten as the trade moves, while the target and risk rules stay visible.</p></div>
+          <dl class="hw-params">
+            <div><dt>TP</dt><dd>Optional target</dd></div><div><dt>SL</dt><dd>Initial risk limit</dd></div><div><dt>TRAIL</dt><dd>Follow price</dd></div>
+          </dl>
+          <figure class="hw-media"><img src="how-it-works/v2-screenshot.webp" alt="Mamba V2 Superscalping settings showing trailing stop controls" loading="lazy"><figcaption>V2 settings in the Mamba app</figcaption></figure>
+          <details class="hw-video"><summary>Watch the V2 example <span aria-hidden="true">+</span></summary><video muted loop playsinline controls preload="metadata" poster="how-it-works/v2-screenshot.webp"><source src="how-it-works/freecompress-IMG_1759.mp4" type="video/mp4">Your browser does not support the video element.</video></details>
+        </article>
+      </div>
+      <p class="hw-note"><strong>Illustration only.</strong> The examples show how settings relate to one another. They are not trade signals or a recommended risk setup. Choose values for your own instrument, strategy, and risk tolerance.</p>
+    </section>
+
+    <section class="hw-setup" id="setup" aria-labelledby="setup-title">
+      <div class="hw-section-heading hw-section-heading-inverse"><div><p class="hw-kicker">From account creation to first protected trade</p><h2 id="setup-title">A five-step<br><em>start.</em></h2></div><p>Start in the member area, complete the IB and MT5 checks, then finish your app setup before placing a protected trade.</p></div>
+      <ol class="hw-flow">
+        <li><span class="hw-flow-num">01</span><div><h3>Create your member account</h3><p>Register in the Mamba member area first. This is where you will submit verification details and manage your setup.</p><a class="hw-flow-link" href="login.html#register">Create account <span aria-hidden="true">↗</span></a></div></li>
+        <li><span class="hw-flow-num">02</span><div><h3>Request IB verification</h3><p>Inside the dashboard, choose the new or existing Valetax path and submit the email linked to your broker account.</p><a class="hw-flow-link" href="login.html">Open member area <span aria-hidden="true">↗</span></a><a class="hw-flow-link" data-valetax-link="referral" href="https://ma.valetaxglobal.com/p/3505549" target="_blank" rel="noopener noreferrer">New Valetax account <span aria-hidden="true">↗</span></a></div></li>
+        <li><span class="hw-flow-num">03</span><div><h3>Add your MT5 account</h3><p>After IB verification has been requested, add the MT5 account number you want Mamba to manage.</p><a class="hw-flow-link" href="login.html">Go to dashboard <span aria-hidden="true">↗</span></a></div></li>
+        <li><span class="hw-flow-num">04</span><div><h3>Request whitelist approval</h3><p>Submit the whitelist request for that account and wait for approval before relying on Mamba to manage live positions.</p></div></li>
+        <li><span class="hw-flow-num">05</span><div><h3>Download the app and start</h3><p>Install Mamba, sign in, choose V1 or V2, set your TP, SL, breakeven or trailing rules, then place trades in MT5.</p><a class="hw-flow-link" href="#download">See app links <span aria-hidden="true">↓</span></a></div></li>
+      </ol>
+    </section>
+
+    <section class="hw-download hw-section" id="download" aria-labelledby="download-title">
+      <div class="hw-download-copy"><p class="hw-kicker">Ready when you are</p><h2 id="download-title">Put your rules<br><em>in your pocket.</em></h2><p>Download Mamba Management for iPhone or Android. You can also use the member area to manage your account and verification steps.</p><a class="hw-button hw-button-primary" href="login.html#register">Create a member account <span aria-hidden="true">↗</span></a></div>
+      <div class="hw-store-grid" data-app-store-section>
+        <a class="hw-store-card" data-app-link="ios" href="https://apps.apple.com/app/id6776478463" target="_blank" rel="noopener noreferrer"><span class="hw-store-icon" aria-hidden="true"></span><span><small>Download on the</small><strong>App Store</strong></span><span class="hw-store-arrow" aria-hidden="true">↗</span></a>
+        <a class="hw-store-card" data-app-link="android" href="https://play.google.com/store/apps/details?id=com.mambamanagement.app" target="_blank" rel="noopener noreferrer"><span class="hw-store-icon hw-play-icon"><img src="google-play-logo.svg" alt=""></span><span><small>Get it on</small><strong>Google Play</strong></span><span class="hw-store-arrow" aria-hidden="true">↗</span></a>
+        <p class="hw-store-note">On desktop? <a data-app-link="auto" data-app-fallback="how-Mamba-work.html#download" href="how-Mamba-work.html#download">Choose your store</a> in the download section above.</p>
+      </div>
+    </section>
+
+    <section class="hw-disclosure" aria-labelledby="disclosure-title">
+      <div class="hw-disclosure-icon" aria-hidden="true">i</div>
+      <div><p class="hw-kicker">Broker relationship</p><h2 id="disclosure-title">About the Valetax introduction</h2><p>Mamba Management is operated by Rahsia Bumi Enterprise and acts as an Introducing Broker for Valetax. We may receive compensation for referred accounts. Mamba is not a broker: we do not hold client funds, execute trades on your behalf, or provide investment advice.</p><a href="risk-disclosure.html">Read the full risk disclosure <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="hw-final-cta" aria-labelledby="final-title"><p class="hw-kicker">Questions before you start?</p><h2 id="final-title">See the flow in action<br><em>then take your first step.</em></h2><div class="hw-actions hw-actions-center"><a class="hw-button hw-button-primary" href="support.html">Talk to support <span aria-hidden="true">↗</span></a><a class="hw-text-link hw-text-link-light" href="index.html">Back to home <span aria-hidden="true">↗</span></a></div></section>
+  </main>
+
+  <footer class="hw-footer">
+    <div class="hw-footer-main">
+      <div class="hw-footer-brand"><a class="hw-brand hw-brand-footer" href="index.html"><img src="mamba-logo-transparent.png" alt="" width="30" height="40"><span>MAMBA <b>MANAGEMENT</b></span></a><p>Post-entry risk management for MetaTrader 5.</p><small>Rahsia Bumi Enterprise · SSM registration no. 202503350807 (TR0334731-P)</small></div>
+      <div class="hw-footer-group"><h2>Platform</h2><a href="index.html#how-it-works">Features</a><a href="how-Mamba-work.html">How it works</a><a href="how-Mamba-work.html#download">Get the app</a><a href="login.html">Member area</a></div>
+      <div class="hw-footer-group"><h2>Help</h2><a href="support.html">Contact support</a><a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer">Community</a><a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer">Admin chat</a></div>
+      <div class="hw-footer-group"><h2>Legal</h2><a href="privacy-policy.html">Privacy policy</a><a href="terms-of-service.html">Terms of service</a><a href="risk-disclosure.html">Risk disclosure</a><a href="account-deletion.html">Account deletion</a></div>
     </div>
+    <div class="hw-footer-risk"><strong>Risk warning.</strong> Trading foreign exchange on margin carries a high level of risk and can result in the loss of all of your capital. Mamba Management is a trade-management tool, not a broker or licensed financial adviser. <a href="risk-disclosure.html">Read the full Risk Disclosure</a>.</div>
+    <div class="hw-footer-bottom"><span>© 2026 Rahsia Bumi Enterprise</span><span>Built for clearer trade protection</span></div>
+  </footer>
 
-    <header class="header" role="banner">
-        <nav class="nav" role="navigation" aria-label="Main navigation">
-            <div class="logo-left">
-                <a href="index.html" style="display: flex; align-items: center; text-decoration: none;">
-                    <div class="logo-icon">
-                        <img src="mamba-logo-transparent.png" alt="Mamba Logo" class="mamba-logo header-logo-img">
-                    </div>
-                </a>
-            </div>
-            <div class="header-actions">
-                <a href="login.html" class="cta-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; font-size: 0.7rem;">
-                    <span>MEMBER AREA</span>
-                </a>
-            </div>
-            <button class="nav-toggle" id="navToggle" type="button"
-                    aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
-                <span></span><span></span><span></span>
-            </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="how-Mamba-work.html">How It Works</a></li>
-                <li><a href="index.html#get-app">Get the App</a></li>
-                <li><a href="support.html">Support</a></li>
-            </ul>
-        </nav>
-    </header>
+  <details class="hw-telegram"><summary aria-label="Contact Mamba on Telegram">✈</summary><div><a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer">Community</a><a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer">Admin</a></div></details>
 
-    <!-- App install banner — shown only where the device can install the app
-         AND Apple's native banner will not appear (Android, non-Safari iOS,
-         in-app webviews). Visibility is decided by the pre-paint gate above. -->
-    <div class="app-banner" id="appBanner" role="region" aria-label="Get the Mamba Management app">
-        <button type="button" class="app-banner-close" id="appBannerClose" aria-label="Dismiss app install banner">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
-        </button>
-        <img class="app-banner-icon" src="app-icon.png" alt="" width="44" height="44">
-        <div class="app-banner-text">
-            <span class="app-banner-title">Mamba Management</span>
-            <span class="app-banner-sub">RAHSIA BUMI ENTERPRISE</span>
-            <span class="app-banner-meta">Free &mdash; <span data-app-label>App Store</span></span>
-        </div>
-        <a class="app-banner-cta" id="appBannerCta" href="#get-app"
-           data-app-link="auto" data-app-fallback="#get-app">GET</a>
-    </div>
-
-    <main id="main-content" role="main">
-        <!-- Hero Section -->
-        <section class="hero" style="min-height: 60vh;">
-            <div class="container" style="text-align: center; padding: 3rem 1rem;">
-                <h1 class="hero-title">
-                    <span class="title-line">HOW MAMBA</span>
-                    <span class="title-line highlight">WORKS</span>
-                </h1>
-                <p class="hero-subtitle" style="max-width: 800px; margin: 0 auto;">
-                    Discover the revolutionary technology behind Mamba Management App.<br>
-                    From setup to execution, understand every step of the process.
-                </p>
-                <a href="login.html#register" class="cta-primary" style="display: inline-block; text-decoration: none; margin-top: 2rem;">
-                    <span>JOIN NOW</span>
-                    <div class="btn-scan"></div>
-                </a>
-            </div>
-        </section>
-
-        <!-- Strategy Deep Dive Section -->
-        <section class="features-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="title-number">01</span>
-                        STRATEGY DEEP DIVE
-                    </h2>
-                    <div class="title-underline"></div>
-                </div>
-
-                <div class="features-clean">
-                    <!-- V1 Growth Strategy -->
-                    <div class="feature-block">
-                        <div class="feature-content">
-                            <h3>V1 Growth - Smart Breakeven System</h3>
-                            <p style="margin-bottom: 1.5rem;">Conservative strategy with 2:1 reward-to-risk ratio. When trade reaches 50% profit, Stop Loss auto-moves to breakeven—eliminating risk while keeping full upside.</p>
-
-                            <div style="background: var(--neural-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--cyan-primary); margin-bottom: 2rem;">
-                                <h5 style="color: var(--cyan-primary); font-size: 1.1rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; text-align: center;">V1 Trading Parameters Explained</h5>
-
-                                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                                    <div style="max-width: 300px; width: 100%; position: relative;">
-                                        <img src="how-it-works/v1-screenshot.webp" alt="V1 Growth Mode Interface" style="width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--cyan-primary); box-shadow: 0 10px 40px rgba(10, 132, 255, 0.3);">
-                                        <div style="position: absolute; top: -10px; right: -10px; background: var(--cyan-primary); color: #000; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">V1</div>
-                                    </div>
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
-                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span> Take Profit (TP)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Your profit target per trade. Typical: 30-100 pips. Example: TP 50 = +50 pips profit target.
-                                        </p>
-                                    </div>
-
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid #ff6b6b;">
-                                        <h6 style="color: #ff6b6b; font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Stop Loss (SL)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Maximum loss per trade. Use 2:1 ratio. Example: TP 50 pips = SL 25 pips.
-                                        </p>
-                                    </div>
-
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--cyan-primary);">
-                                        <h6 style="color: var(--cyan-primary); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="20" x2="5" y2="12"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="19" y1="20" x2="19" y2="15"/></svg></span> Break Even (BE)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Auto-moves SL to entry when profit hits this level. Set to 50% of TP. Example: TP 50 = BE 25.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div style="background: rgba(10, 132, 255, 0.05); padding: 1.2rem; border-radius: 10px; margin-top: 1.5rem; border: 1px dashed var(--cyan-primary);">
-                                    <p style="color: var(--text-secondary); margin: 0; line-height: 1.7; font-size: 0.9rem; text-align: center;">
-                                        <strong style="color: var(--cyan-primary);">Example settings:</strong> TP 50 / SL 25 / BE 25 is one commonly used V1 configuration. It is shown to illustrate how the parameters relate to each other, not as a recommendation &mdash; suitable values depend on your own strategy, instrument and risk tolerance.
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="mobile-preview">
-                            <div class="phone-frame">
-                                <div class="phone-screen" style="padding: 0; overflow: hidden;">
-                                    <video
-                                        muted
-                                        loop
-                                        playsinline
-                                        preload="auto"
-                                        class="feature-animation video-to-webp"
-                                        webkit-playsinline
-                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 25px;">
-                                        <source src="how-it-works/freecompress-IMG_1758.mp4" type="video/mp4">
-                                    </video>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- V2 Superscalping Strategy -->
-                    <div class="feature-block">
-                        <div class="mobile-preview">
-                            <div class="phone-frame">
-                                <div class="phone-screen" style="padding: 0; overflow: hidden;">
-                                    <video
-                                        muted
-                                        loop
-                                        playsinline
-                                        preload="auto"
-                                        class="feature-animation video-to-webp"
-                                        webkit-playsinline
-                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 25px;">
-                                        <source src="how-it-works/freecompress-IMG_1759.mp4" type="video/mp4">
-                                    </video>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="feature-content">
-                            <h3>V2 Superscalping - Dynamic Trailing Stop</h3>
-                            <p style="margin-bottom: 1.5rem;">High-frequency strategy for active traders. Stop Loss trails price movement at fixed distance—locking profits while letting winners run. Ideal for trending markets.</p>
-
-                            <div style="background: var(--neural-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--plasma-purple); margin-bottom: 2rem;">
-                                <h5 style="color: var(--plasma-purple); font-size: 1.1rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; text-align: center;">V2 Superscalping Parameters Explained</h5>
-
-                                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                                    <div style="max-width: 300px; width: 100%; position: relative;">
-                                        <img src="how-it-works/v2-screenshot.webp" alt="V2 Superscalping Interface" style="width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--plasma-purple); box-shadow: 0 10px 40px rgba(94, 92, 230, 0.3);">
-                                        <div style="position: absolute; top: -10px; right: -10px; background: var(--plasma-purple); color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">V2</div>
-                                    </div>
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
-                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 13 8 13 10 20 14 4 16 11 21 11"/></svg></span> Take Profit (TP)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Quick profit target. Range: 10-30 pips. Lower values = more trades daily.
-                                        </p>
-                                    </div>
-
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid #ff6b6b;">
-                                        <h6 style="color: #ff6b6b; font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Stop Loss (SL)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Tight stop for scalping precision. Use 2:1 ratio. Example: TP 20 = SL 10.
-                                        </p>
-                                    </div>
-
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--plasma-purple);">
-                                        <h6 style="color: var(--plasma-purple); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="20" x2="5" y2="12"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="19" y1="20" x2="19" y2="15"/></svg></span> Break Even (BE)
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Trigger after BE activates trailing stop. Set to 50% of TP. Example: TP 20 = BE 10.So your SL will trigger the movement toward the current price.
-                                        </p>
-                                    </div>
-
-                                    <div style="background: var(--neural-elevated); padding: 1.2rem; border-radius: 10px; border-left: 3px solid var(--neon-green);">
-                                        <h6 style="color: var(--neon-green); font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                                            <span class="param-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span> BE from Current Price
-                                        </h6>
-                                        <p style="color: var(--text-secondary); margin: 0; line-height: 1.6; font-size: 0.9rem;">
-                                            Trailing distance—how many pips SL stays behind peak price. Lower = tighter protection. Higher = larger potential gains.The distance from current price from SL after BE triggered.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div style="background: rgba(94, 92, 230, 0.05); padding: 1.2rem; border-radius: 10px; margin-top: 1.5rem; border: 1px dashed var(--plasma-purple);">
-                                    <p style="color: var(--text-secondary); margin: 0; line-height: 1.7; font-size: 0.9rem; text-align: center;">
-                                        <strong style="color: var(--plasma-purple);">Example settings:</strong> TP 20 / SL 10 / BE 10 / BE-from-current 8 illustrates a tighter V2 configuration. Shown for illustration only, not as a recommendation &mdash; tighter targets increase exposure to spread and slippage.
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Step by Step Process -->
-        <section class="innovation-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="title-number">02</span>
-                        SETUP PROCESS
-                    </h2>
-                    <div class="title-underline"></div>
-                </div>
-
-                <div class="steps-container">
-                    <div class="step-card" data-step="01">
-                        <div class="step-card-inner">
-                            <div class="step-header">
-                                <div class="step-number">STEP 1</div>
-                                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><line x1="5" y1="10" x2="5" y2="19"/><line x1="10" y1="10" x2="10" y2="19"/><line x1="14" y1="10" x2="14" y2="19"/><line x1="19" y1="10" x2="19" y2="19"/><line x1="3" y1="19" x2="21" y2="19"/></svg></div>
-                            </div>
-                            <h4>OPEN YOUR MT5 ACCOUNT</h4>
-                            <p>Start by creating a MetaTrader 5 account with our partner broker, Valetax. Mamba connects to your MT5 account, so you need one before the app can manage anything. <span class="ib-note">We act as an Introducing Broker for Valetax and are compensated by them based on referred accounts. This does not change your trading costs, but you should know the relationship exists.</span></p>
-                            <ul class="step-features">
-                                <li>✓ Register with Valetax broker</li>
-                                <li>✓ Complete KYC verification</li>
-                                <li>✓ Fund your trading account</li>
-                                <li>✓ Download MT5 terminal</li>
-                            </ul>
-                            <a href="login.html#register" class="cta-primary" style="display: inline-block; text-decoration: none; margin-top: 1.5rem;">
-                                <span>JOIN NOW</span>
-                                <div class="btn-scan"></div>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="step-card" data-step="02" id="get-app">
-                        <div class="step-card-inner">
-                            <div class="step-header">
-                                <div class="step-number">STEP 2</div>
-                                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><polyline points="9 10 12 13 15 10"/><line x1="12" y1="6" x2="12" y2="13"/></svg></div>
-                            </div>
-                            <h4>DOWNLOAD MAMBA MOBILE APP</h4>
-                            <p>Install the Mamba Trading App from <span data-app-label>the App Store or Google Play</span>. The app provides the remote control interface for your entry management.</p>
-                            <ul class="step-features">
-                                <li>✓ Available on iOS & Android</li>
-                                <li>✓ Secure biometric login</li>
-                                <li>✓ Real-time notifications</li>
-                                <li>✓ Free to download and use</li>
-                            </ul>
-                            <div class="download-buttons" data-app-store-section>
-                                <a href="https://play.google.com/store/apps/details?id=com.mambamanagement.app" data-app-link="android" target="_blank" rel="noopener noreferrer" class="store-btn google-play">
-                                    <div class="store-icon" style="color: #FFFFFF;">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
-                                    </div>
-                                    <div class="store-text">
-                                        <span class="store-label">GET IT ON</span>
-                                        <span class="store-name">Google Play</span>
-                                    </div>
-                                </a>
-                                <a href="https://apps.apple.com/app/id6776478463" data-app-link="ios" target="_blank" rel="noopener noreferrer" class="store-btn app-store">
-                                    <div class="store-icon">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/></svg>
-                                    </div>
-                                    <div class="store-text">
-                                        <span class="store-label">Download on the</span>
-                                        <span class="store-name">App Store</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="step-card" data-step="03">
-                        <div class="step-card-inner">
-                            <div class="step-header">
-                                <div class="step-number">STEP 3</div>
-                                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-                            </div>
-                            <h4>AUTHENTICATE & LINK ACCOUNT</h4>
-                            <p>Open the mobile app and enter your MT5 account credentials. Mamba will establish a secure connection between your phone and the EA running on your terminal.</p>
-                            <ul class="step-features">
-                                <li>✓ Enter MT5 login & server</li>
-                                <li>✓ Verify connection status</li>
-                                <li>✓ Enable auto-sync</li>
-                                <li>✓ Multi-account support</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="step-card" data-step="04">
-                        <div class="step-card-inner">
-                            <div class="step-header">
-                                <div class="step-number">STEP 4</div>
-                                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 13 8 13 10 20 14 4 16 11 21 11"/></svg></div>
-                            </div>
-                            <h4>CONFIGURE TRADING STRATEGY</h4>
-                            <p>Choose your trading mode (Growth or Superscalping) and set your risk parameters. All settings are applied instantly to the EA without restarting.</p>
-                            <ul class="step-features">
-                                <li>✓ Select V1 Growth or V2 Superscalping</li>
-                                <li>✓ Set Take Profit levels</li>
-                                <li>✓ Configure Stop Loss</li>
-                                <li>✓ Enable Break Even mode</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="step-card" data-step="05">
-                        <div class="step-card-inner">
-                            <div class="step-header">
-                                <div class="step-number">STEP 5</div>
-                                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></div>
-                            </div>
-                            <h4>START TRADING</h4>
-                            <p>Activate the EA from your mobile app and let Mamba manage your trades. Monitor performance, adjust settings, and control everything from your smartphone.</p>
-                            <ul class="step-features">
-                                <li>✓ One-tap EA activation</li>
-                                <li>✓ Live P&L tracking</li>
-                                <li>✓ Start trading on the MT5 app</li>
-                                <li>✓ Remote parameter adjustment</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA Section -->
-        <section class="access-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="title-number">03</span>
-                        READY TO START?
-                    </h2>
-                    <div class="title-underline"></div>
-                </div>
-
-                <div style="text-align: center; margin-top: 4rem;">
-                    <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
-                        Open a free Valetax demo account and try Mamba against simulated funds before you risk anything real.
-                    </p>
-                    <div class="hero-actions" style="justify-content: center;">
-                        <a href="index.html#access" class="cta-primary" style="text-decoration: none; display: inline-block;">
-                            <span>GET STARTED NOW</span>
-                            <div class="btn-scan"></div>
-                        </a>
-                        <a href="index.html" class="cta-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 1rem;">
-                            <span>BACK TO HOME</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <div class="logo-cube small">
-                            <div class="cube-face front"></div>
-                            <div class="cube-face back"></div>
-                            <div class="cube-face right"></div>
-                            <div class="cube-face left"></div>
-                            <div class="cube-face top"></div>
-                            <div class="cube-face bottom"></div>
-                        </div>
-                        <h3>MAMBA MANAGEMENT</h3>
-                    </div>
-                    <p>Automated risk management for MetaTrader 5.<br>Rahsia Bumi Enterprise © 2026</p>
-                    <p class="footer-identity">
-                        Mamba Management is a trade-management application operated by Rahsia Bumi
-                        Enterprise, a business registered in Malaysia (SSM registration no.
-                        202503350807 (TR0334731-P)). We are <strong>not a broker</strong>:
-                        we do not hold client funds, execute trades on your behalf, or provide investment
-                        advice. We act as an Introducing Broker for Valetax and are compensated by them
-                        for referred accounts.
-                    </p>
-                </div>
-
-                <div class="footer-links">
-                    <h4>PLATFORM</h4>
-                    <a href="index.html#features">Features</a>
-                    <a href="index.html#innovation">Innovation</a>
-                    <a href="how-Mamba-work.html">How It Works</a>
-                    <a href="index.html#access">Access</a>
-                </div>
-
-                <div class="footer-links">
-                    <h4>RESOURCES</h4>
-                    <a href="how-Mamba-work.html">How Mamba Works</a>
-                    <a href="login.html">Member Area</a>
-                    <a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer">Community</a>
-                    <a href="support.html">Contact Support</a>
-                </div>
-
-                <div class="footer-links">
-                    <h4>LEGAL</h4>
-                    <a href="privacy-policy.html">Privacy Policy</a>
-                    <a href="terms-of-service.html">Terms of Service</a>
-                    <a href="risk-disclosure.html">Risk Disclosure</a>
-                    <a href="account-deletion.html">Account Deletion</a>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <div class="footer-line"></div>
-                <p class="footer-risk">
-                    <strong>Risk warning.</strong> Trading foreign exchange on margin carries a high level
-                    of risk and can result in the loss of all of your capital. Leverage works against you as
-                    well as for you. These products are not suitable for every investor &mdash; do not trade
-                    money you cannot afford to lose. Past performance does not indicate future results. Mamba
-                    Management is a trade-management tool, not a broker or a licensed financial adviser, and
-                    nothing on this site is investment advice.
-                    <a href="risk-disclosure.html">Read the full Risk Disclosure</a>.
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Floating Telegram Button -->
-    <div class="floating-telegram" id="floatingTelegram">
-        <div class="telegram-menu" id="telegramMenu">
-            <a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer" class="telegram-option">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                </svg>
-                <span>Community</span>
-            </a>
-            <a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer" class="telegram-option">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
-                </svg>
-                <span>Admin</span>
-            </a>
-        </div>
-        <button class="telegram-fab" id="telegramFab" aria-label="Contact us on Telegram">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-            </svg>
-        </button>
-    </div>
-
-    <script src="config.js?v=3"></script>
-    <script src="app-banner.js?v=1"></script>
-    <script src="nav.js?v=1"></script>    <script src="tracking.js?v=2"></script>
-    <script src="script.js?v=12"></script>
+  <script src="config.js?v=4"></script>
+  <script src="nav.js?v=1"></script>
+  <script src="tracking.js?v=2"></script>
 </body>
 </html>

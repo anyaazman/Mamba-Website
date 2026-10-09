@@ -1,0 +1,53 @@
+/* Client dashboard visual layer. IDs, markup and dashboard.js remain unchanged. */
+:root{--neural-black:#f5f8fc;--neural-surface:#fff;--neural-elevated:#f7faff;--neural-border:#dce5f0;--text-primary:#10233d;--text-secondary:#607089;--text-muted:#8491a4;--cyan-primary:#1268e8;--neon-green:#13b89f;--danger:#d9485f;--gradient-neon:linear-gradient(135deg,#1268e8,#48b6d6);--glow-neon:0 10px 24px rgba(18,104,232,.2);--font-primary:Manrope,system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace}body{background:var(--neural-black);color:var(--text-primary)}.header{background:rgba(245,248,252,.94)!important;border-bottom:1px solid var(--neural-border)!important;box-shadow:0 5px 22px rgba(16,35,61,.06)}.nav{max-width:1200px}.header-logo-img{filter:none}.logout-btn{background:transparent!important;border:1px solid #cbd7e6!important;color:var(--text-primary)!important;border-radius:8px!important}.logout-btn:hover{background:#eaf1fb!important;border-color:var(--cyan-primary)!important}.dashboard-header{margin-bottom:1.5rem}.dashboard-header h1{color:var(--text-primary)!important;letter-spacing:-.04em!important;text-transform:none!important;font-size:clamp(2rem,4vw,3.25rem)!important}.dashboard-grid{gap:1.25rem!important}.portal-card{background:var(--neural-surface)!important;border:1px solid var(--neural-border)!important;border-radius:16px!important;box-shadow:0 12px 30px rgba(16,35,61,.06)!important}.portal-card h3,.portal-card h2{color:var(--text-primary)!important;text-transform:none!important;letter-spacing:-.02em!important}.portal-card p{color:var(--text-secondary)!important}.broker-btn{background:#edf4ff!important;border:1px solid #cfe0f6!important;color:var(--text-primary)!important;border-radius:10px!important;box-shadow:none!important}.broker-btn:hover{border-color:var(--cyan-primary)!important;background:#e5f0ff!important}.community-btn{background:#ecfaf7!important;border-color:#c5ebe3!important}.edit-btn,.request-btn,.save-btn{background:var(--cyan-primary)!important;color:#fff!important;border:0!important;border-radius:8px!important;box-shadow:0 7px 15px rgba(18,104,232,.16)!important}.edit-btn:hover,.request-btn:hover,.save-btn:hover{filter:brightness(.94);transform:translateY(-1px)}.dashboard-row{gap:1.25rem!important}.status-badge-lg{border-radius:10px!important}.status-badge-lg.approved{background:#e8faf6!important;color:#087d6e!important;border-color:#a9e6da!important}.status-badge-lg.pending{background:#fff7e8!important;color:#a56a08!important;border-color:#f1d29c!important}.status-badge-lg.rejected{background:#fff0f2!important;color:#b52f48!important;border-color:#f0b5c0!important}.onboarding-step{background:var(--neural-elevated)!important;border:1px solid var(--neural-border)!important;border-radius:12px!important}.onboarding-step.completed{border-color:#9be0d4!important;background:#f0fcfa!important}.onboarding-step-badge{background:#e5f0ff!important;color:var(--cyan-primary)!important}.onboarding-step.completed .onboarding-step-badge{background:#d7f5ef!important;color:#087d6e!important}.onboarding-step h4{color:var(--text-primary)!important}.onboarding-step p{color:var(--text-secondary)!important}.onboarding-step-btn{background:var(--cyan-primary)!important;color:#fff!important;border-radius:8px!important}.video-facade{border-radius:12px!important;border:1px solid var(--neural-border)!important;overflow:hidden}.modal-overlay{background:rgba(16,35,61,.48)!important;backdrop-filter:blur(5px)}.modal-card{background:#fff!important;border:1px solid var(--neural-border)!important;border-radius:16px!important;box-shadow:0 24px 70px rgba(16,35,61,.2)!important}.modal-card h3,.ib-option-title,.ib-step-title{color:var(--text-primary)!important}.modal-card p,.ib-option-desc,.ib-step-desc{color:var(--text-secondary)!important}.cancel-btn{background:#f0f4f9!important;border:1px solid #d6e0eb!important;color:var(--text-primary)!important;border-radius:8px!important}.auth-form input,.modal-card input,#newMT5Input{background:#f7faff!important;color:var(--text-primary)!important;border:1px solid #cbd8e7!important}.auth-form input:focus,.modal-card input:focus,#newMT5Input:focus{border-color:var(--cyan-primary)!important;box-shadow:0 0 0 3px rgba(18,104,232,.14)!important}.ib-option-card,.ib-step-card{background:#f7faff!important;border-color:var(--neural-border)!important}.ib-option-card:hover{border-color:var(--cyan-primary)!important}.ib-copy-label,.ib-copy-text{color:var(--text-primary)!important}.portal-footer{border-top:1px solid var(--neural-border)!important;background:#fff!important}.portal-footer-links a{color:var(--text-secondary)!important}.portal-footer-links a:hover{color:var(--cyan-primary)!important}.portal-footer-note{color:var(--text-muted)!important}.risk-strip{background:#fff7e8!important;color:#7a5b25!important;border-top:1px solid #f1d29c!important}.risk-strip a{color:#97630c!important}@media(max-width:700px){.portal-container-wide{padding:1.25rem 1rem!important}.portal-card{padding:1.25rem!important}.dashboard-row{grid-template-columns:1fr!important}}
+
+/* --- Dashboard organization pass --- */
+body{background:linear-gradient(180deg,#f8faff 0%,#f3f7fc 100%)}
+.header{position:sticky!important;top:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav{padding:1rem 1.5rem!important}
+.logo-left a::after{content:'MAMBA';margin-left:.6rem;color:#10233d;font:800 .72rem/1 Manrope,system-ui,sans-serif;letter-spacing:.18em}
+main>section{padding:2.75rem 0 4.5rem!important;min-height:0!important}
+.portal-container-wide{max-width:1160px!important;padding:0 1.5rem 1rem!important}
+.dashboard-header{padding:0!important;margin:0 0 1.5rem!important}
+.dashboard-header h1{font-size:clamp(2.1rem,4vw,3.4rem)!important}
+.dashboard-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem!important;align-items:stretch}
+#ibStatusCard,.dashboard-row,#onboardingCard,#learningVideoCard{grid-column:1/-1}
+#ibStatusCard{margin:0!important;padding:1.25rem 1.5rem!important;border-left:4px solid #1268e8!important}
+#ibStatusCard .status-badge-lg{margin:0!important}
+#ibStatusCard .request-btn{margin-top:.8rem!important}
+.broker-btn{min-height:58px;padding:1rem 1.2rem!important;font-size:.78rem!important;letter-spacing:.04em!important}
+.dashboard-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem!important}
+.dashboard-row>.portal-card{margin:0!important;min-height:182px;padding:1.5rem!important}
+.card-actions{margin-bottom:1.25rem!important}
+.card-actions h3{font-size:1.05rem!important}
+.profile-field{padding:.85rem 0!important}
+.profile-label{font-size:.68rem!important;letter-spacing:.08em!important}
+.profile-value{font-size:.88rem!important}
+#onboardingCard,#learningVideoCard{margin:0!important;padding:1.5rem!important}
+#onboardingCard>h3,#learningVideoCard>h3{font-size:1.15rem!important;margin-bottom:.4rem!important}
+#onboardingCard>p,#learningVideoCard>p{font-size:.84rem!important;margin-bottom:1.25rem!important}
+.onboarding-step{padding:1rem!important;margin-bottom:.65rem;background:#f8fbff!important;border:1px solid #dce5f0!important;border-radius:12px!important}
+.onboarding-step:last-child{margin-bottom:0}
+.onboarding-step-body h4{font-size:.82rem!important;letter-spacing:.02em!important;text-transform:none!important}
+.onboarding-step-body p{font-size:.78rem!important;margin-bottom:.7rem!important}
+.onboarding-step-btn{font-size:.72rem!important;letter-spacing:.02em!important;text-transform:none!important}
+.video-facade{display:block!important;min-height:280px;background:#edf4ff!important}
+.portal-footer{padding:1.5rem!important}
+.risk-strip{padding:1rem 1.5rem 1.5rem!important}
+@media(max-width:700px){
+  .nav{padding:.85rem 1rem!important}
+  .logo-left a::after{font-size:.65rem}
+  main>section{padding:2rem 0 3rem!important}
+  .portal-container-wide{padding:0 1rem .75rem!important}
+  .dashboard-grid{grid-template-columns:1fr;gap:.85rem!important}
+  #ibStatusCard,.dashboard-row,#onboardingCard,#learningVideoCard{grid-column:auto}
+  .dashboard-row{grid-template-columns:1fr;gap:.85rem!important}
+  .dashboard-row>.portal-card{min-height:0}
+  .broker-btn{min-height:52px}
+  #ibStatusCard,#onboardingCard,#learningVideoCard{padding:1.25rem!important}
+  .video-facade{min-height:180px}
+  .risk-strip{padding:1rem!important}
+}
+
+/* Sticky header participates in layout, so remove the legacy fixed-header offset. */
+main{margin-top:0!important}

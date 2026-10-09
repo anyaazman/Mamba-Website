@@ -1,0 +1,145 @@
+/* Existing Valetax account: readable instructions with reachable form controls. */
+#ibModalCard.ib-existing {
+  width: 960px;
+  max-width: calc(100vw - 32px) !important;
+  height: min(800px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px) !important;
+  padding: 24px !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#ibModalCard.ib-existing > h3 {
+  font-size: 1.25rem;
+  text-transform: none;
+  letter-spacing: -.02em;
+  margin: 0 0 20px;
+  flex-shrink: 0;
+}
+#ibStepExisting {
+  grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr);
+  gap: 24px;
+  min-height: 0;
+  flex: 1;
+}
+#ibStepExisting .ib-guide-panel {
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 3px 8px 3px 3px;
+}
+#ibStepExisting .ib-carousel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-height: 0;
+  transition: none;
+}
+#ibStepExisting .ib-carousel-track { align-items: flex-start; }
+#ibStepExisting .ib-carousel-slide { padding: 0; min-height: 0; }
+#ibStepExisting .ib-carousel-img { height: auto; }
+#ibStepExisting .ib-guide-title {
+  align-self: flex-start;
+  color: #10233d;
+  text-align: left;
+  text-transform: none;
+  font-size: 1rem;
+  letter-spacing: 0;
+  opacity: 1;
+  margin-bottom: 16px;
+}
+#ibStepExisting .ib-step-card {
+  padding: 16px;
+  gap: 12px;
+  border: 1px solid #dce5f0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+#ibStepExisting .ib-step-number { width: 28px; height: 28px; font-size: .85rem; }
+#ibStepExisting .ib-step-title {
+  font-size: .95rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+#ibStepExisting .ib-step-desc { font-size: .875rem; line-height: 1.6; color: #52647c !important; }
+#ibStepExisting .ib-step-copy-row {
+  background: #fff;
+  border: 1px solid #b9cbe0;
+  padding: 12px;
+  gap: 10px;
+  align-items: flex-start;
+  -webkit-user-select: text;
+  user-select: text;
+}
+#ibStepExisting .ib-copy-label,
+#ibStepExisting .ib-copy-text {
+  color: #10233d !important;
+  font: 500 .875rem/1.65 var(--font-primary);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+#ibStepExisting .ib-copy-btn {
+  width: 54px;
+  height: 44px;
+  background: #e8f1ff;
+  color: #0b56c2;
+  border-color: #acc8ef;
+}
+#ibStepExisting .ib-copy-btn.copied { background: #ddf3eb; color: #166b52; border-color: #8fc9b5; }
+#ibStepExisting .ib-change-btn {
+  font-size: .875rem;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+  min-height: 48px;
+  background: #1268e8;
+  border: 1px solid #1268e8;
+  color: #fff;
+  box-shadow: none;
+}
+#ibStepExisting .ib-change-btn svg { flex-shrink: 0; }
+#ibStepExisting .ib-change-btn:hover { background: #0b56c2; }
+#ibStepExisting .ib-request-panel {
+  align-self: start;
+  background: #f5f8fc;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  padding: 20px;
+  min-width: 0;
+}
+#ibStepExisting .ib-request-panel h4 { font-size: 1rem; color: #10233d; margin: 0 0 8px; }
+#ibStepExisting .ib-request-note { font-size: .875rem; line-height: 1.6; margin: 0 0 20px; }
+#ibStepExisting label { display: block; font-size: .875rem; line-height: 1.5; color: #52647c; margin-bottom: 8px; }
+#ibStepExisting .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+#ibStepExisting .modal-actions button { min-height: 44px; font-size: .8rem; text-transform: none; letter-spacing: 0; padding: 10px 12px; }
+#ibStepExisting .ib-carousel-arrow { color: #52647c; }
+#ibStepExisting :is(button, a, input, .ib-guide-panel):focus-visible { outline: 3px solid #1268e8; outline-offset: 2px; }
+@media (max-width: 700px) {
+  #ibModalCard.ib-existing {
+    max-width: 100% !important;
+    height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 24px) !important;
+    padding: 16px !important;
+  }
+  #ibModalCard.ib-existing > h3 { font-size: 1.1rem; margin-bottom: 12px; }
+  #ibStepExisting { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(80px, 1fr) auto; gap: 12px; }
+  #ibStepExisting .ib-guide-panel { padding-right: 4px; }
+  #ibStepExisting .ib-step-card { padding: 12px; gap: 8px; flex-wrap: wrap; }
+  #ibStepExisting .ib-step-body { flex-basis: 100%; }
+  #ibStepExisting .ib-step-copy-row { padding: 10px; }
+  #ibStepExisting .ib-request-panel { padding: 12px 0 0; border-radius: 0; border-width: 1px 0 0; background: #fff; }
+  #ibStepExisting .ib-request-panel h4 { display: none; }
+  #ibStepExisting .ib-request-note { font-size: .8rem; line-height: 1.5; margin-bottom: 10px; }
+  #ibStepExisting label { font-size: .8rem; margin-bottom: 6px; }
+  #ibStepExisting .form-group { margin-bottom: 0 !important; }
+  #ibStepExisting .modal-actions { margin-top: 10px; }
+  #ibStepExisting .modal-actions .save-btn { flex: 1; }
+}
+@media (max-height: 550px) {
+  #ibStepExisting .ib-request-note { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ibStepExisting *, #ibStepExisting *::after { transition: none !important; }
+}

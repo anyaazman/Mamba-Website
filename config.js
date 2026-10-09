@@ -48,7 +48,7 @@
 
     // On-site section listing both stores — used as the desktop fallback for
     // a single "Get the App" button, where we cannot know the visitor's phone.
-    DOWNLOAD_ANCHOR: 'index.html#get-app'
+    DOWNLOAD_ANCHOR: 'how-Mamba-work.html#download'
   };
 
   window.MAMBA_CONFIG = CONFIG;

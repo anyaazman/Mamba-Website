@@ -1,350 +1,183 @@
-(function() {
+(function () {
   'use strict';
-
   var API_BASE = '/api';
-  // sessionStorage throws where site data is blocked; without this the whole
-  // admin panel script dies before rendering anything.
+  var $ = function (id) { return document.getElementById(id); };
   function safeSession(action, key, value) {
     try {
       if (action === 'get') return sessionStorage.getItem(key);
-      if (action === 'set') { sessionStorage.setItem(key, value); return true; }
-      if (action === 'remove') { sessionStorage.removeItem(key); return true; }
-    } catch (e) {
-      return action === 'get' ? null : false;
-    }
+      if (action === 'set') sessionStorage.setItem(key, value);
+      if (action === 'remove') sessionStorage.removeItem(key);
+    } catch (_) { return null; }
   }
-
   var adminKey = safeSession('get', 'mamba_admin_key');
-  var allUsers = [];
-  var currentFilter = '';
-
-  function hideLoadingScreen() {
-    var ls = document.querySelector('.loading-screen');
-    if (ls) { ls.classList.add('loaded'); document.body.classList.add('page-loaded'); }
-    setTimeout(function() { if (ls && ls.parentNode) ls.remove(); }, 800);
+  var allUsers = [], selectedUserId = null, currentFilter = '', usersLoaded = false;
+  var syncAlertCount = null, usersRequest = 0, eventsRequest = 0;
+  var currentView = 'overview', currentEventType = '', currentDateRange = '';
+  var eventCursors = [null], eventPage = 0, nextEventCursor = null;
+  var appliedCustomFrom = '', appliedCustomTo = '', pendingAction = null, actionBusy = false;
+  var notices = [];
+  try { notices = JSON.parse(safeSession('get', 'mamba_admin_warnings')) || []; } catch (_) {}
+  if (!Array.isArray(notices)) notices = [];
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
-
+  var escAttr = esc;
   function showToast(message, type) {
-    var existing = document.querySelector('.toast-message');
-    if (existing) existing.remove();
-    var toast = document.createElement('div');
-    toast.className = 'toast-message ' + (type === 'success' ? 'toast-success' : 'toast-error');
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(function() { toast.classList.add('show'); }, 10);
-    setTimeout(function() {
-      toast.classList.remove('show');
-      setTimeout(function() { toast.remove(); }, 300);
-    }, 3000);
+    var previous = document.querySelector('.toast-message'); if (previous) previous.remove();
+    var el = document.createElement('div'); el.className = 'toast-message show ' + (type === 'success' ? 'toast-success' : 'toast-error');
+    el.setAttribute('role','status'); el.textContent = message; document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 5000);
   }
-
-  function showKeyScreen() {
-    document.getElementById('keyScreen').style.display = 'flex';
-    document.getElementById('adminPanel').style.display = 'none';
+  function renderNotices() {
+    $('actionNotice').hidden = !notices.length;
+    $('actionNotice').className = 'action-notice warning';
+    $('actionNotice').innerHTML = '<strong>Follow-up needed</strong>' + notices.map(function(n) { return '<p>' + esc(n) + '</p>'; }).join('') + '<button class="admin-button" id="clearNotices">Clear reviewed notices</button>';
+    if ($('clearNotices')) $('clearNotices').onclick = function () { notices = []; safeSession('remove','mamba_admin_warnings'); renderNotices(); };
   }
-
-  function showAdminPanel() {
-    document.getElementById('keyScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
+  function warn(message) { notices.push(message); safeSession('set','mamba_admin_warnings',JSON.stringify(notices)); renderNotices(); $('actionNotice').scrollIntoView({block:'nearest'}); }
+  async function request(route, body) {
+    var res = await fetch(API_BASE + route, {method: body ? 'POST' : 'GET', headers:{'X-Admin-Key':adminKey,'Content-Type':'application/json'}, body:body ? JSON.stringify(body) : undefined});
+    var data; try { data = await res.json(); } catch (_) { throw new Error('The server returned an unreadable response. Refresh and try again.'); }
+    if (res.status === 403) { safeSession('remove','mamba_admin_key'); showKeyScreen(); throw new Error('Admin access expired. Enter your key again.'); }
+    if (!res.ok || data.success === false) throw new Error(data.error || 'The request could not be completed.');
+    return data;
   }
-
-  function verifyKey(key) {
-    return fetch(API_BASE + '/admin/status', { headers: { 'X-Admin-Key': key } })
-      .then(function(res) { return res.json(); })
-      .then(function(data) { return data.valid; })
-      .catch(function() { return false; });
+  function showKeyScreen() { $('keyScreen').style.display='flex'; $('adminPanel').style.display='none'; }
+  function showAdminPanel() { $('keyScreen').style.display='none'; $('adminPanel').style.display='block'; $('demoLabel').hidden=!window.MAMBA_DEMO; $('loadDemoClients').hidden=!(window.MAMBA_DEMO && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)); renderNotices(); }
+  async function verifyKey(key) {
+    try { var r=await fetch(API_BASE+'/admin/status',{headers:{'X-Admin-Key':key}}); var d=await r.json(); return r.ok && d.valid; } catch (_) { return false; }
   }
-
-  function setupKeyForm() {
-    var form = document.getElementById('keyForm');
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      var key = form.querySelector('[name="admin_key"]').value.trim();
-      if (!key) return;
-      verifyKey(key).then(function(valid) {
-        if (valid) {
-          adminKey = key;
-          safeSession('set', 'mamba_admin_key', key);
-          showAdminPanel();
-          loadUsers('');
-        } else {
-          var err = form.querySelector('.key-error');
-          err.textContent = 'Invalid admin key.';
-          err.style.display = 'block';
-        }
-      });
-    });
+  function hasIBRequest(u) { return !!String(u.ib_email || '').trim(); }
+  function needsIB(u) { return hasIBRequest(u) && u.ib_status === 'pending'; }
+  function needsWhitelist(a) { return a.status === 'pending' && !!a.whitelist_requested_at; }
+  function accountCount(u) { return (u.mt5_accounts || []).length; }
+  function ibLabel(u) { return u.ib_status === 'pending' && !hasIBRequest(u) ? 'Not requested' : ({pending:'Requested',approved:'Approved',rejected:'Rejected'}[u.ib_status] || 'Unknown'); }
+  function badge(status,label) { return '<span class="status-badge status-'+ (['pending','approved','rejected'].includes(status) ? status : 'neutral') +'">'+esc(label)+'</span>'; }
+  function nextAction(u) {
+    if (needsIB(u)) return 'Review IB request';
+    if (u.ib_status === 'rejected') return 'IB follow-up needed';
+    if (u.ib_status !== 'approved') return 'Waiting for IB request';
+    if (!accountCount(u)) return 'Waiting for MT5 account';
+    if (u.mt5_accounts.some(needsWhitelist)) return 'Review whitelist request';
+    if (u.mt5_accounts.some(function(a){return a.status==='rejected';})) return 'MT5 follow-up needed';
+    if (u.mt5_accounts.every(function(a){return a.status==='approved';})) return 'Portal approvals complete';
+    return 'Waiting for whitelist request';
   }
-
-  function setupFilterTabs() {
-    document.querySelectorAll('#userFilterTabs .filter-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('#userFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        loadUsers(tab.getAttribute('data-status') || '');
-      });
-    });
+  function dateText(value) {
+    if (!value) return 'Not recorded';
+    var str=String(value), d=new Date(str.includes('T') ? str : str.replace(' ','T')+'Z');
+    if (isNaN(d)) return 'Unknown date';
+    return new Intl.DateTimeFormat('en-MY',{timeZone:'Asia/Kuala_Lumpur',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
   }
-
-  function loadUsers(statusFilter) {
-    currentFilter = statusFilter || '';
-    var container = document.getElementById('usersContainer');
-    container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading...</p>';
-
-    var url = API_BASE + '/admin/users';
-    if (statusFilter) url += '?status=' + statusFilter;
-
-    fetch(url, { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) {
-        return res.text().then(function(text) {
-          var body;
-          try { body = JSON.parse(text); } catch (e) { body = null; }
-          return { ok: res.ok, status: res.status, body: body, raw: text };
-        });
-      })
-      .then(function(r) {
-        if (!r.ok || !r.body || !r.body.users) {
-          var msg = (r.body && r.body.error) ? r.body.error
-                    : (r.raw ? r.raw.slice(0, 300) : ('HTTP ' + r.status));
-          container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load users (HTTP ' + r.status + '): ' + esc(msg) + '</p>';
-          return;
-        }
-        allUsers = r.body.users;
-        applyFilters();
-      })
-      .catch(function(err) {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load users: ' + esc(err && err.message ? err.message : 'network error') + '</p>';
-      });
+  async function loadUsers() {
+    var serial=++usersRequest;
+    try {
+      var data=await request('/admin/users'); if(serial!==usersRequest)return;
+      allUsers=data.users || []; usersLoaded=true; renderOverview(); applyFilters();
+    } catch(e) {
+      if(serial!==usersRequest)return;
+      // Do not let a parallel sync-alert refresh republish stale client data.
+      usersLoaded=false; allUsers=[]; selectedUserId=null;
+      $('usersContainer').innerHTML='<p class="empty-state">'+esc(e.message)+'</p>';
+      $('reviewQueue').textContent=e.message;
+      $('overviewStats').textContent='Client counts unavailable. Use Refresh data to retry.';
+      $('clientCount').textContent='Client data unavailable';
+      renderClient();
+    }
   }
-
+  async function loadSyncAlerts() {
+    try { var d=await request('/admin/events?type=sync_alerts&limit=1'); syncAlertCount=Number.isFinite(d.total)?d.total:null; } catch(_) { syncAlertCount=null; }
+    renderOverview();
+  }
+  function renderOverview() {
+    if (!usersLoaded) return;
+    var ib=allUsers.filter(needsIB).length;
+    var mt5=allUsers.reduce(function(n,u){return n+(u.mt5_accounts || []).filter(needsWhitelist).length;},0);
+    var stats=[['pending',ib,'IB requests','Submitted and awaiting review'],['whitelist',mt5,'Whitelist requests','MT5 accounts awaiting review'],['alerts',syncAlertCount===null?'—':syncAlertCount,'Sync alerts','All recorded alerts · may be resolved'],['',allUsers.length,'Total clients','All registered member accounts']];
+    $('overviewStats').innerHTML=stats.map(function(s){return '<button class="stat-button" data-queue="'+s[0]+'"><span class="stat-name">'+s[2]+'</span><span class="stat-value">'+s[1]+'</span><span class="stat-note">'+s[3]+'</span></button>';}).join('');
+    $('overviewStats').querySelectorAll('button').forEach(function(b){b.onclick=function(){var q=b.dataset.queue;if(q==='alerts'){currentEventType='sync_alerts';currentDateRange='';$('eventSearch').value='';$('customDateRange').style.display='none';syncEventTabs();resetEvents();openView('events');}else{currentFilter=q;$('adminSearch').value='';openView('users');applyFilters();}};});
+    var queue=allUsers.filter(function(u){return needsIB(u)||(u.mt5_accounts||[]).some(needsWhitelist);});
+    $('reviewQueue').innerHTML=queue.length ? queue.slice(0,8).map(function(u){return '<div class="queue-row"><div><strong>'+esc(u.name)+'</strong><p>'+esc(u.email)+'</p>'+badge('pending',nextAction(u))+'</div><button class="admin-button" data-review="'+esc(u.id)+'">Review request</button></div>';}).join('')+(queue.length>8?'<p class="muted">Showing 8 clients. Open Clients for the full list.</p>':'') : '<div class="empty-state"><strong>No submitted requests waiting.</strong><p>New IB and MT5 whitelist requests will appear here.</p></div>';
+    $('reviewQueue').querySelectorAll('[data-review]').forEach(function(b){b.onclick=function(){currentFilter='';$('adminSearch').value='';selectedUserId=String(b.dataset.review);openView('users');applyFilters();focusDetail();};});
+  }
   function applyFilters() {
-    var query = document.getElementById('adminSearch').value.toLowerCase().trim();
-    var filtered = allUsers;
-
-    // Search filter
-    if (query) {
-      filtered = filtered.filter(function(user) {
-        if (user.name.toLowerCase().indexOf(query) !== -1) return true;
-        if (user.email.toLowerCase().indexOf(query) !== -1) return true;
-        if ((user.ib_email || '').toLowerCase().indexOf(query) !== -1) return true;
-        var accounts = user.mt5_accounts || [];
-        for (var i = 0; i < accounts.length; i++) {
-          if (accounts[i].account_number.indexOf(query) !== -1) return true;
-        }
-        return false;
-      });
-    }
-
-    renderUsers(filtered);
+    var query=$('adminSearch').value.trim().toLowerCase();
+    document.querySelectorAll('#userFilterTabs button').forEach(function(b){b.classList.toggle('active',b.dataset.status===currentFilter);b.setAttribute('aria-pressed',String(b.dataset.status===currentFilter));});
+    var filtered=allUsers.filter(function(u){
+      var statusMatches=!currentFilter || (currentFilter==='pending'?needsIB(u):currentFilter==='whitelist'?(u.mt5_accounts||[]).some(needsWhitelist):currentFilter==='not_requested'?!hasIBRequest(u)&&u.ib_status==='pending':u.ib_status===currentFilter);
+      return statusMatches && (!query || [u.name,u.email,u.ib_email].concat((u.mt5_accounts||[]).map(function(a){return a.account_number;})).join(' ').toLowerCase().includes(query));
+    });
+    $('clientCount').textContent=filtered.length+' of '+allUsers.length+' clients';
+    if(!filtered.some(function(u){return String(u.id)===String(selectedUserId);}))selectedUserId=filtered.length?String(filtered[0].id):null;
+    $('usersContainer').innerHTML=filtered.length?filtered.map(function(u){return '<button class="client-row" data-client="'+esc(u.id)+'" aria-pressed="'+(String(u.id)===String(selectedUserId))+'"><strong>'+esc(u.name)+'</strong><small>'+esc(u.email)+'</small><span class="client-row-meta">'+badge(ibLabel(u)==='Not requested'?'neutral':u.ib_status,'IB: '+ibLabel(u))+'<span>'+accountCount(u)+' MT5</span></span><small>'+esc(nextAction(u))+'</small></button>';}).join(''):'<p class="empty-state">No clients match this filter. Try another name or select All clients.</p>';
+    $('usersContainer').querySelectorAll('[data-client]').forEach(function(b){b.onclick=function(){selectedUserId=b.dataset.client;applyFilters();focusDetail();};});
+    renderClient();
   }
-
-  function renderUsers(users) {
-    var container = document.getElementById('usersContainer');
-    var scrollY = window.scrollY;
-
-    if (!users || users.length === 0) {
-      container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No users found.</p>';
-      window.scrollTo(0, scrollY);
-      return;
-    }
-
-    var html = '';
-    users.forEach(function(user) {
-      html += '<div class="user-card">';
-      html += '<div class="user-card-header">';
-      html += '<div class="user-card-info">';
-      html += '<span class="user-name">' + esc(user.name) + '</span>';
-      html += '<span class="user-email">' + esc(user.email) + '</span>';
-      html += user.ib_email ? '<span class="user-ib-email">Valetax: ' + esc(user.ib_email) + '</span>' : '';
-      html += user.ib_type ? '<span class="user-ib-email">Selection: ' + esc(user.ib_type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax') + '</span>' : '';
-      html += '</div>';
-      html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
-      html += '<span class="status-badge status-' + user.ib_status + '">IB: ' + user.ib_status.toUpperCase() + '</span>';
-      html += user.ib_status !== 'approved' ? '<button class="btn-approve" data-user-id="' + user.id + '" data-type="ib">Approve IB</button>' : '';
-      html += user.ib_status !== 'rejected' ? '<button class="btn-reject" data-user-id="' + user.id + '" data-type="ib">Reject IB</button>' : '';
-      html += '<button class="btn-reset-pw" data-user-id="' + user.id + '" data-name="' + escAttr(user.name) + '">Reset PW</button>';
-      html += '<button class="btn-delete" data-user-id="' + user.id + '" data-name="' + escAttr(user.name) + '">Delete</button>';
-      html += '</div>';
-      html += '</div>';
-
-      // MT5 accounts
-      var accounts = user.mt5_accounts || [];
-      html += '<div class="user-mt5-section">';
-      html += '<span class="user-mt5-label">MT5 Accounts:</span>';
-      if (accounts.length === 0) {
-        html += '<span style="color: var(--text-muted); font-size: 0.8rem;">None</span>';
-      } else {
-        html += '<table class="mt5-inline-table"><thead><tr><th>Account</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-        accounts.forEach(function(acc) {
-          html += '<tr>';
-          html += '<td><code>' + esc(acc.account_number) + '</code></td>';
-          html += '<td><span class="status-badge status-' + acc.status + '">' + acc.status.toUpperCase() + '</span></td>';
-          html += '<td class="action-cell">';
-          html += acc.status !== 'approved' ? '<button class="btn-approve" data-account-id="' + acc.id + '" data-type="whitelist">Approve</button>' : '';
-          html += acc.status !== 'rejected' ? '<button class="btn-reject" data-account-id="' + acc.id + '" data-type="whitelist">Reject</button>' : '';
-          html += '</td>';
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-      }
-      html += '</div>';
-      html += '</div>';
-    });
-
-    container.innerHTML = html;
-    bindActions();
-    window.scrollTo(0, scrollY);
+  function focusDetail(){if(matchMedia('(max-width:700px)').matches){$('clientDetail').scrollIntoView({block:'start'});$('clientDetail').focus({preventScroll:true});}}
+  function renderClient() {
+    var u=allUsers.find(function(u){return String(u.id)===String(selectedUserId);});
+    if(!u){$('clientDetail').innerHTML='<div class="empty-state">Select a client to see their onboarding progress and accounts.</div>';return;}
+    var accounts=u.mt5_accounts||[];
+    var steps=[['Registered',true],['IB requested',hasIBRequest(u)],['IB approved',u.ib_status==='approved'],['MT5 added',accounts.length>0],['Whitelist requested',accounts.some(function(a){return !!a.whitelist_requested_at;})],['All MT5 approved',accounts.length>0&&accounts.every(function(a){return a.status==='approved';})]];
+    var h='<div class="detail-header"><div><h2>'+esc(u.name)+'</h2><p>'+esc(u.email)+'</p><p>Joined '+esc(dateText(u.created_at))+' MYT</p></div><details class="more-actions"><summary class="admin-button">More actions</summary><div class="more-menu"><button class="admin-button" data-action="reset">Reset password</button><button class="admin-button danger" data-action="delete">Delete client</button></div></details></div>';
+    h+='<ol class="client-progress" aria-label="Recorded onboarding progress">'+steps.map(function(s){return '<li class="'+(s[1]?'done':'')+'">'+(s[1]?'✓ ':'○ ')+s[0]+'</li>';}).join('')+'</ol><p class="muted">Recorded portal progress. App installation and live trading are not tracked here.</p>';
+    h+='<section class="detail-section"><h3>IB verification '+badge(ibLabel(u)==='Not requested'?'neutral':u.ib_status,ibLabel(u))+'</h3><dl class="detail-data"><dt>Valetax email</dt><dd>'+esc(u.ib_email||'Not submitted')+'</dd><dt>Account path</dt><dd>'+esc(u.ib_type==='new'?'New Valetax account':u.ib_type==='existing'?'Existing Valetax account':u.ib_type||'Not selected')+'</dd></dl>';
+    if(!hasIBRequest(u))h+='<p class="muted">No IB request email is recorded. Manual status controls remain available below.</p>';
+    h+='<div class="action-row">'+(u.ib_status!=='approved'?'<button class="admin-button primary" data-action="ib" data-status="approved">Approve IB</button>':'')+(u.ib_status!=='rejected'?'<button class="admin-button" data-action="ib" data-status="rejected">Reject IB</button>':'')+'<button class="admin-button" data-client-valetax>Compare in Valetax</button></div></section>';
+    h+='<section class="detail-section"><h3>MT5 accounts <span class="muted">('+accounts.length+')</span></h3><p class="muted">Whitelist approval is managed separately for each account.</p>';
+    h+=accounts.length?accounts.map(function(a){return '<article class="account-card"><div class="account-heading"><strong>MT5 '+esc(a.account_number)+'</strong>'+badge(a.status,'Portal: '+a.status)+'</div><p>'+(a.whitelist_requested_at?'Whitelist requested '+esc(dateText(a.whitelist_requested_at))+' MYT':'No whitelist request date recorded')+'</p><div class="action-row">'+(a.status!=='approved'?'<button class="admin-button primary" data-action="whitelist" data-account="'+esc(a.id)+'" data-status="approved">Approve account</button>':'')+(a.status!=='rejected'?'<button class="admin-button" data-action="whitelist" data-account="'+esc(a.id)+'" data-status="rejected">Reject account</button>':'')+'</div></article>';}).join(''):'<p class="empty-state">No MT5 accounts added yet.</p>';
+    $('clientDetail').innerHTML=h+'</section>';
+    $('clientDetail').querySelectorAll('[data-action]').forEach(function(b){b.onclick=function(){openAction(u,b.dataset.action,b.dataset.status,b.dataset.account);};});
+    $('clientDetail').querySelector('[data-client-valetax]').onclick=function(){openView('valetax');};
   }
-
-  function bindActions() {
-    // IB approve/reject (user-level)
-    document.querySelectorAll('.btn-approve[data-type="ib"]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        updateIBStatus(btn.getAttribute('data-user-id'), 'approved');
-      });
-    });
-    document.querySelectorAll('.btn-reject[data-type="ib"]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        updateIBStatus(btn.getAttribute('data-user-id'), 'rejected');
-      });
-    });
-
-    // Whitelist approve/reject (account-level)
-    document.querySelectorAll('.btn-approve[data-type="whitelist"]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        updateWhitelistStatus(btn.getAttribute('data-account-id'), 'approved');
-      });
-    });
-    document.querySelectorAll('.btn-reject[data-type="whitelist"]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        updateWhitelistStatus(btn.getAttribute('data-account-id'), 'rejected');
-      });
-    });
-
-    // Reset password
-    document.querySelectorAll('.btn-reset-pw').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var userId = btn.getAttribute('data-user-id');
-        var userName = btn.getAttribute('data-name');
-        var newPw = prompt('Enter new password for ' + userName + ' (min 8 chars):');
-        if (!newPw) return;
-        if (newPw.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
-        fetch(API_BASE + '/admin/reset-user-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-          body: JSON.stringify({ user_id: parseInt(userId), new_password: newPw })
-        }).then(function(res) { return res.json(); })
-        .then(function(data) {
-          showToast(data.success ? 'Password reset for ' + userName + '.' : (data.error || 'Reset failed.'), data.success ? 'success' : 'error');
-        }).catch(function() {
-          showToast('Network error. Please try again.', 'error');
-        });
-      });
-    });
-
-    // Delete user
-    document.querySelectorAll('.btn-delete').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var userId = btn.getAttribute('data-user-id');
-        var userName = btn.getAttribute('data-name');
-        if (!confirm('Are you sure you want to delete ' + userName + '? This cannot be undone.')) return;
-        fetch(API_BASE + '/admin/delete-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-          body: JSON.stringify({ user_id: parseInt(userId) })
-        }).then(function(res) { return res.json(); })
-        .then(function(data) {
-          showToast(data.success ? 'User deleted.' : (data.error || 'Delete failed.'), data.success ? 'success' : 'error');
-          if (data.success) {
-            var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
-            loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
-          }
-        }).catch(function() {
-          showToast('Network error. Please try again.', 'error');
-        });
-      });
-    });
+  function openAction(u,kind,status,accountId) {
+    var account=(u.mt5_accounts||[]).find(function(a){return String(a.id)===String(accountId);});
+    var verb=status==='approved'?'Approve':'Reject';
+    var title=kind==='reset'?'Reset password':kind==='delete'?'Delete client':kind==='ib'?verb+' IB verification':verb+' MT5 account';
+    var identity=u.name+' ('+u.email+')';
+    var description=kind==='reset'?'Set a new password for '+identity+'. Their existing sessions will end.':kind==='delete'?'Delete '+identity+' and their portal accounts. Backend whitelist removal will also be attempted. This cannot be undone.':kind==='ib'?verb+' the IB status for '+identity+'. This does not change MT5 approval.':verb+' MT5 '+account.account_number+' for '+identity+'. The portal status and trading backend confirmation will be reported separately.';
+    pendingAction={kind:kind,user:u,account:account,status:status};
+    $('dialogTitle').textContent=title;$('dialogDescription').textContent=description;$('dialogError').hidden=true;
+    $('dialogFields').innerHTML=kind==='reset'?'<label class="field-label" for="newAdminPassword">New password (at least 8 characters)</label><input id="newAdminPassword" class="admin-search-input" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><label class="field-label" for="confirmAdminPassword">Confirm new password</label><input id="confirmAdminPassword" class="admin-search-input" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>':kind==='delete'?'<label class="field-label" for="deleteConfirmation">Type DELETE to confirm</label><input id="deleteConfirmation" class="admin-search-input" autocomplete="off" required pattern="DELETE">':'';
+    $('dialogSubmit').textContent=title;$('dialogSubmit').className='admin-button '+(kind==='delete'?'danger':'primary');
+    $('actionDialog').showModal();
   }
-
-  function updateWhitelistStatus(accountId, status) {
-    fetch(API_BASE + '/admin/whitelist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-      body: JSON.stringify({ account_id: parseInt(accountId), status: status })
-    }).then(function(res) { return res.json(); })
-    .then(function(data) {
-      showToast(data.success ? 'MT5 account ' + status + '.' : (data.error || 'Action failed.'), data.success ? 'success' : 'error');
-      if (data.success) {
-        var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
-        loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
-      }
-    }).catch(function() {
-      showToast('Network error. Please try again.', 'error');
-    });
+  function closeDialog(){if(actionBusy)return;$('actionDialog').close();$('dialogFields').innerHTML='';pendingAction=null;}
+  async function submitAction(e){
+    e.preventDefault();if(actionBusy||!pendingAction)return;
+    var a=pendingAction, body,route;
+    if(a.kind==='reset'){
+      if($('newAdminPassword').value!==$('confirmAdminPassword').value){$('dialogError').textContent='The passwords do not match.';$('dialogError').hidden=false;return;}
+      route='/admin/reset-user-password';body={user_id:Number(a.user.id),new_password:$('newAdminPassword').value};
+    }else if(a.kind==='delete'){route='/admin/delete-user';body={user_id:Number(a.user.id)};}
+    else if(a.kind==='ib'){route='/admin/ib';body={user_id:Number(a.user.id),status:a.status};}
+    else{route='/admin/whitelist';body={account_id:Number(a.account.id),status:a.status};}
+    actionBusy=true;$('dialogSubmit').disabled=true;$('dialogCancel').disabled=true;$('dialogClose').disabled=true;
+    try {
+      var d=await request(route,body);
+      if(!d.success)throw new Error(d.error||'The change was not confirmed.');
+      var who=a.user.name+' ('+a.user.email+')';
+      if(a.kind==='whitelist'){
+        var accountName='MT5 '+a.account.account_number+' for '+who;
+        if(d.backend_synced!==true)warn(accountName+': portal marked '+a.status+'. '+(d.warning||'Trading backend confirmation is unavailable. Check the backend before treating this as complete.'));
+        else showToast(accountName+': '+a.status+'. '+(d.simulated?'Local demo result; no live backend was contacted.':'Trading backend confirmed.'),'success');
+      } else if(a.kind==='delete') {
+        if(d.backend_synced!==true)warn(who+': deleted from the portal. Backend removal is not confirmed'+(d.orphaned_accounts&&d.orphaned_accounts.length?' for MT5 '+d.orphaned_accounts.join(', '):'')+'. Reconcile these accounts manually.');
+        else showToast(who+': deleted.'+(d.simulated?' Local demo only.':''),'success');
+      } else showToast(who+': '+(a.kind==='reset'?'password reset.':'IB '+a.status+'.'),'success');
+      // Keep this dialog locked through the refresh: an older finally must
+      // never re-enable controls belonging to a newer in-flight action.
+      await Promise.all([loadUsers(),loadSyncAlerts()]);
+      actionBusy=false;closeDialog();
+    }catch(err){$('dialogError').textContent=err.message;$('dialogError').hidden=false;}
+    finally{actionBusy=false;$('dialogSubmit').disabled=false;$('dialogCancel').disabled=false;$('dialogClose').disabled=false;}
   }
-
-  function updateIBStatus(userId, status) {
-    fetch(API_BASE + '/admin/ib', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-      body: JSON.stringify({ user_id: parseInt(userId), status: status })
-    }).then(function(res) { return res.json(); })
-    .then(function(data) {
-      showToast(data.success ? 'IB ' + status + '.' : (data.error || 'Action failed.'), data.success ? 'success' : 'error');
-      if (data.success) {
-        var activeTab = document.querySelector('#userFilterTabs .filter-tab.active');
-        loadUsers(activeTab ? activeTab.getAttribute('data-status') || '' : '');
-      }
-    }).catch(function() {
-      showToast('Network error. Please try again.', 'error');
-    });
+  function openView(view){
+    currentView=view;
+    ['overview','users','valetax','events'].forEach(function(v){$(v+'View').style.display=view===v?'block':'none';});
+    document.querySelectorAll('#viewTabs button').forEach(function(b){b.classList.toggle('active',b.dataset.view===view);if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+    if(view==='events')loadEvents();if(view==='valetax')loadValetaxStatus();if(view==='users')applyFilters();
   }
-
-  function setupLogout() {
-    document.getElementById('adminLogoutBtn').addEventListener('click', function() {
-      safeSession('remove', 'mamba_admin_key');
-      window.location.href = '/index.html';
-    });
-  }
-
-  function esc(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function escAttr(str) {
-    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  function setupSearch() {
-    var searchInput = document.getElementById('adminSearch');
-    var debounceTimer;
-    searchInput.addEventListener('input', function() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(applyFilters, 150);
-    });
-  }
-
-  // --- Events View ---
-  var currentEventType = '';
-  var currentDateRange = '';
-
-  function setupViewTabs() {
-    document.querySelectorAll('#viewTabs .filter-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('#viewTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        var view = tab.getAttribute('data-view');
-        document.getElementById('usersView').style.display = view === 'users' ? 'block' : 'none';
-        document.getElementById('eventsView').style.display = view === 'events' ? 'block' : 'none';
-        document.getElementById('valetaxView').style.display = view === 'valetax' ? 'block' : 'none';
-        if (view === 'events') loadEvents();
-        if (view === 'valetax') loadValetaxStatus();
-      });
-    });
-  }
-
   // --- Valetax View (snapshot import + reconciliation) ---
   //
   // The Worker never contacts Valetax. The operator pulls the downline with
@@ -375,6 +208,8 @@
   function loadValetaxStatus() {
     var line = document.getElementById('valetaxStatusLine');
     line.textContent = 'Checking for an imported snapshot…';
+    $('valetaxReport').hidden = true;
+    valetaxReport = null;
     fetch(API_BASE + '/admin/valetax/status', { headers: { 'X-Admin-Key': adminKey } })
       .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
       .then(function(r) {
@@ -407,11 +242,12 @@
     fetch(API_BASE + '/admin/valetax/reconcile', { headers: { 'X-Admin-Key': adminKey } })
       .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
       .then(function(r) {
-        if (!r.ok || !r.data.hasSnapshot) return;
+        if (!r.ok) throw new Error(r.data.error || 'Could not load the comparison.');
+        if (!r.data.hasSnapshot) return;
         valetaxReport = r.data;
         renderValetaxReport();
       })
-      .catch(function() { /* status line already carries the failure */ });
+      .catch(function(e) { $('valetaxStatusLine').textContent = 'Snapshot found, but the comparison could not load: ' + e.message; });
   }
 
   function renderValetaxReport() {
@@ -535,169 +371,77 @@
     btn.addEventListener('click', importValetaxSnapshot);
   }
 
-  function setupDateFilterTabs() {
-    document.querySelectorAll('#dateFilterTabs .filter-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('#dateFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        currentDateRange = tab.getAttribute('data-range') || '';
-
-        var customDiv = document.getElementById('customDateRange');
-        if (currentDateRange === 'custom') {
-          customDiv.style.display = 'flex';
-          return; // wait for user to click Apply
-        } else {
-          customDiv.style.display = 'none';
-        }
-        applyEventFilters();
-      });
-    });
-
-    document.getElementById('customDateApply').addEventListener('click', function() {
-      applyEventFilters();
-    });
+  var EVENT_LABELS={pageview:'Page viewed',register:'Member registered',login:'Signed in',ib_request:'IB verification requested',mt5_added:'MT5 account added',whitelist_request:'Whitelist requested',whitelist_synced:'Whitelist auto-synced',whitelist_sync_failed:'Whitelist sync failed',whitelist_orphaned:'Backend removal unconfirmed',password_reset:'Password reset',account_deletion_request:'Account deletion requested'};
+  function getDateRangeParams(){
+    var now=new Date(),my=new Date(now.getTime()+8*3600000),y=my.getUTCFullYear(),m=my.getUTCMonth(),d=my.getUTCDate(),from=null,to=null;
+    function midnight(day){return new Date(Date.UTC(y,m,day)-8*3600000);}
+    if(currentDateRange==='today'){from=midnight(d);to=now;}
+    if(currentDateRange==='yesterday'){from=midnight(d-1);to=new Date(midnight(d).getTime()-1);}
+    if(currentDateRange==='7d'){from=midnight(d-6);to=now;}
+    if(currentDateRange==='month'){from=midnight(1);to=now;}
+    if(currentDateRange==='custom'){if(appliedCustomFrom)from=new Date(appliedCustomFrom+'T00:00:00+08:00');if(appliedCustomTo)to=new Date(appliedCustomTo+'T23:59:59.999+08:00');}
+    return {from:from?from.toISOString():null,to:to?to.toISOString():null};
   }
-
-  function setupEventFilterTabs() {
-    document.querySelectorAll('#eventFilterTabs .filter-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('#eventFilterTabs .filter-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        currentEventType = tab.getAttribute('data-type') || '';
-        applyEventFilters();
-      });
-    });
+  function resetEvents(){eventCursors=[null];eventPage=0;nextEventCursor=null;}
+  function syncEventTabs(){
+    document.querySelectorAll('#eventFilterTabs button').forEach(function(b){b.classList.toggle('active',b.dataset.type===currentEventType);b.setAttribute('aria-pressed',String(b.dataset.type===currentEventType));});
+    document.querySelectorAll('#dateFilterTabs button').forEach(function(b){b.classList.toggle('active',b.dataset.range===currentDateRange);b.setAttribute('aria-pressed',String(b.dataset.range===currentDateRange));});
   }
-
-  function getDateRangeParams() {
-    if (!currentDateRange) return { from: null, to: null };
-
-    var now = new Date();
-    var from, to;
-
-    if (currentDateRange === 'today') {
-      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
-      to = now.toISOString();
-    } else if (currentDateRange === 'yesterday') {
-      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 0, 0, 0)).toISOString();
-      to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 23, 59, 59, 999)).toISOString();
-    } else if (currentDateRange === '7d') {
-      var d = new Date(now);
-      d.setUTCDate(d.getUTCDate() - 7);
-      d.setUTCHours(0, 0, 0, 0);
-      from = d.toISOString();
-      to = now.toISOString();
-    } else if (currentDateRange === 'month') {
-      from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-      to = now.toISOString();
-    } else if (currentDateRange === 'custom') {
-      var fromVal = document.getElementById('customDateFrom').value;
-      var toVal = document.getElementById('customDateTo').value;
-      if (fromVal) from = new Date(fromVal + 'T00:00:00.000Z').toISOString();
-      if (toVal) to = new Date(toVal + 'T23:59:59.999Z').toISOString();
-    }
-
-    return { from: from || null, to: to || null };
+  function applyEventFilters(){resetEvents();loadEvents();}
+  async function loadEvents(){
+    var serial=++eventsRequest,range=getDateRangeParams(),query=new URLSearchParams({limit:'50'});
+    if(currentEventType)query.set('type',currentEventType);
+    if(range.from)query.set('from',range.from);if(range.to)query.set('to',range.to);
+    var search=$('eventSearch').value.trim();if(search)query.set('q',search);
+    if(eventCursors[eventPage])query.set('cursor',eventCursors[eventPage]);
+    $('eventsContainer').innerHTML='<p class="empty-state">Loading activity…</p>';$('eventsNext').disabled=true;$('eventsPrevious').disabled=true;
+    $('activityScope').textContent=(currentEventType==='sync_alerts'?'Historical sync alerts. These may already be resolved; this is not a live backend health check. ':'')+(currentDateRange==='custom'?'Custom dates: '+(appliedCustomFrom||'any start')+' to '+(appliedCustomTo||'any end')+' (MYT).':'');
+    try{
+      var data=await request('/admin/events?'+query);if(serial!==eventsRequest)return;
+      nextEventCursor=data.next_cursor||null;renderEvents(data.events||[]);
+      $('eventsPage').textContent='Page '+(eventPage+1)+(Number.isFinite(data.total)?' · '+data.total+' events':'');
+      $('eventsNext').disabled=!nextEventCursor;$('eventsPrevious').disabled=eventPage===0;
+    }catch(e){if(serial!==eventsRequest)return;$('eventsContainer').innerHTML='<p class="empty-state">'+esc(e.message)+'</p>';$('eventsPage').textContent='Activity unavailable';}
   }
-
-  function applyEventFilters() {
-    var dateParams = getDateRangeParams();
-    loadEvents(currentEventType, dateParams.from, dateParams.to);
+  function renderEvents(events){
+    $('eventsContainer').innerHTML=events.length?'<div class="activity-list">'+events.map(function(e){
+      var meta=e.metadata;try{meta=JSON.stringify(typeof meta==='string'?JSON.parse(meta):meta||{},null,2);}catch(_){meta=String(meta||'');}
+      return '<details class="activity-item"><summary><time>'+esc(dateText(e.created_at))+' MYT</time><strong>'+esc(EVENT_LABELS[e.type]||String(e.type).replace(/_/g,' '))+'</strong><span>'+esc(e.user_name||(e.user_id?'Client #'+e.user_id:'Anonymous / deleted client'))+'<small>'+esc(e.user_email||'')+'</small></span></summary><div class="event-detail"><p><strong>Page:</strong> '+esc(e.page||'Not recorded')+'</p><p><strong>Title:</strong> '+esc(e.title||'Not recorded')+'</p><p><strong>Referrer:</strong> '+esc(e.referrer||'Not recorded')+'</p><p><strong>Event ID:</strong> '+esc(e.id)+' · <strong>Client ID:</strong> '+esc(e.user_id||'Not available')+'</p><p><strong>Metadata</strong></p><pre>'+esc(meta)+'</pre></div></details>';
+    }).join('')+'</div>':'<p class="empty-state">No activity matches these filters. Try a wider date range or clear the client search.</p>';
   }
-
-  function loadEvents(typeFilter, fromDate, toDate) {
-    var container = document.getElementById('eventsContainer');
-    container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading events...</p>';
-
-    var url = API_BASE + '/admin/events?limit=200';
-    if (typeFilter) url += '&type=' + typeFilter;
-    if (fromDate) url += '&from=' + encodeURIComponent(fromDate);
-    if (toDate) url += '&to=' + encodeURIComponent(toDate);
-
-    fetch(url, { headers: { 'X-Admin-Key': adminKey } })
-      .then(function(res) {
-        return res.text().then(function(text) {
-          var body;
-          try { body = JSON.parse(text); } catch (e) { body = null; }
-          return { ok: res.ok, status: res.status, body: body, raw: text };
-        });
-      })
-      .then(function(r) {
-        if (!r.ok || !r.body || !r.body.events) {
-          var msg = (r.body && r.body.error) ? r.body.error
-                    : (r.raw ? r.raw.slice(0, 300) : ('HTTP ' + r.status));
-          container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events (HTTP ' + r.status + '): ' + esc(msg) + '</p>';
-          return;
-        }
-        renderEvents(r.body.events);
-      })
-      .catch(function(err) {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load events: ' + esc(err && err.message ? err.message : 'network error') + '</p>';
-      });
-  }
-
-  function renderEvents(events) {
-    var container = document.getElementById('eventsContainer');
-    var scrollY = window.scrollY;
-
-    if (!events || events.length === 0) {
-      container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No events found.</p>';
-      window.scrollTo(0, scrollY);
-      return;
-    }
-
-    var html = '<div class="user-card" style="overflow-x: auto;">';
-    html += '<table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">';
-    html += '<thead><tr style="border-bottom: 1px solid var(--border-color);">';
-    html += '<th style="padding: 0.6rem; text-align: left;">Time</th>';
-    html += '<th style="padding: 0.6rem; text-align: left;">Type</th>';
-    html += '<th style="padding: 0.6rem; text-align: left;">Page</th>';
-    html += '<th style="padding: 0.6rem; text-align: left;">User</th>';
-    html += '<th style="padding: 0.6rem; text-align: left;">Referrer</th>';
-    html += '</tr></thead><tbody>';
-
-    events.forEach(function(evt) {
-      // SQLite returns "YYYY-MM-DD HH:MM:SS" (UTC); Safari can't parse the
-      // space-separated form, so normalize to ISO 8601 first
-      var iso = evt.created_at.indexOf('T') === -1
-        ? evt.created_at.replace(' ', 'T') + 'Z'
-        : evt.created_at;
-      var time = new Date(iso).toLocaleString();
-      var userDisplay = evt.user_name ? esc(evt.user_name) : (evt.user_id ? 'User #' + evt.user_id : '<em style="color: var(--text-muted);">anonymous</em>');
-
-      html += '<tr style="border-bottom: 1px solid var(--border-color);">';
-      html += '<td style="padding: 0.5rem 0.6rem; white-space: nowrap;">' + esc(time) + '</td>';
-      html += '<td style="padding: 0.5rem 0.6rem;"><span class="status-badge" style="font-size: 0.65rem;">' + esc(evt.type.replace(/_/g, ' ').toUpperCase()) + '</span></td>';
-      html += '<td style="padding: 0.5rem 0.6rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + escAttr(evt.page) + '">' + esc(evt.page || '-') + '</td>';
-      html += '<td style="padding: 0.5rem 0.6rem; white-space: nowrap;">' + userDisplay + '</td>';
-      html += '<td style="padding: 0.5rem 0.6rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + escAttr(evt.referrer || '') + '">' + esc((evt.referrer || '-')) + '</td>';
-      html += '</tr>';
-    });
-
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
-    window.scrollTo(0, scrollY);
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    setupKeyForm();
-    setupFilterTabs();
-    setupSearch();
-    setupLogout();
-    setupViewTabs();
-    setupDateFilterTabs();
-    setupEventFilterTabs();
+  document.addEventListener('DOMContentLoaded',function(){
+    $('keyForm').addEventListener('submit',async function(e){e.preventDefault();var form=e.currentTarget,key=form.elements.admin_key.value.trim(),button=form.querySelector('[type=submit]');if(!key)return;button.disabled=true;var valid=await verifyKey(key);button.disabled=false;if(valid){adminKey=key;safeSession('set','mamba_admin_key',key);form.reset();form.querySelector('.key-error').style.display='none';showAdminPanel();loadUsers();loadSyncAlerts();}else{var error=form.querySelector('.key-error');error.textContent='Invalid admin key, or the server is unavailable.';error.style.display='block';}});
+    $('adminLogoutBtn').onclick=function(){safeSession('remove','mamba_admin_key');safeSession('remove','mamba_admin_warnings');window.location.href='/index.html';};
+    document.querySelectorAll('#viewTabs button').forEach(function(b){b.onclick=function(){openView(b.dataset.view);};});
+    document.querySelectorAll('[data-open-view]').forEach(function(b){b.onclick=function(){openView(b.dataset.openView);};});
+    document.querySelectorAll('#userFilterTabs button').forEach(function(b){b.onclick=function(){currentFilter=b.dataset.status;applyFilters();};});
+    $('adminSearch').addEventListener('input',applyFilters);
+    $('refreshAdmin').onclick=function(){loadUsers();loadSyncAlerts();};
+    $('loadDemoClients').onclick=async function(){
+      var button=$('loadDemoClients');button.disabled=true;
+      try {
+        var data=await request('/admin/demo-seed',{});
+        await Promise.all([loadUsers(),loadSyncAlerts()]);
+        button.textContent='Sample clients added';
+        showToast(data.already_added?'Sample clients are already loaded. Your edits have been kept.':data.clients_added+' sample clients added. Existing local data kept.','success');
+      } catch(e) {button.disabled=false;showToast(e.message,'error');}
+    };
+    $('dialogClose').onclick=closeDialog;$('dialogCancel').onclick=closeDialog;$('actionForm').addEventListener('submit',submitAction);
+    $('actionDialog').addEventListener('cancel',function(e){if(actionBusy)e.preventDefault();});
+    $('actionDialog').addEventListener('close',function(){$('dialogFields').innerHTML='';pendingAction=null;});
+    document.querySelectorAll('#dateFilterTabs button').forEach(function(b){b.onclick=function(){
+      $('customDateRange').style.display=b.dataset.range==='custom'?'flex':'none';
+      if(b.dataset.range==='custom'){$('customDateFrom').focus();return;}
+      currentDateRange=b.dataset.range;syncEventTabs();applyEventFilters();
+    };});
+    $('customDateApply').onclick=function(){var from=$('customDateFrom').value,to=$('customDateTo').value;
+      if(!from&&!to){showToast('Choose at least one date.','error');return;}if(from&&to&&from>to){showToast('The start date must come before the end date.','error');return;}
+      appliedCustomFrom=from;appliedCustomTo=to;currentDateRange='custom';syncEventTabs();applyEventFilters();};
+    document.querySelectorAll('#eventFilterTabs button').forEach(function(b){b.onclick=function(){currentEventType=b.dataset.type;syncEventTabs();applyEventFilters();};});
+    var timer;$('eventSearch').addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(applyEventFilters,200);});
+    $('eventsNext').onclick=function(){if(!nextEventCursor)return;eventPage++;eventCursors[eventPage]=nextEventCursor;loadEvents();};
+    $('eventsPrevious').onclick=function(){if(eventPage){eventPage--;loadEvents();}};
     setupValetaxView();
-
-    if (adminKey) {
-      verifyKey(adminKey).then(function(valid) {
-        if (valid) { showAdminPanel(); loadUsers(''); }
-        else { safeSession('remove', 'mamba_admin_key'); showKeyScreen(); }
-        hideLoadingScreen();
-      });
-    } else {
-      showKeyScreen();
-      hideLoadingScreen();
-    }
+    (async function(){if(adminKey&&await verifyKey(adminKey)){showAdminPanel();loadUsers();loadSyncAlerts();}else{safeSession('remove','mamba_admin_key');showKeyScreen();}var ls=document.querySelector('.loading-screen');if(ls)ls.remove();document.body.classList.add('page-loaded');})();
   });
 })();
