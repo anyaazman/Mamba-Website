@@ -814,7 +814,7 @@ function showComingSoon(event) {
       wrap.className = 'video-embed';
       var f = document.createElement('iframe');
       // youtube-nocookie + autoplay, since the click IS the intent to watch.
-      f.src = 'https://www.youtube-nocookie.com/embed/6mWWz-YQqXw?autoplay=1&rel=0';
+      f.src = 'https://www.youtube-nocookie.com/embed/SehWO9aH3tM?autoplay=1&rel=0';
       f.title = 'Learn the Mamba Management System';
       f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       f.referrerPolicy = 'strict-origin-when-cross-origin';
