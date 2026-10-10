@@ -54,3 +54,6 @@ originals/
 docs/backups/
 !docs/progress.md
 !docs/plans/*.md
+
+# Build output of scripts/build-public.mjs; Cloudflare rebuilds it on deploy.
+dist/

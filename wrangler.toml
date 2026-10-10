@@ -1,7 +1,9 @@
 name = "mamba-website"
 compatibility_date = "2025-05-20"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "."
+# Only dist/ is published. scripts/build-public.mjs fills it on every deploy;
+# the repository root holds tests, migrations and tools that must stay private.
+pages_build_output_dir = "dist"
 
 [vars]
 BACKEND_MANAGER_URL = "https://manager.mambaapp.online"
