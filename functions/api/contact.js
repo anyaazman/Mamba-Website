@@ -1,4 +1,4 @@
-import { json, rateLimit, notifyAdmin, isValidEmail, readJson } from './_helpers.js';
+import { json, rateLimit, notifyAdmin, isValidEmail, readJson, siteFields } from './_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -29,7 +29,8 @@ export async function onRequestPost(context) {
 
     context.waitUntil(notifyAdmin(env, '✉️ Contact Form Message', {
       Email: email.trim(),
-      Message: msg.length > 1000 ? msg.slice(0, 1000) + '…' : msg
+      Message: msg.length > 1000 ? msg.slice(0, 1000) + '…' : msg,
+      ...siteFields(request)
     }));
 
     return json({ success: true, message: 'Message received. We will get back to you soon.' }, 201);

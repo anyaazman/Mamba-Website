@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Ruang Ahli - Mamba Management App</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="/mamba-logo-transparent.png">
+    <link rel="stylesheet" href="/styles.css?v=29">
+    <link rel="stylesheet" href="/portal.css?v=7">
+    <link rel="stylesheet" href="/login-revamp.css?v=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/mobile-refinements.css?v=2">
+<meta name="mamba-en-source" content="859250d3f0e0ffd0498bdfd3e540c140f8dc46821998ea96deeb585a26e056b7"><script src="/i18n-ms.js?v=1"></script><script src="/i18n.js?v=1"></script></head>
+<body class="auth-page">
+    <a href="#main-content" class="skip-link">Langkau ke kandungan utama</a>
+
+    <div class="loading-screen" role="status" aria-live="polite" aria-label="Memuatkan">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="/mamba-logo-transparent.png" alt="Logo Mamba" class="mamba-logo loading-logo-img">
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">MEMUATKAN&hellip;</p>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Navigasi utama">
+            <div class="logo-left">
+                <a href="./" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="/mamba-logo-transparent.png" alt="Logo Mamba" class="mamba-logo header-logo-img">
+                    </div>
+                    <span class="auth-brand-name">MAMBA</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <section class="auth-stage">
+            <div class="portal-container">
+                <aside class="auth-intro" aria-label="Tentang Mamba">
+                    <p class="auth-eyebrow">Ruang ahli Mamba</p>
+                    <h1>Lindungi setiap dagangan dengan pelan yang sentiasa aktif.</h1>
+                    <p class="auth-intro-copy">Mamba memantau posisi MetaTrader 5 anda dan menggunakan peraturan stop loss, breakeven dan trailing yang anda pilih.</p>
+                    <div class="auth-flow" aria-label="Cara Mamba melindungi dagangan">
+                        <div><span>01</span><b>Sambungkan MT5</b><small>Pautkan akaun Valetax anda</small></div>
+                        <i aria-hidden="true">↓</i>
+                        <div><span>02</span><b>Tetapkan peraturan anda</b><small>Pilih nilai TP, SL dan trailing</small></div>
+                        <i aria-hidden="true">↓</i>
+                        <div><span>03</span><b>Kekal mengawal</b><small>Mamba melindungi posisi terbuka</small></div>
+                    </div>
+                    <a class="auth-back" href="./"><span aria-hidden="true">←</span> Kembali ke Mamba</a>
+                </aside>
+                <div class="portal-card">
+                    <div class="auth-card-header">
+                        <p class="auth-card-kicker">Akses ahli yang selamat</p>
+                        <h2>Akaun Mamba anda</h2>
+                        <p>Log masuk untuk mengurus akaun MT5 anda yang disambungkan, atau cipta akaun percuma untuk bermula.</p>
+                    </div>
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" data-target="login">Log Masuk</button>
+                        <button class="auth-tab" data-target="register">Cipta Akaun</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form class="auth-form login-form" novalidate>
+                        <div class="form-error"></div>
+                        <div class="form-group">
+                            <label for="login-email">E-mel</label>
+                            <input type="email" id="login-email" name="email" placeholder="Masukkan e-mel anda" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Kata Laluan</label>
+                            <input type="password" id="login-password" name="password" placeholder="Masukkan kata laluan anda" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="submit-btn">Log Masuk</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form class="auth-form register-form" style="display: none;" novalidate>
+                        <div class="form-error"></div>
+                        <div class="form-group">
+                            <label for="reg-name">Nama Penuh</label>
+                            <input type="text" id="reg-name" name="name" placeholder="Masukkan nama penuh anda" required autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">E-mel</label>
+                            <input type="email" id="reg-email" name="email" placeholder="Masukkan e-mel anda" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Kata Laluan</label>
+                            <input type="password" id="reg-password" name="password" placeholder="Minimum 8 aksara" required minlength="8" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-confirm">Sahkan Kata Laluan</label>
+                            <input type="password" id="reg-confirm" name="confirm_password" placeholder="Masukkan semula kata laluan anda" required minlength="8" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-recovery">Frasa Pemulihan</label>
+                            <input type="text" id="reg-recovery" name="recovery_phrase" placeholder="Frasa yang hanya anda tahu (minimum 8 aksara)" required minlength="8" autocomplete="off">
+                            <span class="form-hint">Anda memerlukan frasa ini untuk menetapkan semula kata laluan — simpan dengan selamat, ia tidak boleh dipulihkan. Contoh: "lautan biru 42"</span>
+                        </div>
+                        <div class="form-group form-consent-row">
+                            <input type="checkbox" id="reg-terms" name="accept_terms" required>
+                            <label for="reg-terms">
+                                Saya berumur sekurang-kurangnya 18 tahun dan dibenarkan oleh undang-undang untuk berdagang produk leverage di tempat saya tinggal. Saya telah membaca dan menerima
+                                <a href="terms-of-service" target="_blank" rel="noopener">Terma Perkhidmatan</a>,
+                                <a href="privacy-policy" target="_blank" rel="noopener">Dasar Privasi</a> dan
+                                <a href="risk-disclosure" target="_blank" rel="noopener">Pendedahan Risiko</a>.
+                                Saya faham bahawa Rahsia Bumi Enterprise dibayar oleh Valetax bagi akaun yang dirujuk di bawah kod rakan kongsinya, dan bahawa dagangan forex secara margin boleh menyebabkan saya kehilangan kesemua modal saya.
+                            </label>
+                        </div>
+                        <button type="submit" class="submit-btn">Cipta Akaun</button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <a href="reset-password">Terlupa kata laluan?</a>
+                        <span aria-hidden="true">&middot;</span>
+                        <a href="https://www.mambaapp.online/login" hreflang="en" lang="en" data-lang-switch title="Akaun dikongsi, tetapi anda perlu log masuk secara berasingan di laman bahasa Inggeris">English</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" id="floatingTelegram">
+        <div class="telegram-menu" id="telegramMenu">
+            <a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                <span>Komuniti</span>
+            </a>
+            <a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                </svg>
+                <span>Admin</span>
+            </a>
+        </div>
+        <button class="telegram-fab" id="telegramFab" aria-label="Hubungi kami di Telegram">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Site-wide risk notice. Forex sites are expected to carry a risk
+         warning on every page, not only where a footer happens to exist. -->
+    <aside class="risk-strip" role="note" aria-label="Amaran risiko">
+        <strong>Amaran risiko:</strong> Dagangan pertukaran asing (forex) secara margin membawa risiko yang tinggi dan mungkin tidak sesuai untuk semua pelabur. Leverage boleh memihak kepada anda dan juga menentang anda, dan anda mungkin kehilangan sebahagian atau kesemua modal anda. Prestasi lalu bukan petunjuk kepada keputusan masa hadapan. Mamba ialah alat pengurusan dagangan, bukan nasihat pelaburan.
+        <a href="risk-disclosure">Baca Pendedahan Risiko penuh</a>.
+    </aside>
+
+
+    <script src="/config.js?v=5"></script>
+    <script src="/tracking.js?v=2"></script>
+    <script src="/demo.js?v=11"></script>
+    <script src="/login.js?v=6"></script>
+</body>
+</html>

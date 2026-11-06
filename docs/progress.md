@@ -1,5 +1,26 @@
 # Current work
 
+## Malay site (my.mambaapp.online) — 2026-11-06
+- Branch `feature/malay-site`, cut from `main` at `07773f4`. Record and launch
+  steps: [Malay site](plans/2026-11-06-malay-site.md).
+- Delivered: 11 Malay pages under `ms/`, Malay script text (`i18n.js`,
+  `i18n-ms.js`), Malay API messages for the Malay site
+  (`functions/api/_i18n-ms.js`), site tags on events and Telegram alerts,
+  EN | BM switch links and hreflang on the English pages, and a build check for
+  a missing Malay page. Admin stays English.
+- Verified locally: ms-parity, ms-i18n-coverage, ms-pages (141 browser checks),
+  site-integrity, nav-links, valetax-links, user-journey, api-journey,
+  whitelist-sync-reporting, account-deleted-sync (needs migration 0015 on local
+  D1), valetax-reconcile, admin-revamp, admin-data, admin-demo-seed,
+  onboarding-layout, setup-prompt, hero-trade, how-work-revamp,
+  landing-destinations, public-form-storage, site-theme, ib-existing-ui; build
+  passes.
+- Already failing on `main`, unchanged here: `app-banner` (banner removed in the
+  revamp) and `valetax-admin-ui` (the localhost demo mock rejects real admin
+  keys).
+- Not done: the Cloudflare rewrite/redirect rules, the `my.` custom domain, the
+  merge to `main`, and native-speaker review of the Malay copy.
+
 ## Revamp branch delivery — 2026-10-10
 - User authorized commit and push for intended production publication.
 - Governing record: [Release branch](plans/2026-10-10-release-branch.md).

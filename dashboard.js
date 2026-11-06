@@ -7,7 +7,7 @@ function showComingSoon(event) {
 
   var toast = document.createElement('div');
   toast.className = 'coming-soon-toast';
-  toast.textContent = 'Coming Soon';
+  toast.textContent = window.MAMBA_T ? window.MAMBA_T('Coming Soon') : 'Coming Soon';
   document.body.appendChild(toast);
 
   setTimeout(function() { toast.classList.add('show'); }, 10);
@@ -20,6 +20,12 @@ function showComingSoon(event) {
 
 (function() {
   'use strict';
+
+  // English text is the key; Malay pages swap it via i18n.js + i18n-ms.js.
+  function t(s, v) {
+    if (window.MAMBA_T) return window.MAMBA_T(s, v);
+    return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? String(v[k]) : m; }) : s;
+  }
 
   var API_BASE = '/api';
 
@@ -119,18 +125,18 @@ function showComingSoon(event) {
     html += '<li class="onboarding-step onboarding-download" id="onboardingStep1">';
     html += '<div class="onboarding-step-badge">1</div>';
     html += '<div class="onboarding-step-body">';
-    html += '<h4>Download the Mamba app</h4>';
-    html += '<p>Manage your MT5 trades from your phone. Install Mamba from <span data-app-label>the App Store or Google Play</span>.</p>';
+    html += '<h4>' + t('Download the Mamba app') + '</h4>';
+    html += '<p>' + t('Manage your MT5 trades from your phone. Install Mamba from {store}.', { store: '<span data-app-label>' + t('the App Store or Google Play') + '</span>' }) + '</p>';
     html += '<div class="download-buttons" data-app-store-section>';
     html += '<a href="https://play.google.com/store/apps/details?id=com.mambamanagement.app" data-app-link="android" target="_blank" rel="noopener noreferrer" class="store-btn google-play">';
     html += '<div class="store-icon" aria-hidden="true">';
     html += '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>';
     html += '</div>';
-    html += '<div class="store-text"><span class="store-label">GET IT ON</span><span class="store-name">Google Play</span></div>';
+    html += '<div class="store-text"><span class="store-label">' + t('GET IT ON') + '</span><span class="store-name">Google Play</span></div>';
     html += '</a>';
     html += '<a href="https://apps.apple.com/app/id6776478463" data-app-link="ios" target="_blank" rel="noopener noreferrer" class="store-btn app-store">';
     html += '<div class="store-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/></svg></div>';
-    html += '<div class="store-text"><span class="store-label">Download on the</span><span class="store-name">App Store</span></div>';
+    html += '<div class="store-text"><span class="store-label">' + t('Download on the') + '</span><span class="store-name">App Store</span></div>';
     html += '</a>';
     html += '</div>';
     html += '</div>';
@@ -142,18 +148,18 @@ function showComingSoon(event) {
     html += '<li class="' + step2Class + '" id="onboardingStep2">';
     html += '<div class="onboarding-step-badge">' + (ibDone ? '&#10003;' : '2') + '</div>';
     html += '<div class="onboarding-step-body">';
-    html += '<h4>Verify your IB access</h4>';
-    html += '<p>Verify that your Valetax account is under Mamba’s Introducing Broker (IB) network to unlock platform access and support.</p>';
-    html += '<div class="demo-note">Try for free &mdash; open a Valetax MT5 demo account to test the platform before trading live.</div>';
+    html += '<h4>' + t('Verify your IB access') + '</h4>';
+    html += '<p>' + t('Verify that your Valetax account is under Mamba’s Introducing Broker (IB) network to unlock platform access and support.') + '</p>';
+    html += '<div class="demo-note">' + t('Try for free &mdash; open a Valetax MT5 demo account to test the platform before trading live.') + '</div>';
     if (ibState === 'approved') {
-      html += '<button class="onboarding-step-btn" disabled>Verified</button>';
+      html += '<button class="onboarding-step-btn" disabled>' + t('Verified') + '</button>';
     } else if (ibState === 'pending') {
       // Must agree with the banner above, which already says "under review".
-      html += '<button class="onboarding-step-btn" disabled>Verification Pending</button>';
+      html += '<button class="onboarding-step-btn" disabled>' + t('Verification Pending') + '</button>';
     } else if (ibState === 'rejected') {
-      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">Re-request IB Verification</button>';
+      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">' + t('Re-request IB Verification') + '</button>';
     } else {
-      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">Request IB Verification</button>';
+      html += '<button class="onboarding-step-btn" id="onboardingIBBtn">' + t('Request IB Verification') + '</button>';
     }
     html += '</div>';
     html += '</li>';
@@ -164,12 +170,12 @@ function showComingSoon(event) {
     html += '<li class="' + step3Class + '" id="onboardingStep3">';
     html += '<div class="onboarding-step-badge">' + (step3Done ? '&#10003;' : '3') + '</div>';
     html += '<div class="onboarding-step-body">';
-    html += '<h4>Connect your MT5 account</h4>';
-    html += '<p>Add your MT5 account number, then request whitelist approval to enable Mamba’s automated trade management.</p>';
+    html += '<h4>' + t('Connect your MT5 account') + '</h4>';
+    html += '<p>' + t('Add your MT5 account number, then request whitelist approval to enable Mamba’s automated trade management.') + '</p>';
     if (!step3Done) {
-      html += '<button class="onboarding-step-btn" id="onboardingWhitelistBtn">' + (hasAccount ? 'Go to MT5 Accounts' : 'Add MT5 Account') + '</button>';
+      html += '<button class="onboarding-step-btn" id="onboardingWhitelistBtn">' + (hasAccount ? t('Go to MT5 Accounts') : t('Add MT5 Account')) + '</button>';
     } else {
-      html += '<button class="onboarding-step-btn" disabled>Approved</button>';
+      html += '<button class="onboarding-step-btn" disabled>' + t('Approved') + '</button>';
     }
     html += '</div>';
     html += '</li>';
@@ -220,10 +226,10 @@ function showComingSoon(event) {
     var effective = ibEffectiveStatus(user);
 
     var config = {
-      approved: { icon: '&#10003;', text: 'IB VERIFIED', cls: 'approved' },
-      pending:  { icon: '&#9203;', text: 'IB VERIFICATION PENDING', cls: 'pending' },
-      rejected: { icon: '&#10007;', text: 'IB VERIFICATION REJECTED', cls: 'rejected' },
-      none:     { icon: '&#9675;', text: 'IB NOT VERIFIED YET', cls: 'none' }
+      approved: { icon: '&#10003;', text: t('IB VERIFIED'), cls: 'approved' },
+      pending:  { icon: '&#9203;', text: t('IB VERIFICATION PENDING'), cls: 'pending' },
+      rejected: { icon: '&#10007;', text: t('IB VERIFICATION REJECTED'), cls: 'rejected' },
+      none:     { icon: '&#9675;', text: t('IB NOT VERIFIED YET'), cls: 'none' }
     };
     var cfg = config[effective];
 
@@ -235,20 +241,20 @@ function showComingSoon(event) {
     if (effective !== 'approved') {
       html += '<div style="margin-top: 1rem;">';
       if (effective === 'rejected') {
-        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Your IB verification was not approved. You can re-request.</p>';
+        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">' + t('Your IB verification was not approved. You can re-request.') + '</p>';
       } else if (effective === 'pending') {
-        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Your request is being reviewed. We\'ll verify your Valetax account shortly.</p>';
+        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">' + t("Your request is being reviewed. We'll verify your Valetax account shortly.") + '</p>';
       } else {
-        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">Request verification that you are under our IB network to unlock all features.</p>';
+        html += '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">' + t('Request verification that you are under our IB network to unlock all features.') + '</p>';
       }
       // Offering "Request IB Verification" while the banner directly above says
       // the request is already under review invited duplicate submissions and
       // read as though the first one had been lost.
       if (effective === 'pending') {
-        html += '<button class="request-btn" disabled>Under Review</button>';
+        html += '<button class="request-btn" disabled>' + t('Under Review') + '</button>';
       } else {
         html += '<button class="request-btn" id="requestIBBtn">' +
-                (effective === 'rejected' ? 'Re-request IB Verification' : 'Request IB Verification') +
+                (effective === 'rejected' ? t('Re-request IB Verification') : t('Request IB Verification')) +
                 '</button>';
       }
       html += '</div>';
@@ -279,33 +285,33 @@ function showComingSoon(event) {
     document.getElementById('ibStepSelect').style.display = 'block';
     document.getElementById('ibStepNew').style.display = 'none';
     document.getElementById('ibStepExisting').style.display = 'none';
-    document.getElementById('ibModalTitle').textContent = 'Request IB Verification';
+    document.getElementById('ibModalTitle').textContent = t('Request IB Verification');
   }
 
   function submitIBRequest(email, type) {
     if (!email || !email.trim()) {
-      showToast('Please enter your Valetax email.', 'error');
+      showToast(t('Please enter your Valetax email.'), 'error');
       return;
     }
     var submitBtns = document.querySelectorAll('#submitIBNew, #submitIBExisting');
-    submitBtns.forEach(function(b) { b.disabled = true; b.textContent = 'Submitting...'; });
+    submitBtns.forEach(function(b) { b.disabled = true; b.textContent = t('Submitting...'); });
 
     apiCall('POST', '/user/request-ib', { ib_email: email.trim(), ib_type: type }).then(function(result) {
       if (result.ok) {
-        showToast('IB verification requested.', 'success');
+        showToast(t('IB verification requested.'), 'success');
         // Restore before closing: these were left disabled reading
         // "Submitting..." on the success path, so reopening the modal (after a
         // rejection, say) showed buttons that could never be pressed.
-        submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
+        submitBtns.forEach(function(b) { b.disabled = false; b.textContent = t('Submit IB Request'); });
         closeIBModal();
         refreshDashboard();
       } else {
-        showToast(result.data.error || 'Request failed.', 'error');
-        submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
+        showToast(result.data.error || t('Request failed.'), 'error');
+        submitBtns.forEach(function(b) { b.disabled = false; b.textContent = t('Submit IB Request'); });
       }
     }).catch(function() {
-      showToast('Network error. Please try again.', 'error');
-      submitBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Submit IB Request'; });
+      showToast(t('Network error. Please try again.'), 'error');
+      submitBtns.forEach(function(b) { b.disabled = false; b.textContent = t('Submit IB Request'); });
     });
   }
 
@@ -316,14 +322,14 @@ function showComingSoon(event) {
     document.getElementById('ibOptNew').addEventListener('click', function() {
       document.getElementById('ibStepSelect').style.display = 'none';
       document.getElementById('ibStepNew').style.display = 'block';
-      document.getElementById('ibModalTitle').textContent = 'New Valetax Account';
+      document.getElementById('ibModalTitle').textContent = t('New Valetax Account');
     });
 
     document.getElementById('ibOptExisting').addEventListener('click', function() {
       document.getElementById('ibStepSelect').style.display = 'none';
       document.getElementById('ibModalCard').classList.add('ib-existing');
       document.getElementById('ibStepExisting').style.display = 'grid';
-      document.getElementById('ibModalTitle').textContent = 'Existing Valetax Account';
+      document.getElementById('ibModalTitle').textContent = t('Existing Valetax Account');
     });
 
     // Cancel buttons
@@ -500,7 +506,7 @@ function showComingSoon(event) {
         function showCopied() {
           btn.classList.add('copied');
           var origHTML = btn.innerHTML;
-          btn.innerHTML = '<span style="font-size:0.65rem;font-weight:700;">COPIED!</span>';
+          btn.innerHTML = '<span style="font-size:0.65rem;font-weight:700;">' + t('COPIED!') + '</span>';
           setTimeout(function() {
             btn.classList.remove('copied');
             btn.innerHTML = origHTML;
@@ -595,11 +601,13 @@ function showComingSoon(event) {
   }
 
   // --- MT5 Accounts List ---
+  // Each label is its own literal t() call so the coverage test can see the key.
+  var STATUS_LABELS = { pending: t('PENDING'), approved: t('APPROVED'), rejected: t('REJECTED') };
   function renderMT5Accounts(accounts) {
     var list = document.getElementById('mt5AccountsList');
 
     if (!accounts || accounts.length === 0) {
-      list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No MT5 accounts added yet.</p>';
+      list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">' + t('No MT5 accounts added yet.') + '</p>';
       return;
     }
 
@@ -608,15 +616,15 @@ function showComingSoon(event) {
       html += '<div class="mt5-account-row">';
       html += '<div class="mt5-account-info">';
       html += '<span class="mt5-account-number">' + escapeHtml(acc.account_number) + '</span>';
-      html += '<span class="status-badge status-' + acc.status + '">' + acc.status.toUpperCase() + '</span>';
+      html += '<span class="status-badge status-' + acc.status + '">' + (STATUS_LABELS[acc.status] || acc.status.toUpperCase()) + '</span>';
       html += '</div>';
       // 'pending' covers both "just added" and "requested, awaiting review",
       // so whitelist_requested_at is what tells them apart.
       var awaitingReview = acc.status === 'pending' && !!acc.whitelist_requested_at;
       if (awaitingReview) {
-        html += '<span class="mt5-review-note">Requested &mdash; under review</span>';
+        html += '<span class="mt5-review-note">' + t('Requested &mdash; under review') + '</span>';
       } else if (acc.status !== 'approved') {
-        html += '<button class="request-btn request-whitelist-btn" data-account-id="' + acc.id + '" style="font-size: 0.7rem; padding: 0.35rem 0.9rem;">' + (acc.status === 'rejected' ? 'Re-request' : 'Request Whitelist') + '</button>';
+        html += '<button class="request-btn request-whitelist-btn" data-account-id="' + acc.id + '" style="font-size: 0.7rem; padding: 0.35rem 0.9rem;">' + (acc.status === 'rejected' ? t('Re-request') : t('Request Whitelist')) + '</button>';
       }
       html += '</div>';
     });
@@ -631,20 +639,20 @@ function showComingSoon(event) {
         }
         var accountId = parseInt(btn.getAttribute('data-account-id'));
         btn.disabled = true;
-        btn.textContent = 'Submitting...';
+        btn.textContent = t('Submitting...');
         apiCall('POST', '/user/request-whitelist', { account_id: accountId }).then(function(result) {
           if (result.ok) {
-            showToast('Whitelist requested.', 'success');
+            showToast(t('Whitelist requested.'), 'success');
             refreshDashboard();
           } else {
-            showToast(result.data.error || 'Request failed.', 'error');
+            showToast(result.data.error || t('Request failed.'), 'error');
             btn.disabled = false;
-            btn.textContent = 'Request Whitelist';
+            btn.textContent = t('Request Whitelist');
           }
         }).catch(function() {
-          showToast('Network error. Please try again.', 'error');
+          showToast(t('Network error. Please try again.'), 'error');
           btn.disabled = false;
-          btn.textContent = 'Request Whitelist';
+          btn.textContent = t('Request Whitelist');
         });
       });
     });
@@ -670,31 +678,31 @@ function showComingSoon(event) {
     saveBtn.addEventListener('click', function() {
       var num = input.value.trim();
       if (!num) {
-        errorEl.textContent = 'Account number is required.';
+        errorEl.textContent = t('Account number is required.');
         errorEl.style.display = 'block';
         return;
       }
       errorEl.style.display = 'none';
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Adding...';
+      saveBtn.textContent = t('Adding...');
       apiCall('POST', '/user/add-mt5', { account_number: num }).then(function(result) {
         if (result.ok) {
           input.value = '';
           form.style.display = 'none';
           saveBtn.disabled = false;
-          saveBtn.textContent = 'Add';
-          showToast('MT5 account added.', 'success');
+          saveBtn.textContent = t('Add');
+          showToast(t('MT5 account added.'), 'success');
           refreshDashboard();
         } else {
-          errorEl.textContent = result.data.error || 'Failed to add.';
+          errorEl.textContent = result.data.error || t('Failed to add.');
           errorEl.style.display = 'block';
           saveBtn.disabled = false;
-          saveBtn.textContent = 'Add';
+          saveBtn.textContent = t('Add');
         }
       }).catch(function() {
-        showToast('Network error. Please try again.', 'error');
+        showToast(t('Network error. Please try again.'), 'error');
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Add';
+        saveBtn.textContent = t('Add');
       });
     });
 
@@ -706,10 +714,10 @@ function showComingSoon(event) {
   // --- Profile ---
   function renderProfile(user) {
     var html = '';
-    html += '<div class="profile-field"><span class="profile-label">Name</span><span class="profile-value">' + escapeHtml(user.name) + '</span></div>';
-    html += '<div class="profile-field"><span class="profile-label">Email</span><span class="profile-value">' + escapeHtml(user.email) + '</span></div>';
+    html += '<div class="profile-field"><span class="profile-label">' + t('Name') + '</span><span class="profile-value">' + escapeHtml(user.name) + '</span></div>';
+    html += '<div class="profile-field"><span class="profile-label">' + t('Email') + '</span><span class="profile-value">' + escapeHtml(user.email) + '</span></div>';
     document.getElementById('profileContent').innerHTML = html;
-    document.getElementById('dashboardGreeting').textContent = 'Welcome, ' + user.name.split(' ')[0];
+    document.getElementById('dashboardGreeting').textContent = t('Welcome, {name}', { name: user.name.split(' ')[0] });
   }
 
   // --- Refresh ---
@@ -718,7 +726,7 @@ function showComingSoon(event) {
       if (!result.ok || result.status === 401) {
         safeStorage('remove', 'mamba_token');
         safeStorage('remove', 'mamba_user');
-        window.location.href = '/login.html' + (window.MAMBA_DEMO ? '?demo' : '');
+        window.location.href = 'login' + (window.MAMBA_DEMO ? '?demo' : '');
         return;
       }
       setUser(result.data.user);
@@ -762,19 +770,19 @@ function showComingSoon(event) {
       var name = form.querySelector('[name="name"]').value.trim();
       if (!name) {
         var errEl = form.querySelector('.form-error');
-        errEl.textContent = 'Name is required.';
+        errEl.textContent = t('Name is required.');
         errEl.style.display = 'block';
         return;
       }
       apiCall('PUT', '/user/update', { name: name }).then(function(result) {
         if (result.ok) {
-          showToast('Profile updated.', 'success');
+          showToast(t('Profile updated.'), 'success');
           modal.classList.remove('active');
           unlockBodyScroll();
           refreshDashboard();
         } else {
           var errEl = form.querySelector('.form-error');
-          errEl.textContent = result.data.error || 'Update failed.';
+          errEl.textContent = result.data.error || t('Update failed.');
           errEl.style.display = 'block';
         }
       });
@@ -790,7 +798,7 @@ function showComingSoon(event) {
       var finishLogout = function() {
         safeStorage('remove', 'mamba_token');
         safeStorage('remove', 'mamba_user');
-        window.location.href = '/login.html' + (window.MAMBA_DEMO ? '?demo' : '');
+        window.location.href = 'login' + (window.MAMBA_DEMO ? '?demo' : '');
       };
 
       apiCall('POST', '/auth/logout').then(function() {
@@ -815,7 +823,7 @@ function showComingSoon(event) {
       var f = document.createElement('iframe');
       // youtube-nocookie + autoplay, since the click IS the intent to watch.
       f.src = 'https://www.youtube-nocookie.com/embed/SehWO9aH3tM?autoplay=1&rel=0';
-      f.title = 'Learn the Mamba Management System';
+      f.title = t('Learn the Mamba Management System');
       f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       f.referrerPolicy = 'strict-origin-when-cross-origin';
       f.setAttribute('allowfullscreen', '');
@@ -860,7 +868,7 @@ function showComingSoon(event) {
 
   document.addEventListener('DOMContentLoaded', function() {
     if (!token) {
-      window.location.href = '/login.html' + (window.MAMBA_DEMO ? '?demo' : '');
+      window.location.href = 'login' + (window.MAMBA_DEMO ? '?demo' : '');
       return;
     }
     setupLogout();

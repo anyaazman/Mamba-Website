@@ -1,4 +1,4 @@
-import { json, hashToken, rateLimit } from './_helpers.js';
+import { json, hashToken, rateLimit, isMalaySite } from './_helpers.js';
 
 // This endpoint is unauthenticated, so it must only accept the one type a
 // browser legitimately reports. tracking.js sends nothing else. Business
@@ -40,6 +40,13 @@ export async function onRequestPost({ request, env }) {
         const s = JSON.stringify(metadata);
         if (s.length <= 1000) metadataStr = s;
       } catch (e) { /* keep default */ }
+    }
+    // Tagged server-side so the client cannot mislabel which site a view was on.
+    if (isMalaySite(request)) {
+      let meta = {};
+      try { meta = JSON.parse(metadataStr); } catch (e) { /* keep {} */ }
+      if (!meta || typeof meta !== 'object' || Array.isArray(meta)) meta = { value: meta };
+      metadataStr = JSON.stringify({ ...meta, site: 'ms' });
     }
 
     await env.DB.prepare(

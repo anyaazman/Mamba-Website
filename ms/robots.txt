@@ -1,0 +1,13 @@
+# Robots.txt for the Malay site, served at https://my.mambaapp.online/robots.txt
+# (a zone rewrite maps it to /ms/robots.txt; see docs/plans/2026-11-06-malay-site.md)
+
+User-agent: *
+Allow: /
+
+Sitemap: https://my.mambaapp.online/sitemap.xml
+
+Crawl-delay: 1
+
+Disallow: /dashboard
+Disallow: /reset-password
+Disallow: /login

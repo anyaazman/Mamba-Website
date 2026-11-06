@@ -1,6 +1,12 @@
 (function() {
   'use strict';
 
+  // English text is the key; Malay pages swap it via i18n.js + i18n-ms.js.
+  function t(s, v) {
+    if (window.MAMBA_T) return window.MAMBA_T(s, v);
+    return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? String(v[k]) : m; }) : s;
+  }
+
   function showStatus(form, message, isError) {
     var el = form.querySelector('.form-status');
     if (!el) return;
@@ -24,18 +30,18 @@
       var website = form.querySelector('#website').value.trim(); // honeypot
 
       if (!email) {
-        showStatus(form, 'Please enter the email address on your account.', true);
+        showStatus(form, t('Please enter the email address on your account.'), true);
         return;
       }
       if (!confirmed) {
-        showStatus(form, 'Please tick the box to confirm you understand this is permanent.', true);
+        showStatus(form, t('Please tick the box to confirm you understand this is permanent.'), true);
         return;
       }
 
       showStatus(form, '', false);
       btn.disabled = true;
       var originalText = btn.textContent;
-      btn.textContent = 'Submitting...';
+      btn.textContent = t('Submitting...');
 
       fetch('/api/request-deletion', {
         method: 'POST',
@@ -54,15 +60,15 @@
         btn.textContent = originalText;
         if (result.ok) {
           form.reset();
-          showStatus(form, 'Your deletion request has been received. We will verify it and email you a confirmation once your account is deleted.', false);
+          showStatus(form, t('Your deletion request has been received. We will verify it and email you a confirmation once your account is deleted.'), false);
         } else {
-          showStatus(form, (result.data && result.data.error) || 'Failed to submit. Please try again.', true);
+          showStatus(form, (result.data && result.data.error) || t('Failed to submit. Please try again.'), true);
         }
       })
       .catch(function() {
         btn.disabled = false;
         btn.textContent = originalText;
-        showStatus(form, 'Network error. Please check your connection and try again.', true);
+        showStatus(form, t('Network error. Please check your connection and try again.'), true);
       });
     });
   });

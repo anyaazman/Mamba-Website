@@ -1,4 +1,4 @@
-import { json, rateLimit, notifyAdmin, recordEvent, isValidEmail } from './_helpers.js';
+import { json, rateLimit, notifyAdmin, recordEvent, isValidEmail, siteMeta, siteFields } from './_helpers.js';
 
 // Public account-deletion request endpoint (Google Play / App Store data-deletion URL).
 // Records a durable event + pings admins; an admin then fulfils it with the existing
@@ -33,13 +33,14 @@ export async function onRequestPost(context) {
     await recordEvent(env, 'account_deletion_request', {
       required: true,
       page: 'account-deletion.html',
-      metadata: { email: cleanEmail, mt5_account: cleanAccount, reason: cleanReason }
+      metadata: { email: cleanEmail, mt5_account: cleanAccount, reason: cleanReason, ...siteMeta(request) }
     });
 
     context.waitUntil(notifyAdmin(env, '🗑️ Account Deletion Request', {
       Email: cleanEmail,
       'MT5 Account': cleanAccount || '—',
-      Reason: cleanReason || '—'
+      Reason: cleanReason || '—',
+      ...siteFields(request)
     }));
 
     return json({

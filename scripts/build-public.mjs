@@ -30,6 +30,14 @@ const PUBLIC_EXT = new Set([
 const PUBLIC_FILES = ['_headers', 'robots.txt', 'sitemap.xml'];
 // Folders that hold nothing but site media.
 const PUBLIC_DIRS = ['feedback', 'how-it-works', 'web-files'];
+// The Malay site (my.mambaapp.online). A zone rewrite serves its page requests
+// from /ms/, and every page under it uses root-absolute asset URLs, so the
+// CSS, JS and media above are shared rather than copied.
+const MALAY_DIR = 'ms';
+const MALAY_FILES = ['robots.txt', 'sitemap.xml'];
+// English pages with no Malay version on purpose: the admin workspace stays
+// English and is only served from www.
+const ENGLISH_ONLY = new Set(['admin.html']);
 
 function copyFile(rel) {
   const dest = path.join(OUT, rel);
@@ -53,6 +61,8 @@ for (const entry of fs.readdirSync(ROOT, { withFileTypes: true })) {
 }
 for (const name of PUBLIC_FILES) copyFile(name);
 for (const dir of PUBLIC_DIRS) copyDir(dir);
+copyDir(MALAY_DIR);
+for (const name of MALAY_FILES) copyFile(path.posix.join(MALAY_DIR, name));
 
 // Every local file a page or stylesheet points at must have been published. A
 // miss fails the build, and a failed Pages build leaves the live site on its
@@ -60,21 +70,30 @@ for (const dir of PUBLIC_DIRS) copyDir(dir);
 const SKIP = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#|\/api\/|\/cdn-cgi\/)/i;
 const missing = [];
 
-function exists(ref) {
-  const clean = decodeURIComponent(ref.split(/[?#]/)[0]).replace(/^\//, '');
-  if (clean === '') return true;
+// A relative ref resolves against the page's own folder (ms/ pages link to
+// 'login', meaning ms/login.html); a root-absolute one against dist/.
+function exists(ref, dir) {
+  const raw = decodeURIComponent(ref.split(/[?#]/)[0]);
+  if (raw === '' || raw === './') return true;
+  const clean = raw.startsWith('/') ? raw.slice(1) : path.posix.join(dir, raw);
+  if (clean === '' || clean === dir) return true;
   const target = path.join(OUT, clean);
   // Pages serves /dashboard for dashboard.html and /dir/ for dir/index.html.
   return [target, target + '.html', path.join(target, 'index.html')].some(p => fs.existsSync(p));
 }
 
 function check(file, refs) {
+  const dir = path.posix.dirname(file) === '.' ? '' : path.posix.dirname(file);
   for (const ref of refs) {
-    if (!SKIP.test(ref) && !exists(ref)) missing.push(`${file} -> ${ref}`);
+    if (!SKIP.test(ref) && !exists(ref, dir)) missing.push(`${file} -> ${ref}`);
   }
 }
 
-for (const name of fs.readdirSync(OUT)) {
+const pages = [
+  ...fs.readdirSync(OUT),
+  ...fs.readdirSync(path.join(OUT, MALAY_DIR)).map(n => path.posix.join(MALAY_DIR, n))
+];
+for (const name of pages) {
   if (!/\.(html|css)$/.test(name)) continue;
   const text = fs.readFileSync(path.join(OUT, name), 'utf8');
   if (name.endsWith('.html')) {
@@ -85,6 +104,14 @@ for (const name of fs.readdirSync(OUT)) {
     check(name, refs);
   } else if (name.endsWith('.css')) {
     check(name, [...text.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/gi)].map(m => m[1]));
+  }
+}
+
+// Every public English page needs its Malay counterpart, or my.mambaapp.online
+// would answer that URL with a 404.
+for (const name of fs.readdirSync(OUT)) {
+  if (name.endsWith('.html') && !ENGLISH_ONLY.has(name) && !fs.existsSync(path.join(OUT, MALAY_DIR, name))) {
+    missing.push(`${name} has no Malay version at ${MALAY_DIR}/${name}`);
   }
 }
 

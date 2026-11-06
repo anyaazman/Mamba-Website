@@ -1,0 +1,112 @@
+<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Mamba mengurus stop loss, breakeven dan trailing stop pada dagangan MetaTrader 5 anda secara automatik."><title>Mamba | Tetapkan peraturan risiko anda. Biarkan dagangan anda berjalan.</title><link rel="icon" href="/mamba-logo-transparent.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="/clarity.css?v=7"><script src="/nav.js?v=1" defer></script><script src="/hero-trade.js?v=5" defer></script>    <link rel="stylesheet" href="/mobile-refinements.css?v=2">
+    <link rel="stylesheet" href="/setup-prompt.css?v=1">
+    <script src="/config.js?v=5" defer></script>
+    <script src="/setup-prompt.js?v=1" defer></script>
+    <script src="/tracking.js?v=2" defer></script>
+    <link rel="alternate" hreflang="en" href="https://www.mambaapp.online/">
+    <link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/">
+    <link rel="alternate" hreflang="x-default" href="https://www.mambaapp.online/">
+<meta name="mamba-en-source" content="60660f65d800dc95ed08f6474b8056e546e6b88fdbea7a01f34cf7e4e926f4a2"><script src="/i18n-ms.js?v=1"></script><script src="/i18n.js?v=1"></script></head><body><header class="site-header"><a class="brand" href="./"><img src="/mamba-logo-transparent.png" alt=""> <span>MAMBA</span></a><button class="nav-toggle" id="navToggle" type="button" aria-controls="navLinks" aria-expanded="false">Menu</button><nav id="navLinks"><a href="#how-it-works">Cara ia berfungsi</a><a href="#who-its-for">Untuk siapa</a><a href="https://www.mambaapp.online/" hreflang="en" lang="en" data-lang-switch>English</a><a class="nav-cta" href="login#register">Cipta akaun</a></nav></header><main><section class="hero"><div class="hero-copy"><p class="eyebrow">Pengurusan risiko untuk MetaTrader 5</p><h1>Anda buka dagangan.<br><em>Mamba urus penutupannya.</em></h1><p class="hero-lede">Mamba ialah aplikasi mudah alih yang melindungi posisi MT5 anda secara automatik dengan peraturan stop loss, breakeven dan trailing stop.</p><div class="hero-actions"><a class="button button-primary" href="login#register">Cipta akaun percuma anda <span>↗</span></a><a class="text-link" href="#how-it-works">Lihat contoh dagangan <span>↓</span></a></div><p class="microcopy">Sambungkan akaun MT5 Valetax anda. Mamba tidak pernah memegang dana anda.</p></div>
+<div class="trade-demo" data-trade-demo aria-label="Cara Mamba mengurus dagangan MT5">
+  <div class="demo-top">
+    <span><i class="status-dot"></i>Dagangan MT5 anda</span>
+    <span class="demo-badge">Contoh animasi</span>
+  </div>
+  <div class="trade-market">
+    <div><strong>EURUSD <span class="trade-timeframe">M1</span></strong><span class="trade-market-note">Anda buka posisi buy. Mamba ambil alih.</span></div>
+    <div class="trade-quote"><strong data-quote>1.08420</strong><span data-change>Menunggu entry</span></div>
+  </div>
+  <div class="chart-wrap">
+    <svg class="chart" viewBox="0 0 600 326" role="img" aria-labelledby="trade-chart-title trade-chart-desc">
+      <title id="trade-chart-title">Pengurusan dagangan candle demi candle</title>
+      <desc id="trade-chart-desc">Contoh posisi buy EURUSD dibuka pada 1.08420. Mamba menambah take profit pada 1.08620 dan stop loss pada 1.08320. Apabila naik 10 pip, stop dialihkan ke harga entry, kemudian mengekori 5 pip di belakang harga tertinggi. Ia kekal di tempatnya semasa pullback. Dagangan ditutup apabila harga mencecah trailing stop. Harga adalah simulasi.</desc>
+      <path class="trade-grid" d="M12 52H440M12 123H440M12 193H440M12 264H440M65 20V292M176 20V292M287 20V292M398 20V292"/>
+      <rect class="protected-area" data-protected-area x="12" width="428" y="193" height="0"/>
+      <g data-candles></g>
+      <path class="trade-price-line" data-price-line d="M102 193H440"/>
+      <g class="trade-level level-tp" data-tp-level visibility="hidden">
+        <path d="M12 0H449"/>
+        <rect x="449" y="-19" width="147" height="38" rx="5"/>
+        <text x="460" y="-3">Take profit</text><text class="level-price" x="460" y="12">1.08620</text>
+      </g>
+      <g class="trade-level level-entry" data-entry-level visibility="hidden">
+        <path d="M12 0H449"/>
+        <g data-entry-tag visibility="hidden"><rect x="449" y="-19" width="147" height="38" rx="5"/>
+        <text x="460" y="-3">Buy entry</text><text class="level-price" x="460" y="12">1.08420</text></g>
+      </g>
+      <g class="trade-level level-sl" data-sl-level visibility="hidden">
+        <path d="M12 0H449"/>
+        <rect x="449" y="-19" width="147" height="38" rx="5"/>
+        <text x="460" y="-3" data-sl-name>Stop loss</text><text class="level-price" x="460" y="12" data-sl-price>1.08320</text>
+      </g>
+      <g class="trade-entry-marker" data-entry-marker visibility="hidden"><path d="M0 0l-6 9h4v9h4V9h4Z"/></g>
+      <circle class="trade-price-dot" data-price-dot cx="102" cy="193" r="4"/>
+      <g class="trade-axis"><text x="12" y="318">09:41</text><text x="176" y="318">09:45</text><text x="324" y="318">09:49</text><text x="449" y="318">Paparan gaya MT5</text></g>
+    </svg>
+  </div>
+  <ol class="trade-phases" aria-label="Langkah pengurusan dagangan">
+    <li class="is-active" data-step aria-current="step">Entry + TP/SL</li>
+    <li data-step>Breakeven</li>
+    <li data-step>SL mengekori</li>
+    <li data-step>Exit automatik</li>
+  </ol>
+  <div class="trade-story"><span data-phase-number>01</span><div><strong data-story-title>Anda pilih entry.</strong><p data-story-caption>Lihat posisi buy dibuka di MT5. Mamba mengendalikan peraturan exit.</p></div></div>
+  <div class="trade-settings"><span>Contoh peraturan</span><span>TP <b>20</b> · SL <b>10</b> · BE <b>10</b> · Trail <b>5 pip</b></span></div>
+  <div class="demo-bottom">
+    <small>Ilustrasi sahaja · sebelum kos</small>
+    <div class="trade-controls" data-controls hidden><button type="button" data-play aria-label="Jeda animasi dagangan">Jeda</button><button type="button" data-replay aria-label="Main semula animasi dagangan">Main semula <span aria-hidden="true">↻</span></button></div>
+  </div>
+  <div class="trade-progress" aria-hidden="true"><span data-progress></span></div>
+  <noscript><p class="trade-noscript">Anda buka posisi → Mamba tambah TP dan SL → SL dialih ke breakeven → SL mengekori harga yang naik dan kekal semasa pullback.</p></noscript>
+</div></section><section class="promise" id="how-it-works"><div class="section-intro"><p class="eyebrow">Versi ringkas</p><h2>Pelan anda terus berjalan<br>walaupun anda tiada di skrin.</h2><p>Pilih peraturan sekali sahaja dalam Mamba. Apabila harga bergerak, aplikasi mengendalikan perlindungan secara automatik, walaupun anda jauh dari terminal.</p>
+<a class="button button-primary how-guide-link" href="how-Mamba-work">Lihat cara Mamba berfungsi <span aria-hidden="true">→</span></a>
+</div><div class="steps"><article><span class="step-num">01</span><h3>Tetapkan peraturan anda</h3><p>Pilih nilai take profit, stop loss, breakeven dan trailing stop untuk setiap akaun MT5.</p></article><article><span class="step-num">02</span><h3>Biar Mamba memantau</h3><p>Mamba memantau posisi terbuka anda dan menggunakan peraturan anda apabila pasaran bergerak.</p></article><article><span class="step-num">03</span><h3>Kekal mengawal</h3><p>Lihat status akaun dan makluman dagangan dari telefon anda. Ubah tetapan apabila pelan anda berubah.</p></article></div></section><section class="audience" id="who-its-for"><div><p class="eyebrow">Dibina untuk hari dagangan sebenar</p><h2>Lebih berdisiplin.<br>Kurang menatap skrin.</h2></div><div class="audience-points"><p><strong>Untuk pedagang MT5</strong> yang mahukan peraturan risiko yang konsisten pada setiap posisi.</p><p><strong>Untuk pedagang yang sibuk</strong> yang tidak dapat memerhati terminal sepanjang hari.</p><p><strong>Untuk akaun yang sedang berkembang</strong> yang memerlukan proses yang boleh diulang, bukan satu lagi ramalan.</p></div></section><section class="start"><p class="eyebrow">Mula dengan akaun demo</p><h2>Letakkan pelan risiko anda<br>pada mod autopilot.</h2><p>Mamba percuma untuk digunakan. Anda memerlukan akaun MT5 Valetax untuk disambungkan.</p><div class="hero-actions"><a class="button button-primary" href="login#register">Cipta akaun percuma anda <span>↗</span></a><a class="text-link light" href="https://ma.valetaxglobal.com/p/3505549" data-valetax-link="referral" target="_blank" rel="noopener">Buka akaun Valetax <span>↗</span></a></div><small>Dagangan melibatkan risiko. Angka demo adalah ilustrasi dan tidak mewakili pulangan yang dijangka.</small></section></main><footer class="site-footer">
+  <div class="site-footer-main">
+    <div class="site-footer-brand">
+      <strong>MAMBA MANAGEMENT</strong>
+      <p>Pengurusan risiko automatik untuk MetaTrader 5.</p>
+      <p>Rahsia Bumi Enterprise © 2026</p>
+      <small>Mamba Management ialah aplikasi pengurusan dagangan yang dikendalikan oleh Rahsia Bumi Enterprise, perniagaan yang berdaftar di Malaysia (no. pendaftaran SSM 202503350807 (TR0334731-P)). Kami bukan broker: kami tidak memegang dana pelanggan, tidak melaksanakan dagangan bagi pihak anda, dan tidak memberikan nasihat pelaburan. Kami bertindak sebagai Introducing Broker untuk Valetax dan menerima pampasan daripada mereka bagi akaun yang dirujuk.</small>
+    </div>
+    <nav class="site-footer-group" aria-label="Pautan platform">
+      <h2>Platform</h2>
+      <a href="./">Laman Utama</a>
+      <a href="./#how-it-works">Fungsinya</a>
+      <a href="./#who-its-for">Keupayaan</a>
+      <a href="./#how-it-works">Mula Sekarang</a>
+      <a href="support">Soalan &amp; sokongan</a>
+    </nav>
+    <nav class="site-footer-group" aria-label="Pautan sumber">
+      <h2>Sumber</h2>
+      <a href="how-Mamba-work">Cara Mamba Berfungsi</a>
+      <a href="login">Ruang Ahli</a>
+      <a href="https://t.me/mambaindicator" target="_blank" rel="noopener">Komuniti</a>
+      <a href="support">Hubungi Sokongan</a>
+      <a href="https://www.mambaapp.online/" hreflang="en" lang="en" data-lang-switch>English</a>
+    </nav>
+    <nav class="site-footer-group" aria-label="Pautan undang-undang">
+      <h2>Undang-undang</h2>
+      <a href="privacy-policy">Dasar Privasi</a>
+      <a href="terms-of-service">Terma Perkhidmatan</a>
+      <a href="risk-disclosure">Pendedahan Risiko</a>
+      <a href="account-deletion">Pemadaman Akaun</a>
+    </nav>
+  </div>
+  <div class="site-footer-risk"><strong>Amaran risiko.</strong> Dagangan pertukaran asing secara margin membawa risiko yang tinggi dan boleh menyebabkan anda kehilangan kesemua modal anda. Leverage boleh menentang anda dan juga memihak kepada anda. Produk ini tidak sesuai untuk setiap pelabur — jangan berdagang dengan wang yang anda tidak mampu untuk kehilangan. Prestasi lalu tidak menunjukkan keputusan masa hadapan. Mamba Management ialah alat pengurusan dagangan, bukan broker atau penasihat kewangan berlesen, dan tiada apa-apa di laman ini merupakan nasihat pelaburan. <a href="risk-disclosure">Baca Pendedahan Risiko penuh</a>.</div>
+</footer>
+<aside class="setup-prompt" id="setupPrompt" aria-labelledby="setupPromptTitle" aria-live="polite" hidden>
+  <button class="setup-prompt-close" type="button" aria-label="Tutup jemputan persediaan">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  </button>
+  <div class="setup-prompt-heading">
+    <img src="/app-icon.png" alt="" width="36" height="36">
+    <h2 id="setupPromptTitle">Sedia untuk menyediakan Mamba?</h2>
+  </div>
+  <p>Mulakan dengan akaun ahli percuma anda.<br>Dapatkan aplikasi selepas pengesahan.</p>
+  <div class="setup-prompt-actions">
+    <a class="setup-prompt-primary" href="login#register">Cipta akaun percuma</a>
+    <a class="setup-prompt-app" href="how-Mamba-work#download" data-app-link="auto" data-app-fallback="how-Mamba-work#download">Dapatkan aplikasi</a>
+  </div>
+  <p class="setup-prompt-signin">Sudah menjadi ahli? <a href="login">Log masuk</a></p>
+</aside>
+</body></html>

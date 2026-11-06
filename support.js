@@ -1,6 +1,12 @@
 (function() {
   'use strict';
 
+  // English text is the key; Malay pages swap it via i18n.js + i18n-ms.js.
+  function t(s, v) {
+    if (window.MAMBA_T) return window.MAMBA_T(s, v);
+    return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? String(v[k]) : m; }) : s;
+  }
+
   function showStatus(form, message, isError) {
     var el = form.querySelector('.form-status');
     if (!el) return;
@@ -21,18 +27,18 @@
       var message = form.querySelector('#supportMessage').value.trim();
 
       if (!email || !message) {
-        showStatus(form, 'Please enter your email and a message.', true);
+        showStatus(form, t('Please enter your email and a message.'), true);
         return;
       }
       if (message.length < 5) {
-        showStatus(form, 'Please enter a message (at least 5 characters).', true);
+        showStatus(form, t('Please enter a message (at least 5 characters).'), true);
         return;
       }
 
       showStatus(form, '', false);
       btn.disabled = true;
       var originalText = btn.textContent;
-      btn.textContent = 'Sending...';
+      btn.textContent = t('Sending...');
 
       fetch('/api/contact', {
         method: 'POST',
@@ -45,15 +51,15 @@
         btn.textContent = originalText;
         if (result.ok) {
           form.reset();
-          showStatus(form, 'Thanks! Your message has been sent. We\'ll get back to you soon.', false);
+          showStatus(form, t("Thanks! Your message has been sent. We'll get back to you soon."), false);
         } else {
-          showStatus(form, (result.data && result.data.error) || 'Failed to send. Please try again.', true);
+          showStatus(form, (result.data && result.data.error) || t('Failed to send. Please try again.'), true);
         }
       })
       .catch(function() {
         btn.disabled = false;
         btn.textContent = originalText;
-        showStatus(form, 'Network error. Please check your connection and try again.', true);
+        showStatus(form, t('Network error. Please check your connection and try again.'), true);
       });
     });
   });

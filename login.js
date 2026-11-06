@@ -1,6 +1,12 @@
 (function() {
   'use strict';
 
+  // English text is the key; Malay pages swap it via i18n.js + i18n-ms.js.
+  function t(s, v) {
+    if (window.MAMBA_T) return window.MAMBA_T(s, v);
+    return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? String(v[k]) : m; }) : s;
+  }
+
   var API_BASE = '/api/auth';
 
   // localStorage throws in private-mode Safari and where site data is blocked.
@@ -37,7 +43,7 @@
     if (loading) {
       btn.disabled = true;
       btn.setAttribute('data-original-text', btn.textContent);
-      btn.textContent = btn.textContent === 'Sign In' ? 'Signing In...' : 'Creating Account...';
+      btn.textContent = form.classList.contains('login-form') ? t('Signing In...') : t('Creating Account...');
       btn.classList.add('btn-loading');
       inputs.forEach(function(i) { i.disabled = true; });
     } else {
@@ -86,7 +92,7 @@
       var password = form.querySelector('[name="password"]').value;
 
       if (!email || !password) {
-        showError(form, 'Email and password are required.');
+        showError(form, t('Email and password are required.'));
         return;
       }
 
@@ -100,16 +106,16 @@
       .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
       .then(function(result) {
         if (!result.ok) {
-          showError(form, result.data.error || 'Login failed.');
+          showError(form, result.data.error || t('Login failed.'));
           setLoading(form, false);
           return;
         }
         safeStorage('set', 'mamba_token', result.data.token);
         safeStorage('set', 'mamba_user', JSON.stringify(result.data.user));
-        window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
+        window.location.href = 'dashboard' + (window.MAMBA_DEMO ? '?demo' : '');
       })
       .catch(function() {
-        showError(form, 'Network error. Please try again.');
+        showError(form, t('Network error. Please try again.'));
         setLoading(form, false);
       });
     });
@@ -126,19 +132,19 @@
       var recovery = form.querySelector('[name="recovery_phrase"]').value.trim();
 
       if (!name || !email || !password || !recovery) {
-        showError(form, 'Name, email, password, and recovery phrase are required.');
+        showError(form, t('Name, email, password, and recovery phrase are required.'));
         return;
       }
       if (password !== confirm) {
-        showError(form, 'Passwords do not match.');
+        showError(form, t('Passwords do not match.'));
         return;
       }
       if (password.length < 8) {
-        showError(form, 'Password must be at least 8 characters.');
+        showError(form, t('Password must be at least 8 characters.'));
         return;
       }
       if (recovery.length < 8) {
-        showError(form, 'Recovery phrase must be at least 8 characters.');
+        showError(form, t('Recovery phrase must be at least 8 characters.'));
         return;
       }
 
@@ -153,16 +159,16 @@
       .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
       .then(function(result) {
         if (!result.ok) {
-          showError(form, result.data.error || 'Registration failed.');
+          showError(form, result.data.error || t('Registration failed.'));
           setLoading(form, false);
           return;
         }
         safeStorage('set', 'mamba_token', result.data.token);
         safeStorage('set', 'mamba_user', JSON.stringify(result.data.user));
-        window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
+        window.location.href = 'dashboard' + (window.MAMBA_DEMO ? '?demo' : '');
       })
       .catch(function() {
-        showError(form, 'Network error. Please try again.');
+        showError(form, t('Network error. Please try again.'));
         setLoading(form, false);
       });
     });
@@ -203,7 +209,7 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     if (safeStorage('get', 'mamba_token')) {
-      window.location.href = '/dashboard.html' + (window.MAMBA_DEMO ? '?demo' : '');
+      window.location.href = 'dashboard' + (window.MAMBA_DEMO ? '?demo' : '');
       return;
     }
     setupTabs();

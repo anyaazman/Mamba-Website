@@ -1,4 +1,4 @@
-import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, syncBackendWhitelist, readJson } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, syncBackendWhitelist, readJson, siteMeta, siteFields } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -61,8 +61,8 @@ export async function onRequestPost(context) {
         "UPDATE mt5_accounts SET status = 'approved' WHERE id = ?"
       ).bind(account_id).run();
 
-      await recordEvent(env, 'whitelist_synced', { user_id: user.id, metadata: { account_id, account_number: account.account_number } });
-      context.waitUntil(notifyAdmin(env, '✅ MT5 Whitelisted (auto)', { Name: user.name, Email: user.email, 'Account': String(account.account_number) }));
+      await recordEvent(env, 'whitelist_synced', { user_id: user.id, metadata: { account_id, account_number: account.account_number, ...siteMeta(request) } });
+      context.waitUntil(notifyAdmin(env, '✅ MT5 Whitelisted (auto)', { Name: user.name, Email: user.email, 'Account': String(account.account_number), ...siteFields(request) }));
 
       return json({ success: true, message: 'MT5 account whitelisted.' });
     }
@@ -86,18 +86,18 @@ export async function onRequestPost(context) {
       // unavailable until 0008 runs.
     }
 
-    await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id } });
+    await recordEvent(env, 'whitelist_request', { user_id: user.id, metadata: { account_id, ...siteMeta(request) } });
 
     // Two different reasons land here and the admin needs to tell them apart:
     // an unapproved IB is a decision waiting to be made, a failed sync is an
     // outage to investigate.
     context.waitUntil(ibApproved
       ? notifyAdmin(env, '⚠️ MT5 Whitelist — backend sync failed, approve manually', {
-          Name: user.name, Email: user.email, 'Account': String(account.account_number)
+          Name: user.name, Email: user.email, 'Account': String(account.account_number), ...siteFields(request)
         })
       : notifyAdmin(env, '🔒 MT5 Whitelist — IB not approved, review before approving', {
           Name: user.name, Email: user.email, 'Account': String(account.account_number),
-          'IB Status': user.ib_status, 'IB Email': user.ib_email || '—'
+          'IB Status': user.ib_status, 'IB Email': user.ib_email || '—', ...siteFields(request)
         }));
 
     return json({

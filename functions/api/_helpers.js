@@ -78,6 +78,34 @@ export async function hashToken(token) {
   return sha256(token);
 }
 
+// The Malay site is my.mambaapp.online. On previews and localhost it is served
+// from /ms/ paths instead, so a same-origin Referer under /ms/ also counts.
+// Only decides language and labels; never used for access control.
+export const MALAY_HOST = 'my.mambaapp.online';
+
+export function isMalaySite(request) {
+  const url = new URL(request.url);
+  if (url.hostname === MALAY_HOST) return true;
+  const ref = request.headers.get('Referer');
+  if (!ref) return false;
+  try {
+    const from = new URL(ref);
+    return from.host === url.host && (from.pathname === '/ms' || from.pathname.startsWith('/ms/'));
+  } catch (e) {
+    return false;
+  }
+}
+
+// Event metadata and Telegram fields that say a member acted on the Malay site.
+// Both are empty for the English site, so its records are unchanged.
+export function siteMeta(request) {
+  return isMalaySite(request) ? { site: 'ms' } : {};
+}
+
+export function siteFields(request) {
+  return isMalaySite(request) ? { Site: 'my.mambaapp.online (BM)' } : {};
+}
+
 export function isValidEmail(email) {
   return typeof email === 'string'
     && email.length <= 254

@@ -2,6 +2,10 @@
 (() => {
   'use strict';
 
+  // English text is the key; Malay pages swap it via i18n.js + i18n-ms.js.
+  const t = (s, v) => window.MAMBA_T ? window.MAMBA_T(s, v)
+    : (v ? s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? String(v[k]) : m)) : s);
+
   // Integer pipettes keep the chart, prices and pip calculations in agreement.
   const rules = { entry: 108420, tp: 108620, sl: 108320, breakeven: 100, trail: 50 };
   const entryAt = 900;
@@ -132,12 +136,12 @@
   const replay = get('replay');
   const steps = [...demo.querySelectorAll('[data-step]')];
   const phaseCopy = {
-    ready: [0, 'You choose the entry.', 'Watch a buy trade open in MT5. Mamba handles the exit rules.'],
-    entry: [0, 'You enter. Mamba adds TP + SL.', 'Take profit sets the target. Stop loss sets the initial exit below entry.'],
-    breakeven: [1, 'At +10 pips, SL moves to entry.', 'The stop is now at the entry price: this is breakeven.'],
-    trailing: [2, 'Price rises. Your stop follows.', 'The trailing SL moves up, staying 5 pips behind the highest price.'],
-    pullback: [2, 'Price dips. Your stop stays put.', 'The trailing SL holds its highest level. It never moves back down.'],
-    closed: [3, 'Price meets SL. The trade closes.', 'This example exits at +12 pips before costs. Take profit stayed fixed.'],
+    ready: [0, t('You choose the entry.'), t('Watch a buy trade open in MT5. Mamba handles the exit rules.')],
+    entry: [0, t('You enter. Mamba adds TP + SL.'), t('Take profit sets the target. Stop loss sets the initial exit below entry.')],
+    breakeven: [1, t('At +10 pips, SL moves to entry.'), t('The stop is now at the entry price: this is breakeven.')],
+    trailing: [2, t('Price rises. Your stop follows.'), t('The trailing SL moves up, staying 5 pips behind the highest price.')],
+    pullback: [2, t('Price dips. Your stop stays put.'), t('The trailing SL holds its highest level. It never moves back down.')],
+    closed: [3, t('Price meets SL. The trade closes.'), t('This example exits at +12 pips before costs. Take profit stayed fixed.')],
   };
   let lastPhase;
 
@@ -161,11 +165,15 @@
     }
     // At breakeven both levels coincide, so combine their labels.
     get('entry-tag').setAttribute('visibility', frame.entered && Math.abs(y(frame.stop) - y(rules.entry)) > 30 ? 'visible' : 'hidden');
-    stopName.textContent = frame.stop === rules.entry ? 'SL · Entry' : frame.stop > rules.entry ? 'Trailing SL' : 'Stop loss';
+    stopName.textContent = frame.stop === rules.entry ? t('SL · Entry') : frame.stop > rules.entry ? t('Trailing SL') : t('Stop loss');
     stopPrice.textContent = priceText(frame.stop);
     levels.sl.classList.toggle('is-protected', frame.stop >= rules.entry);
     quote.textContent = priceText(frame.price);
-    change.textContent = frame.entered ? `${pipText(frame.price - rules.entry)} pips${frame.closed ? ' · closed' : ''}` : 'Waiting for entry';
+    change.textContent = frame.entered
+      ? (frame.closed
+        ? t('{pips} pips · closed', { pips: pipText(frame.price - rules.entry) })
+        : t('{pips} pips', { pips: pipText(frame.price - rules.entry) }))
+      : t('Waiting for entry');
     change.classList.toggle('is-negative', frame.price < rules.entry);
     const currentX = x(frame.candles.length - 1);
     const currentY = y(frame.price);
@@ -199,8 +207,8 @@
   let previous = null;
   let request = null;
   function updatePlay() {
-    play.textContent = paused ? 'Play' : 'Pause';
-    play.setAttribute('aria-label', paused ? 'Play trade animation' : 'Pause trade animation');
+    play.textContent = paused ? t('Play') : t('Pause');
+    play.setAttribute('aria-label', paused ? t('Play trade animation') : t('Pause trade animation'));
   }
   function animate(timestamp) {
     request = null;

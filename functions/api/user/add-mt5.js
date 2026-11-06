@@ -1,4 +1,4 @@
-import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, readJson } from '../_helpers.js';
+import { authenticateUser, hasRequestedIB, json, recordEvent, notifyAdmin, readJson, siteMeta, siteFields } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -42,8 +42,8 @@ export async function onRequestPost(context) {
       'INSERT INTO mt5_accounts (user_id, account_number) VALUES (?, ?)'
     ).bind(user.id, num).run();
 
-    await recordEvent(env, 'mt5_added', { user_id: user.id, metadata: { account_number: num } });
-    context.waitUntil(notifyAdmin(env, '💳 MT5 Account Added', { Name: user.name, Email: user.email, 'Account': num }));
+    await recordEvent(env, 'mt5_added', { user_id: user.id, metadata: { account_number: num, ...siteMeta(request) } });
+    context.waitUntil(notifyAdmin(env, '💳 MT5 Account Added', { Name: user.name, Email: user.email, 'Account': num, ...siteFields(request) }));
 
     return json({
       success: true,

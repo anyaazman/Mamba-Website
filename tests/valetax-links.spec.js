@@ -22,7 +22,12 @@ const check = (name, cond, detail) => {
   else { console.log(`  FAIL ${name}${detail ? ' — ' + detail : ''}`); failures++; }
 };
 
-const htmlFiles = fs.readdirSync(ROOT).filter(f => f.endsWith('.html'));
+// The Malay pages under ms/ carry the same Valetax links and must obey the
+// same rules, so they are checked alongside the English pages.
+const htmlFiles = [
+  ...fs.readdirSync(ROOT).filter(f => f.endsWith('.html')),
+  ...fs.readdirSync(path.join(ROOT, 'ms')).filter(f => f.endsWith('.html')).map(f => path.join('ms', f)),
+];
 
 // 1. config.js is the only place a Valetax domain may be declared.
 const config = fs.readFileSync(path.join(ROOT, 'config.js'), 'utf8');

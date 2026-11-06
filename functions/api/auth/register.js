@@ -1,4 +1,4 @@
-import { hashSecret, hashToken, json, recordEvent, notifyAdmin, rateLimit, isValidEmail, readJson } from '../_helpers.js';
+import { hashSecret, hashToken, json, recordEvent, notifyAdmin, rateLimit, isValidEmail, readJson, siteMeta, siteFields } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -60,10 +60,10 @@ export async function onRequestPost(context) {
     // accepted the Terms or Risk Disclosure, which is the point of asking.
     await recordEvent(env, 'register', {
       user_id: userId,
-      metadata: { accepted_terms: true, accepted_at: new Date().toISOString() }
+      metadata: { accepted_terms: true, accepted_at: new Date().toISOString(), ...siteMeta(request) }
     });
     // Fire-and-forget so the Telegram round trip doesn't delay the response
-    context.waitUntil(notifyAdmin(env, '🆕 New Registration', { Name: name.trim(), Email: normEmail }));
+    context.waitUntil(notifyAdmin(env, '🆕 New Registration', { Name: name.trim(), Email: normEmail, ...siteFields(request) }));
 
     return json({
       token,

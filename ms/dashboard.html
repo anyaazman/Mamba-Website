@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Papan Pemuka Ahli - Mamba Management App</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="/mamba-logo-transparent.png">
+    <link rel="stylesheet" href="/styles.css?v=29">
+    <link rel="stylesheet" href="/portal.css?v=7">
+    <link rel="stylesheet" href="/dashboard-revamp.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/mobile-refinements.css?v=2">
+    <link rel="stylesheet" href="/onboarding-revamp.css?v=2">
+    <link rel="stylesheet" href="/ib-verification-revamp.css?v=1">
+<meta name="mamba-en-source" content="0d2bf1fbbdeb83987f18b4c78b857d29f4c6fb8218ceb90da90172f9785630c0"><script src="/i18n-ms.js?v=1"></script><script src="/i18n.js?v=1"></script></head>
+<body>
+    <a href="#main-content" class="skip-link">Langkau ke kandungan utama</a>
+
+    <div class="loading-screen" role="status" aria-live="polite" aria-label="Memuatkan">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="/mamba-logo-transparent.png" alt="Logo Mamba" class="mamba-logo loading-logo-img">
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">MEMUATKAN PAPAN PEMUKA&hellip;</p>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Navigasi utama">
+            <div class="logo-left">
+                <a href="./" style="display: flex; align-items: center; text-decoration: none;">
+                    <div class="logo-icon">
+                        <img src="/mamba-logo-transparent.png" alt="Logo Mamba" class="mamba-logo header-logo-img">
+                    </div>
+                </a>
+            </div>
+            <div style="margin-left: auto;">
+                <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <section style="padding: 2rem 0; min-height: calc(100vh - 98px);">
+            <div class="portal-container-wide">
+                <div class="dashboard-header">
+                    <h1 id="dashboardGreeting">Papan Pemuka</h1>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- IB Status Banner -->
+                    <div class="portal-card" id="ibStatusCard">
+                        <div id="ibBanner"></div>
+                    </div>
+
+                    <!-- Valetax Broker Button -->
+                    <a href="https://ma.valetaxglobal.com/guest/sign-in" data-valetax-link="signin" target="_blank" rel="noopener noreferrer" class="broker-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        Urus Akaun Valetax
+                    </a>
+
+                    <!-- WhatsApp Community Button -->
+                    <a href="https://chat.whatsapp.com/JWQAj7I4dji1SvYB8TsGFZ?s=cl&amp;p=i&amp;ilr=4" target="_blank" rel="noopener noreferrer" class="broker-btn community-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"></path>
+                            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.04-.2-.31a8.17 8.17 0 0 1-1.25-4.38c0-4.54 3.7-8.23 8.23-8.23 2.2 0 4.26.86 5.82 2.41a8.17 8.17 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24z"></path>
+                        </svg>
+                        Sertai Komuniti WhatsApp
+                    </a>
+
+                    <div class="dashboard-row">
+                        <!-- MT5 Accounts Card -->
+                        <div class="portal-card">
+                            <div class="card-actions" style="margin-top: 0; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1rem;">Akaun MT5</h3>
+                                <button class="edit-btn" id="addMT5Btn">+ Tambah Akaun</button>
+                            </div>
+                            <div id="addMT5Form" style="display: none; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="newMT5Input" placeholder="Masukkan nombor akaun MT5" style="flex: 1; padding: 0.6rem 0.8rem; background: transparent; border: 1px solid #414141; border-radius: 6px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
+                                    <button class="request-btn" id="saveMT5Btn" style="white-space: nowrap;">Tambah</button>
+                                </div>
+                                <div class="form-error" id="addMT5Error"></div>
+                            </div>
+                            <div id="mt5AccountsList">
+                                <p style="color: var(--text-muted); font-size: 0.85rem;">Belum ada akaun MT5 ditambah.</p>
+                            </div>
+                        </div>
+
+                        <!-- Profile Card -->
+                        <div class="portal-card">
+                            <div class="card-actions" style="margin-top: 0; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1rem;">Profil</h3>
+                                <button class="edit-btn" id="editProfileBtn">Sunting</button>
+                            </div>
+                            <div id="profileContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Getting Started Onboarding -->
+                    <div class="portal-card" id="onboardingCard">
+                        <div class="onboarding-header">
+                            <div>
+                                <h3>Langkah permulaan</h3>
+                                <p>Muat turun aplikasi, sahkan akses anda, kemudian sambungkan akaun MT5 anda.</p>
+                            </div>
+                            <span class="onboarding-sequence">Perjalanan persediaan anda</span>
+                        </div>
+                        <ol class="onboarding-steps" id="onboardingSteps" role="list" aria-label="Langkah persediaan Mamba"></ol>
+                    </div>
+
+                    <!-- Learning Video -->
+                    <div class="portal-card" id="learningVideoCard">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 1px;">Pelajari Sistem Mamba Management</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Tonton tutorial ini untuk memanfaatkan sepenuhnya pengalaman Mamba anda.</p>
+                        <!-- Click-to-load facade. The iframe used to be embedded directly,
+                             so every dashboard view contacted Google and set cookies whether or
+                             not the member watched. loading="lazy" did not help: the player sits
+                             near enough the viewport to trigger immediately. Nothing third-party
+                             is requested until the member presses play. -->
+                        <button type="button" class="video-facade" id="tutorialFacade"
+                                aria-label="Main video tutorial Mamba (memuatkan YouTube)">
+                            <!-- Decorative: the button's aria-label already announces the action,
+                                 so an alt here would just repeat it to a screen reader. Width and
+                                 height are declared so the box is reserved before the file lands. -->
+                            <img src="/mamba-education-thumb.webp" alt="" width="1280" height="720"
+                                 class="video-facade-thumb" decoding="async">
+                            <span class="video-facade-play" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </span>
+                            <!-- The YouTube notice stays in a scrimmed bar at the bottom: the
+                                 thumbnail is white, so it needs its own dark ground to be
+                                 readable at all. -->
+                            <span class="video-facade-bar">
+                                <span class="video-facade-text">
+                                    <span class="video-facade-label">Main tutorial</span>
+                                    <span class="video-facade-note">YouTube dimuatkan apabila anda tekan main</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" id="floatingTelegram">
+        <div class="telegram-menu" id="telegramMenu">
+            <a href="https://t.me/mambaindicator" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                <span>Komuniti</span>
+            </a>
+            <a href="https://t.me/Mambaindi" target="_blank" rel="noopener noreferrer" class="telegram-option">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                </svg>
+                <span>Admin</span>
+            </a>
+        </div>
+        <button class="telegram-fab" id="telegramFab" aria-label="Hubungi kami di Telegram">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <h3>Sunting Profil</h3>
+            <form class="auth-form" id="editForm" novalidate>
+                <div class="form-error"></div>
+                <div class="form-group">
+                    <label for="edit-name">Nama Penuh</label>
+                    <input type="text" id="edit-name" name="name" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelEdit">Batal</button>
+                    <button type="submit" class="save-btn">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- IB Request Modal -->
+    <div class="modal-overlay" id="ibModal">
+        <div class="modal-card" id="ibModalCard">
+            <h3 id="ibModalTitle">Mohon Pengesahan IB</h3>
+            <!-- Step 1: Selection -->
+            <div id="ibStepSelect">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Pilih situasi anda:</p>
+                <div class="ib-option-cards">
+                    <button class="ib-option-card" id="ibOptNew">
+                        <img src="/ib-new.png" alt="Akaun baharu" class="ib-option-img">
+                        <span class="ib-option-title">Saya belum mempunyai akaun Valetax</span>
+                        <span class="ib-option-desc">Saya perlu membuka akaun terlebih dahulu</span>
+                    </button>
+                    <button class="ib-option-card" id="ibOptExisting">
+                        <img src="/ib-existing.png" alt="Akaun sedia ada" class="ib-option-img">
+                        <span class="ib-option-title">Saya sudah mempunyai akaun Valetax</span>
+                        <span class="ib-option-desc">Saya mempunyai akaun sedia ada</span>
+                    </button>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button type="button" class="cancel-btn" id="cancelIB">Batal</button>
+                </div>
+            </div>
+            <!-- Step 2a: New account path -->
+            <div id="ibStepNew" style="display: none;">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Buka akaun Valetax menggunakan pautan di bawah. Pastikan kod rujukan <strong style="color: var(--cyan-primary);">3505549</strong> digunakan semasa pendaftaran.</p>
+                <p class="ib-note">Kami bertindak sebagai Introducing Broker untuk Valetax dan menerima pampasan daripada mereka bagi akaun yang dibuka di bawah kod ini. Ia tidak mengubah kos dagangan anda. Dana anda dipegang oleh Valetax &mdash; Mamba tidak pernah mempunyai akses kepadanya.</p>
+                <a href="https://ma.valetaxglobal.com/p/3505549" data-valetax-link="referral" target="_blank" rel="noopener noreferrer" class="broker-btn" style="margin-bottom: 1.5rem; padding: 0.8rem 1.5rem; font-size: 0.85rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    Buka Akaun Valetax
+                </a>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="ibEmailNew">Selepas membuka akaun, masukkan e-mel yang anda gunakan:</label>
+                    <input type="email" id="ibEmailNew" placeholder="E-mel Valetax anda" style="width: 100%; padding: 0.8rem 1rem; background: transparent; border: 1px solid #414141; border-radius: 8px; color: #fff; font-family: var(--font-primary); font-size: 0.95rem;">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelIBNew">Kembali</button>
+                    <button type="button" class="save-btn" id="submitIBNew">Hantar Permohonan IB</button>
+                </div>
+            </div>
+            <!-- Step 2b: Existing account path -->
+            <div id="ibStepExisting" style="display: none;">
+                <div class="ib-guide-panel" role="region" aria-label="Arahan menukar rakan kongsi Valetax" tabindex="0">
+                <!-- Carousel -->
+                <div class="ib-carousel" id="ibCarousel">
+                    <div class="ib-carousel-track" id="ibCarouselTrack">
+                        <!-- Slide 1: Step-numbered guide -->
+                        <div class="ib-carousel-slide ib-carousel-slide-1">
+                            <h4 class="ib-guide-title">Tukar kod rakan kongsi Valetax anda</h4>
+                            <!-- Step 1 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">1</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Buka Halaman Tiket Sokongan</span>
+                                    <span class="ib-step-desc">Klik di bawah untuk membuka halaman tiket sokongan Valetax dalam tab baharu</span>
+                                    <a href="https://ma.valetaxglobal.com/user/tickets/new-ticket?utm_medium=chat&utm_campaign=link-shared-in-chat&utm_source=livechat.com&utm_content=ma.valetaxglobal.com" data-valetax-link="ticket" target="_blank" rel="noopener noreferrer" class="ib-change-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                        Buka Tiket Sokongan Valetax
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Step 2 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">2</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Kemas Kini Kod Rakan Kongsi</span>
+                                    <span class="ib-step-desc">Di halaman tiket, cari medan tajuk dan masukkan teks ini (dalam bahasa Inggeris)</span>
+                                    <div class="ib-step-copy-row">
+                                        <span class="ib-copy-label">Changing Partner Code To 3505549</span>
+                                        <button class="ib-copy-btn" data-copy="Changing Partner Code To 3505549" aria-label="Salin kod rakan kongsi">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Step 3 -->
+                            <div class="ib-step-card">
+                                <div class="ib-step-number">3</div>
+                                <div class="ib-step-body">
+                                    <span class="ib-step-title">Tampal Komen Tiket</span>
+                                    <span class="ib-step-desc">Salin mesej ini dan tampalkan ke dalam ruangan Comment</span>
+                                    <div class="ib-step-copy-row">
+                                        <span class="ib-copy-text">I want to change my partner code to 3505549<br><br>As they give me Proper Education To Trade</span>
+                                        <button class="ib-copy-btn" data-copy="I want to change my partner code to 3505549&#10;&#10;As they give me Proper Education To Trade" aria-label="Salin mesej tiket">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 2: Screenshot -->
+                        <div class="ib-carousel-slide ib-carousel-slide-2">
+                            <img src="/ib-carousel-2.webp" alt="Langkah 2 - Proses menukar IB Valetax" class="ib-carousel-img">
+                        </div>
+                        <!-- Slide 3: Screenshot -->
+                        <div class="ib-carousel-slide ib-carousel-slide-3">
+                            <img src="/ib-carousel-3.webp" alt="Langkah 3 - Proses menukar IB Valetax" class="ib-carousel-img">
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide controls. The arrows used to be absolutely positioned inside
+                     the carousel, vertically centred — which on slide 1 put them on top
+                     of the step cards, covering step 2's number badge and the right edge
+                     of its content. They sit beside the dots now, so they cannot overlap
+                     anything on any slide. The IDs are unchanged; dashboard.js finds both
+                     by ID and binds drag to the track, so nothing here depends on where
+                     these buttons live in the DOM. -->
+                <div class="ib-carousel-controls">
+                    <button class="ib-carousel-arrow ib-carousel-prev" id="ibCarouselPrev" aria-label="Slaid sebelumnya">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="ib-carousel-dots" id="ibCarouselDots">
+                        <button class="ib-carousel-dot active" data-slide="0" aria-label="Slaid 1"></button>
+                        <button class="ib-carousel-dot" data-slide="1" aria-label="Slaid 2"></button>
+                        <button class="ib-carousel-dot" data-slide="2" aria-label="Slaid 3"></button>
+                    </div>
+                    <button class="ib-carousel-arrow ib-carousel-next" id="ibCarouselNext" aria-label="Slaid seterusnya">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+                </div>
+                <div class="ib-request-panel">
+                <h4>Mohon pengesahan</h4>
+                <p class="ib-request-note">Selepas menghantar tiket anda kepada Valetax, masukkan e-mel akaun anda di bawah supaya kami boleh menyemak akses IB anda.</p>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="ibEmailExisting">Masukkan e-mel yang dikaitkan dengan akaun Valetax anda:</label>
+                    <input type="email" id="ibEmailExisting" placeholder="E-mel Valetax anda" style="width: 100%; padding: 0.8rem 1rem; background: transparent; border: 1px solid #414141; border-radius: 8px; color: #fff; font-family: var(--font-primary); font-size: 0.95rem;">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelIBExisting">Kembali</button>
+                    <button type="button" class="save-btn" id="submitIBExisting">Hantar Permohonan IB</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IB Verification Required Modal -->
+    <div class="modal-overlay" id="ibRequiredModal">
+        <div class="modal-card" style="max-width: 440px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">&#9888;</div>
+            <h3>Pengesahan IB Diperlukan</h3>
+            <p style="color: var(--text-secondary); margin: 1rem 0 1.5rem;">
+                Sila mohon pengesahan IB terlebih dahulu sebelum menambah akaun MT5 atau memohon whitelist.
+            </p>
+            <div class="modal-actions" style="flex-direction: column;">
+                <button class="save-btn" id="ibRequiredGoBtn">Mohon Pengesahan IB</button>
+                <button class="cancel-btn" id="ibRequiredCancel">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Site-wide risk notice. Forex sites are expected to carry a risk
+         warning on every page, not only where a footer happens to exist. -->
+
+    <!-- The portal previously had no way out: no legal pages, no support, no
+         route back to the site. A logged-in member could not reach the Terms,
+         Privacy Policy or Risk Disclosure they agreed to at signup. -->
+    <footer class="portal-footer">
+        <nav class="portal-footer-links" aria-label="Kaki portal">
+            <a href="./">Laman Utama</a>
+            <a href="how-Mamba-work">Cara Ia Berfungsi</a>
+            <a href="support">Sokongan</a>
+            <a href="terms-of-service">Terma</a>
+            <a href="privacy-policy">Privasi</a>
+            <a href="risk-disclosure">Pendedahan Risiko</a>
+            <a href="account-deletion">Padam Akaun</a>
+            <a href="https://www.mambaapp.online/dashboard" hreflang="en" lang="en" data-lang-switch title="Akaun dikongsi, tetapi anda perlu log masuk secara berasingan di laman bahasa Inggeris">English</a>
+        </nav>
+        <p class="portal-footer-note">Rahsia Bumi Enterprise &mdash; SSM 202503350807 (TR0334731-P)</p>
+    </footer>
+
+    <aside class="risk-strip" role="note" aria-label="Amaran risiko">
+        <strong>Amaran risiko:</strong> Dagangan pertukaran asing (forex) secara margin membawa risiko yang tinggi dan mungkin tidak sesuai untuk semua pelabur. Leverage boleh memihak kepada anda dan juga menentang anda, dan anda mungkin kehilangan sebahagian atau kesemua modal anda. Prestasi lalu bukan petunjuk kepada keputusan masa hadapan. Mamba ialah alat pengurusan dagangan, bukan nasihat pelaburan.
+        <a href="risk-disclosure">Baca Pendedahan Risiko penuh</a>.
+    </aside>
+
+
+    <script src="/config.js?v=5"></script>
+    <script src="/tracking.js?v=2"></script>
+
+    <script src="/demo.js?v=11"></script>
+    <script src="/dashboard.js?v=11"></script>
+</body>
+</html>

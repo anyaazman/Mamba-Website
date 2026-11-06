@@ -1,4 +1,4 @@
-import { authenticateUser, json, recordEvent, notifyAdmin, isValidEmail, readJson } from '../_helpers.js';
+import { authenticateUser, json, recordEvent, notifyAdmin, isValidEmail, readJson, siteMeta, siteFields } from '../_helpers.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -27,12 +27,14 @@ export async function onRequestPost(context) {
       "UPDATE users SET ib_status = 'pending', ib_email = ?, ib_type = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(email, type, user.id).run();
 
-    await recordEvent(env, 'ib_request', { user_id: user.id });
+    const site = siteMeta(request);
+    await recordEvent(env, 'ib_request', { user_id: user.id, metadata: site.site ? site : undefined });
     context.waitUntil(notifyAdmin(env, '🔐 IB Verification Request', {
       Name: user.name,
       Email: user.email,
       'Valetax Email': email,
-      'Selection': type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account'
+      'Selection': type === 'new' ? 'New Account (No Valetax yet)' : 'Already Has Valetax Account',
+      ...siteFields(request)
     }));
 
     return json({ success: true, message: 'IB verification request submitted.' });

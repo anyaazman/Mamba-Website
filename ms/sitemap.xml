@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://my.mambaapp.online/</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/how-Mamba-work</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/how-Mamba-work"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/how-Mamba-work.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/support</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/support"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/support.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/account-deletion</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/account-deletion"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/account-deletion.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/privacy-policy</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/privacy-policy"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/privacy-policy.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/terms-of-service</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/terms-of-service"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/terms-of-service.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://my.mambaapp.online/risk-disclosure</loc>
+        <xhtml:link rel="alternate" hreflang="ms" href="https://my.mambaapp.online/risk-disclosure"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.mambaapp.online/risk-disclosure.html"/>
+        <lastmod>2026-11-06</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+</urlset>

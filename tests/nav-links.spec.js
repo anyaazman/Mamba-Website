@@ -43,9 +43,13 @@ const PAGES = ['index.html', 'how-Mamba-work.html', 'terms-of-service.html'];
         document.getElementById('promoOverlay')?.remove();
       });
 
+      // The Bahasa Melayu link leaves for my.mambaapp.online, so it is not one
+      // of the in-site destinations measured below; it is checked on its own.
       const hrefs = await page.evaluate(() =>
-        [...document.querySelectorAll('#navLinks a')].map(a => a.getAttribute('href')));
+        [...document.querySelectorAll('#navLinks a:not([data-lang-switch])')].map(a => a.getAttribute('href')));
       ck(`${label}/${pg} has nav links`, hrefs.length === 3, `${hrefs.length}`);
+      ck(`${label}/${pg} offers the Malay site`, await page.evaluate(() =>
+        /^https:\/\/my\.mambaapp\.online\//.test(document.querySelector('#navLinks a[data-lang-switch]')?.getAttribute('href') || '')));
 
       for (const href of hrefs) {
         const p2 = await ctx.newPage();

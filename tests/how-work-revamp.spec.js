@@ -48,7 +48,8 @@ function check(name, condition, detail = '') {
           overflow: root.scrollWidth > root.clientWidth + 1,
           videoCount: document.querySelectorAll('video source').length,
           imageCount: document.querySelectorAll('img').length,
-          navLinks: nav ? nav.querySelectorAll('a').length : 0,
+          navLinks: nav ? nav.querySelectorAll('a:not([data-lang-switch])').length : 0,
+          langSwitch: nav ? nav.querySelector('a[data-lang-switch]')?.getAttribute('href') : null,
           referral: document.querySelector('[data-valetax-link="referral"]')?.getAttribute('href'),
           storeIos: document.querySelector('[data-app-link="ios"]')?.getAttribute('href'),
           storeAndroid: document.querySelector('[data-app-link="android"]')?.getAttribute('href'),
@@ -63,6 +64,7 @@ function check(name, condition, detail = '') {
       check(`${width}px keeps two product videos`, state.videoCount === 2, String(state.videoCount));
       check(`${width}px keeps product imagery`, state.imageCount >= 3, String(state.imageCount));
       check(`${width}px has three navigation links`, state.navLinks === 3, String(state.navLinks));
+      check(`${width}px links to the Malay page`, state.langSwitch === 'https://my.mambaapp.online/how-Mamba-work', String(state.langSwitch));
       check(`${width}px wires Valetax referral`, state.referral === 'https://ma.valetaxglobal.com/p/3505549', state.referral);
       check(`${width}px wires iOS store`, state.storeIos === 'https://apps.apple.com/app/id6776478463', state.storeIos);
       check(`${width}px wires Android store`, state.storeAndroid === 'https://play.google.com/store/apps/details?id=com.mambamanagement.app', state.storeAndroid);

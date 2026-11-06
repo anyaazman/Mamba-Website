@@ -154,7 +154,7 @@
     // <span data-app-label> → "App Store" / "Google Play" / "your app store"
     var storeName = PLATFORM === 'ios' ? 'App Store'
                   : PLATFORM === 'android' ? 'Google Play'
-                  : 'the App Store or Google Play';
+                  : (window.MAMBA_T ? window.MAMBA_T('the App Store or Google Play') : 'the App Store or Google Play');
     document.querySelectorAll('[data-app-label]').forEach(function(el) {
       el.textContent = storeName;
     });
