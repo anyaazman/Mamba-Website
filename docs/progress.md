@@ -18,8 +18,14 @@
 - Already failing on `main`, unchanged here: `app-banner` (banner removed in the
   revamp) and `valetax-admin-ui` (the localhost demo mock rejects real admin
   keys).
-- Not done: the Cloudflare rewrite/redirect rules, the `my.` custom domain, the
-  merge to `main`, and native-speaker review of the Malay copy.
+- Launched 2026-11-07: Malay copy approved by the owner on the preview; 1
+  rewrite + 3 redirect rules and the `my.mambaapp.online` custom domain added
+  in the dashboard; `main` fast-forwarded to `52d7b8c` and deployed. Live
+  checks passed on both hosts (Malay pages, CSP/HSTS, /ms and /admin redirects,
+  Malay API errors on `my.`, www unchanged).
+- Not caused by this work: Cloudflare Web Analytics injects
+  `static.cloudflareinsights.com/beacon.min.js`, which the CSP blocks on both
+  sites.
 
 ## Revamp branch delivery — 2026-10-10
 - User authorized commit and push for intended production publication.

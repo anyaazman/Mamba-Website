@@ -50,7 +50,7 @@ version its Malay page was translated from. To fix it:
 
 ## Cloudflare configuration (dashboard; outside the repo)
 
-Zone `mambaapp.online`, Free plan. This uses 1 of 10 rewrite rules and 4 of 10 redirect rules.
+Zone `mambaapp.online`, Free plan. **Created 2026-11-07**, alongside the zone's existing redirect "Redirect from WWW to root [Template]" (despite its name, it sends `mambaapp.online/*` to `www.`). In all: 1 of 10 rewrite rules and 4 of 10 redirect rules.
 
 ### 1. URL Rewrite rule
 Rules → Transform Rules → **Rewrite URL** → Create rule
@@ -73,15 +73,16 @@ Rules → Redirect Rules → **Single Redirects**. Use wildcard pattern matching
 |---|---|---|---|
 | Malay site: hide /ms | `https://my.mambaapp.online/ms/*` | `https://my.mambaapp.online/${1}` | 301 |
 | www /ms to Malay site | `https://www.mambaapp.online/ms/*` | `https://my.mambaapp.online/${1}` | 301 |
-| apex /ms to Malay site | `https://mambaapp.online/ms/*` | `https://my.mambaapp.online/${1}` | 301 |
 | Malay admin to English admin | `https://my.mambaapp.online/admin*` | `https://www.mambaapp.online/admin` | 302 |
+
+There is no separate rule for the bare domain: `mambaapp.online/ms/*` goes to www through the existing rule, then to `my.` through the second rule above.
 
 ### 3. Custom domain
 Workers & Pages → `mamba-website` → Custom domains → Set up a custom domain →
 `my.mambaapp.online`. Cloudflare creates the CNAME to `mamba-website-8iv.pages.dev`
 and issues the certificate.
 
-## Launch order
+## Launch order (done 2026-11-07; `my.mambaapp.online` live from `52d7b8c`)
 
 The English pages link to `my.mambaapp.online`, so the subdomain must exist
 before those links go live:
