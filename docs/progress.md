@@ -3,6 +3,8 @@
 ## Malay site (my.mambaapp.online) — 2026-11-06
 - Branch `feature/malay-site`, cut from `main` at `07773f4`. Record and launch
   steps: [Malay site](plans/2026-11-06-malay-site.md).
+- Overview for newcomers: [README](../README.md), which covers both sites, local
+  development, tests, migrations and deployment.
 - Delivered: 11 Malay pages under `ms/`, Malay script text (`i18n.js`,
   `i18n-ms.js`), Malay API messages for the Malay site
   (`functions/api/_i18n-ms.js`), site tags on events and Telegram alerts,
